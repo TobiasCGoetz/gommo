@@ -14,7 +14,7 @@ const (
 	Laboratory
 )
 
-func (t Tile) String() string {
+func (t Tile) toString() string {
 	return []string{"Forest", "Farm", "City", "Laboratory"}[t]
 }
 
@@ -28,7 +28,7 @@ const (
 	None
 )
 
-func (c Card) String() string {
+func (c Card) toString() string {
 	return []string{"Food", "Wood", "Weapon", "None"}[c]
 }
 
@@ -48,9 +48,9 @@ func (p Player) toString() string {
 	r.WriteString("|")
 	r.WriteString(fmt.Sprintf("%d", p.y))
 	r.WriteString(" ")
-	r.WriteString(p.cards[0].String())
-	r.WriteString(p.cards[1].String())
-	r.WriteString(p.cards[2].String())
-	r.WriteString(p.cards[3].String())
+	r.WriteString(p.cards[0].toString())
+	r.WriteString(p.cards[1].toString())
+	r.WriteString(p.cards[2].toString())
+	r.WriteString(p.cards[3].toString())
 	return r.String()
 }
