@@ -14,6 +14,8 @@ const (
 	Laboratory
 )
 
+var tileTypes = { Forest, Farm, City, Laboratory }
+
 func (t Tile) toString() string {
 	return []string{"Forest", "Farm", "City", "Laboratory"}[t]
 }
