@@ -114,11 +114,15 @@ func limitCards() {
 	}
 }
 
-func group() {
+func handleCombat() {
 	//Create groups from position
+	var combatGroups = make(map[string][]Player)
+	for _, group := range combatGroups {
+		fight(group)
+	}
 }
 
-func fight() {
+func fight(group []Player) {
 	//Calculate dice + weapon VS zombies per group
 }
 
@@ -132,8 +136,7 @@ func tick() {
 	move()
 	resources()
 	limitCards()
-	group()
-	fight()
+	handleCombat()
 	spread()
 }
 
