@@ -60,6 +60,10 @@ type Player struct {
 	cards [4]Card
 }
 
+func printPlayersList(s []Player) {
+	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)
+}
+
 func (p Player) toString() string {
 	var r strings.Builder
 	r.WriteString(p.id)
