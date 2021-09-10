@@ -1,4 +1,4 @@
 package main
 
-const mapWidth int = 300
-const mapHeight int = 300
+const mapWidth int = 10
+const mapHeight int = 10
