@@ -3,18 +3,19 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"time"
 )
 
-func initMap (gameMap [mapWidth][mapHeight]Tile) {
+func initMap (gameMap *[mapWidth][mapHeight]Tile) {
 	for a, column := range gameMap {
 		for b, _ := range column {
-			choice := rand.Intn(tileTypes.len())
+			choice := rand.Intn(len(tileTypes))
 			gameMap[a][b] = tileTypes[choice]
 		}
 	}
 }
 
-func printMap (gameMap [mapWidth][mapHeight]Tile) {
+func printMap (gameMap *[mapWidth][mapHeight]Tile) {
 	for a, row := range gameMap {
 		for b, _ := range row {
 			fmt.Printf("%c|", gameMap[a][b].toString()[0])
@@ -37,7 +38,7 @@ func group() {
 	//Create groups from position
 }
 
-func fight() {	
+func fight() {
 	//Calculate dice + weapon VS zombies per group
 }
 
@@ -64,6 +65,6 @@ func main() {
 	//fmt.Println(food.toString())
 	//fmt.Println(me.toString())
 	var gameMap [mapWidth][mapHeight]Tile
-	initMap(gameMap)
-	printMap(gameMap)
+	initMap(&gameMap)
+	printMap(&gameMap)
 }
