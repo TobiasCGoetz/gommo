@@ -30,25 +30,88 @@ func printMap (gameMap *[mapWidth][mapHeight]Tile) {
 
 func move() {
 	//Set new coordinates per player from move
-	for _, player := range playerList {
+	for a, player := range playerList {
 		switch player.dir {
-		case North:
-			player.y += 1
-		case East:
-			player.x += 1
-		case South:
-			player.y -= 1
-		case West:
-			player.x -= 1
+			case North:
+				playerList[a].y += 1
+			case East:
+				playerList[a].x += 1
+			case South:
+				playerList[a].y -= 1
+			case West:
+				playerList[a].x -= 1
 		}
-	//Reset move direction per player
-	player.dir = Stay
+		if mapWidth <= playerList[a].x {
+			playerList[a].x = mapWidth-1
+		}
+		if playerList[a].x < 0 {
+			playerList[a].x = 0
+		}
+		if mapHeight <= playerList[a].y {
+			playerList[a].y = mapHeight-1
+		}
+		if playerList[a].y < 0 {
+			playerList[a].y = 0
+		}
+		//Reset move direction per player
+		player.dir = Stay
 	}
 }
 
-func ressources() {
-	//Add card from tile
-	//Handle cutoff/selection/blocking
+func resources() {
+	for _, player := range playerList {
+		var firstEmpty = 5
+		//Find first empty card space
+		for f, card := range player.cards {
+			if card == None {
+				firstEmpty = f
+			}
+		}
+		//Add card from tile
+		switch gameMap[player.x][player.y] {
+			case Forest:
+				player.cards[firstEmpty] = Wood
+				//Only add 2. Wood if there's space
+				for f, card := range player.cards  {
+					if card == None {
+						player.cards[f] = Wood
+					}
+				}
+			case City:
+				player.cards[firstEmpty] = Weapon
+			case Farm:
+				player.cards[firstEmpty] = Food
+			case Laboratory:
+				player.cards[firstEmpty] = Research
+		}
+	}
+}
+
+func getHandSize(player Player) int {
+	var count = 0
+	for _, card := range player.cards {
+		if card != None {
+			count++
+		}
+	}
+	return count
+}
+
+func limitCards() {
+	for _, player := range playerList {
+		if getHandSize(player) > 4 {
+			if player.discard == None {
+				fmt.Println("Cheater:")
+				fmt.Println(player.id)
+			}
+		}
+		for f, card := range player.cards {
+			if card == player.discard {
+				player.cards[f] = None
+			}
+		}
+		player.discard = None
+	}
 }
 
 func group() {
@@ -67,7 +130,8 @@ func spread() {
 
 func tick() {
 	move()
-	ressources()
+	resources()
+	limitCards()
 	group()
 	fight()
 	spread()
@@ -76,7 +140,7 @@ func tick() {
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	var me Player = Player{"me", 13, 42, North, Weapon, [4]Card{Food, Wood, Wood, None}}
+	var me Player = Player{"me", 2, 5, North, Weapon, None, [5]Card{Food, Wood, Wood, None, None}}
 	playerList = append(playerList, me)
 	initMap(&gameMap)
 	printMap(&gameMap)
