@@ -170,6 +170,12 @@ func tick() {
 	spread()
 }
 
+func randomizePlayerInput(player &Player) {
+	//Randomize movement
+	//Randomize card played
+	//Randomize consume
+	//Randomize discard
+}
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
