@@ -141,7 +141,6 @@ func fight(group []Player) {
 
 func spread() {
 	for _, city := range cityList {
-		city.x, city.y
 		//North
 		if city.y < mapHeight-1 {
 			gameMap[city.x][city.y+1].zombies++
@@ -170,7 +169,7 @@ func tick() {
 	spread()
 }
 
-func playerHasCard(player &Player, card Card) (int, bool) {
+func playerHasCard (player *Player, card Card) (int, bool) {
 	for a, c := range player.cards {
 		if c == card {
 			return a, true
@@ -179,7 +178,7 @@ func playerHasCard(player &Player, card Card) (int, bool) {
 	return -1, false
 }
 
-func randomizePlayerInput(player &Player) {
+func randomizePlayerInput(player *Player) {
 	//Randomize movement
 	player.dir = directions[rand.Intn(len(directions))]
 	//Randomize card played
