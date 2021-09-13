@@ -75,6 +75,7 @@ type Player struct {
 	consume Card
 	discard Card
 	cards [5]Card
+	alive bool
 }
 
 func printPlayersList(s []Player) {
