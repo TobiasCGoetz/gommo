@@ -141,6 +141,31 @@ func handleCombat() {
 
 func fight(group []*Player) {
 	//Calculate dice + weapon VS zombies per group
+	var attackValue = 0
+	var x = group[0].x
+	var y = group[0].y
+	for a, player := range group {
+		if player.play == Weapon {
+			attackValue += 6
+			removeLoop:for b, _ := range player.cards {
+				if group[a].cards[b] == Weapon {
+					group[a].cards[b] = None
+					break removeLoop
+				}
+			}
+		} else {
+			attackValue += rand.Intn(6)
+		}
+	}
+	if attackValue < gameMap[x][y].zombies {
+		for a, _ := range group {
+			group[a].alive = false
+		}
+		gameMap[x][y].zombies += len(group)
+	} else {
+		gameMap[x][y].zombies = 0
+	}
+
 }
 
 func spread() {
