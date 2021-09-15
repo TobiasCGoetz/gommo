@@ -42,11 +42,21 @@ func printPlayers (pList *[]*Player) {
 			if coordsFound {
 				fmt.Printf("X|")
 			} else {
-				fmt.Printf(" |")
+				fmt.Printf("%c|", gameMap[i][j].terrain.toString()[0])
 			}
 		}
 		fmt.Printf("\n")
 	}
+}
+
+func printHandCards (player Player) {
+	fmt.Printf(player.id)
+	fmt.Printf(": ")
+	for _, card := range player.cards {
+		fmt.Printf(card.toString())	
+		fmt.Printf("|")
+	}
+	fmt.Printf("\n")
 }
 
 func createCityList () {
@@ -93,17 +103,16 @@ func move() {
 
 func resources() {
 	for _, player := range playerList {
-		var firstEmpty = 5
-		//Find first empty card space
+		//TODO: Function to find first empty card space (reuse below)
+		var firstEmpty = -1
 		for f, card := range player.cards {
 			if card == None {
 				firstEmpty = f
-			} else {
-				firstEmpty = -1
 			}
 		}
 		//Add card from tile
 		if firstEmpty > -1 {
+					printHandCards(*playerList[0])
 			switch gameMap[player.x][player.y].terrain {
 				case Forest:
 					player.cards[firstEmpty] = Wood
@@ -120,6 +129,7 @@ func resources() {
 				case Laboratory:
 					player.cards[firstEmpty] = Research
 			}
+			printHandCards(*playerList[0])
 		}
 	}
 }
@@ -264,6 +274,7 @@ func main() {
 	for i := 0; i < 30; i++ {
 		fmt.Print("\033[H\033[2J")
 		printPlayers(&playerList)
+		printHandCards(me)
 		randomizePlayerInput(&me)
 		tick()
 		time.Sleep(time.Second/2)
