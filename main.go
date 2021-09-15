@@ -11,22 +11,41 @@ var gameMap [mapWidth][mapHeight]Tile
 var cityList []IntTuple
 var playerList []Player
 
-func initMap (gameMap *[mapWidth][mapHeight]Tile) {
-	for a, column := range gameMap {
+func initMap (gMap *[mapWidth][mapHeight]Tile) {
+	for a, column := range gMap {
 		for b, _ := range column {
 			choice := rand.Intn(len(terrainTypes))
 			var tile = Tile{ terrainTypes[choice], 0 }
-			gameMap[a][b] = tile
+			gMap[a][b] = tile
 		}
 	}
 }
 
-func printMap (gameMap *[mapWidth][mapHeight]Tile) {
-	for a, row := range gameMap {
+func printMap (gMap *[mapWidth][mapHeight]Tile) {
+	for a, row := range gMap {
 		for b, _ := range row {
-			fmt.Printf("%c|", gameMap[a][b].terrain.toString()[0])
+			fmt.Printf("%c|", gMap[a][b].terrain.toString()[0])
 		}
 		fmt.Printf("\n")
+	}
+}
+
+func printPlayers (pList *[]Player) {
+	for  i:=0; i < mapWidth; i++ {
+		for j:=0; j < mapHeight; j++ {
+			var coordsFound = false
+			for _, player := range playerList {
+				if player.x == i && j == player.y {
+					coordsFound = true
+				}
+			}
+			if coordsFound {
+				fmt.Printf("X|")
+			} else {
+				fmt.Printf(" |")
+			}
+			fmt.Printf("\n")
+		}
 	}
 }
 
