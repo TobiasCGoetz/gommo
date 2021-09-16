@@ -242,41 +242,43 @@ func playerHasCard (player *Player, card Card) (int, bool) {
 	return -1, false
 }
 
-func randomizePlayerInput(player *Player) {
-	//Randomize movement
-	player.direction = directions[rand.Intn(len(directions))]
-	//Randomize card played
-	player.play = Dice
-	//Randomize consume
-	a, found := playerHasCard(player, Food)
-	player.consume = Food
-	if !found {
-		a, found = playerHasCard(player, Wood)
-		player.consume = Wood
-		if a == -1 {
-			player.consume = None
+func randomizeBot(players []*Player) {
+	for _, player := range players {
+		//Randomize movement
+		player.direction = directions[rand.Intn(len(directions))]
+		//Randomize card played
+		player.play = Dice
+		//Randomize consume
+		a, found := playerHasCard(player, Food)
+		player.consume = Food
+		if !found {
+			a, found = playerHasCard(player, Wood)
+			player.consume = Wood
+			if a == -1 {
+				player.consume = None
+			}
 		}
-	}
-	//Randomize discard
-	_, found = playerHasCard(player, None)
-	if !found {
-		player.discard = player.cards[0]
+		//Randomize discard
+		_, found = playerHasCard(player, None)
+		if !found {
+			player.discard = player.cards[0]
+		}
 	}
 }
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	var me Player = Player{"me", 2, 5, North, Weapon, Food, None, [5]Card{Food, Wood, Wood, None, None}, true}
-	playerList = append(playerList, &me)
+	for i:=0; i< 10; i++ {
+		playerList = append(playerList, &Player{string(i), 5, 5, North, Dice, Wood, None, [5]Card{Food, Wood, Wood, None, None}, true})
+	}
 	initMap(&gameMap)
 	printMap(&gameMap)
 	createCityList()
 	for i := 0; i < 30; i++ {
 		fmt.Print("\033[H\033[2J")
 		printPlayers(&playerList)
-		printHandCards(me)
-		randomizePlayerInput(&me)
+		randomizeBot(playerList)
 		tick()
-		time.Sleep(time.Second/2)
+		time.Sleep(time.Second*2)
 	}
 }
