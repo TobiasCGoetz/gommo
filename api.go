@@ -1,7 +1,6 @@
 package main
 
 import (
-	"net/http"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,6 +11,6 @@ func setupAPI() {
 }
 
 func getPlayer(id int, c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, playerList[0])
+	//c.IndentedJSON(http.StatusOK, playerList[0])
 }
 
