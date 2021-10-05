@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+	"strconv"
 )
 
 
@@ -175,7 +176,6 @@ func limitCards(pList *[]*Player) {
 			for f, card := range player.cards {
 				if card == player.discard {
 					fmt.Printf("Removing card ")
-					fmt.Printf(string(a))
 					fmt.Printf(card.toString())
 					fmt.Printf("\n")
 					(*pList)[a].cards[f] = None
@@ -304,7 +304,7 @@ func main() {
 	initMap(&gameMap)
 	go setupAPI()
 	for i:=0; i< 1; i++ {
-		playerList = append(playerList, &Player{string(i), 5, 5, North, Dice, Wood, None, [5]Card{Food, Wood, Wood, None, None}, true})
+		playerList = append(playerList, &Player{strconv.Itoa(i), 5, 5, North, Dice, Wood, None, [5]Card{Food, Wood, Wood, None, None}, true})
 	}
 	cityList = createCityList(&gameMap)
 	for i := 0; i < 5; i++ {
