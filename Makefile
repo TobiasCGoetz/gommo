@@ -6,3 +6,6 @@ run:
 init:
 	go mod gommo
 	go get .
+
+test:
+	go test
