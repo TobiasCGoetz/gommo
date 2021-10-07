@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"time"
 	"strconv"
+	"time"
 )
 
 
@@ -104,27 +104,30 @@ func move(pList *[]*Player) {
 	}
 }
 
+func getFirstEmptyHandSlot(hand [5]Card) int {
+	var firstEmpty = -1
+	for f, card := range hand {
+		if card == None {
+			firstEmpty = f
+		}
+	}
+	return firstEmpty
+}
+
 func resources(pList *[]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 	fmt.Println("resources()")
-	for _, player := range *pList {
+	for pNr, player := range *pList {
 		//TODO: Function to find first empty card space (reuse below)
-		var firstEmpty = -1
-		for f, card := range player.cards[:] {
-			if card == None {
-				firstEmpty = f
-			}
-		}
+		var firstEmpty = getFirstEmptyHandSlot(player.cards)
 		//Add card from tile
 		if firstEmpty > -1 {
 			//printHandCards(*playerList[0])
 			switch gMap[player.x][player.y].terrain {
 				case Forest:
-					player.cards[firstEmpty] = Wood
-					//Only add 2. Wood if there's space
-					for f, card := range player.cards  {
-						if card == None {
-							player.cards[f] = Wood
-						}
+					(*pList)[pNr].cards[firstEmpty] = Wood
+					firstEmpty = getFirstEmptyHandSlot(player.cards)
+					if firstEmpty > -1 {
+						(*pList)[pNr].cards[firstEmpty] = Wood
 					}
 				case City:
 					player.cards[firstEmpty] = Weapon
