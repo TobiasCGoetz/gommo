@@ -16,10 +16,10 @@ func TestInitMap (t *testing.T) {
 	}
 }
 
-func fakeInitMap(gMap *[mapWidth][mapHeight]*Tile) {
+func fakeInitMap(gMap *[mapWidth][mapHeight]*Tile, terrain Terrain) {
 	for a, column := range gMap {
 		for b, _ := range column {
-			var tile = Tile{City, 0}
+			var tile = Tile{terrain, 0}
 			gMap[a][b] = &tile
 		}
 	}
@@ -27,7 +27,7 @@ func fakeInitMap(gMap *[mapWidth][mapHeight]*Tile) {
 
 func TestCreateCityList(t *testing.T) {
 	var gameMap [mapWidth][mapHeight]*Tile
-	fakeInitMap(&gameMap)
+	fakeInitMap(&gameMap, City)
 	var cityList = createCityList(&gameMap)
 	var count = 0
 	for x := 0; x < mapWidth; x++ {
@@ -74,5 +74,44 @@ func TestMove(t *testing.T) {
 	move(&testArray)
 	if testPlayer.x != playerX {
 		t.Errorf("Move west failed.")
+	}
+}
+
+func TestResources(t *testing.T) {
+	var gameMap [mapWidth][mapHeight]*Tile
+	fakeInitMap(&gameMap, Farm)
+	var testPlayer = Player{
+		id:        "test",
+		x:         5,
+		y:         5,
+		direction: North,
+		play:      Dice,
+		consume:   Wood,
+		discard:   None,
+		cards:     [5]Card{ None, None, None, None, None },
+		alive:     true,
+	}
+	var testArray = []*Player{&testPlayer}
+	resources(&testArray, &gameMap)
+	if testPlayer.cards[0] != Food {
+		t.Log(testPlayer.cards)
+		t.Errorf("TestPlayer received the wrong card - expected Food but got %s", testPlayer.cards[0].toString())
+	}
+	//Dead players sit out
+	var deadPlayer = Player{
+		id:        "test",
+		x:         5,
+		y:         5,
+		direction: North,
+		play:      Dice,
+		consume:   Wood,
+		discard:   None,
+		cards:     [5]Card{None, None, None, None, None},
+		alive:     false,
+	}
+	testArray = []*Player{&deadPlayer}
+	resources(&testArray, &gameMap)
+	if testPlayer.cards[0] != None {
+		t.Errorf("Dead player did not have to sit out when distributing resources.")
 	}
 }
