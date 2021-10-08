@@ -84,11 +84,11 @@ func TestMove(t *testing.T) {
 		consume:   Wood,
 		discard:   Wood,
 		cards:     [5]Card{Wood, Wood, Food, None, None},
-		alive:     true,
+		alive:     false,
 	}
 	testArray = []*Player{&deadPlayer}
 	move(&testArray)
-	if deadPlayer.y != 5 {
+	if deadPlayer.y != playerY {
 		t.Errorf("Dead player wasn't supposed to move %d tiles north", deadPlayer.y-5)
 	}
 }
