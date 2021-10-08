@@ -132,3 +132,37 @@ func TestResources(t *testing.T) {
 	}
 }
 
+func TestConsume(t *testing.T) {
+	var testPlayer = Player{
+		id:        "test",
+		x:         5,
+		y:         5,
+		direction: North,
+		play:      Dice,
+		consume:   Wood,
+		discard:   None,
+		cards:     [5]Card{None, None, None, None, Wood},
+		alive:     true,
+	}
+	var testArray = []*Player{&testPlayer}
+	consume(&testArray)
+	if testPlayer.cards[4] != None {
+		t.Errorf("Player was not supposed to have resources remaining.")
+	}
+	var deadPlayer = Player{
+		id:        "test",
+		x:         5,
+		y:         5,
+		direction: North,
+		play:      Dice,
+		consume:   Wood,
+		discard:   None,
+		cards:     [5]Card{None, None, None, None, Wood},
+		alive:     false,
+	}
+	testArray = []*Player{&deadPlayer}
+	consume(&testArray)
+	if deadPlayer.cards[4] != Wood {
+		t.Errorf("Dead player's not supposed to consume anything.")
+	}
+}
