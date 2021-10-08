@@ -117,6 +117,9 @@ func getFirstEmptyHandSlot(hand [5]Card) int {
 func resources(pList *[]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 	fmt.Println("resources()")
 	for pNr, player := range *pList {
+		if !player.alive {
+			continue
+		}
 		//TODO: Function to find first empty card space (reuse below)
 		var firstEmpty = getFirstEmptyHandSlot(player.cards)
 		//Add card from tile
