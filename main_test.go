@@ -157,6 +157,7 @@ func TestConsume(t *testing.T) {
 		play:      Dice,
 		consume:   Wood,
 		discard:   None,
+		//TODO: Test more combinations
 		cards:     [5]Card{None, None, None, None, Wood},
 		alive:     false,
 	}
@@ -164,5 +165,42 @@ func TestConsume(t *testing.T) {
 	consume(&testArray)
 	if deadPlayer.cards[4] != Wood {
 		t.Errorf("Dead player's not supposed to consume anything.")
+	}
+}
+
+func TestHandSize(t *testing.T) {
+	var testCases = [12][5]Card{
+		{None, None, None, None, None},
+		{Wood, None, None, None, None},
+		{Food, None, None, None, None},
+		{Weapon, None, None, None, None},
+		{None, Wood, None, None, None},
+		{None, None, Wood, None, None},
+		{None, None, None, Wood, None},
+		{None, None, None, None, Wood},
+		{Wood, Wood, None, None, None},
+		{Wood, Wood, Wood, None, None},
+		{Wood, Wood, Wood, Wood, None},
+		{Wood, Wood, Wood, Wood, Wood},
+	}
+	var testResults = [12]int {
+		0, 1, 1, 1, 1, 1, 1, 1, 2, 3, 4, 5,
+	}
+	var testPlayer = Player{
+		id:        "test",
+		x:         5,
+		y:         5,
+		direction: North,
+		play:      Dice,
+		consume:   Wood,
+		discard:   None,
+		cards: [5]Card{None, None, None, None, None},
+		alive:     false,
+	}
+	for testNumber, cards := range testCases {
+		testPlayer.cards = cards
+		if testResults[testNumber] != getHandSize(testPlayer) {
+			t.Errorf("[%v] is not %d cards", testPlayer.cards, testResults[testNumber])
+		}
 	}
 }
