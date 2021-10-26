@@ -168,7 +168,7 @@ func TestConsume(t *testing.T) {
 	}
 }
 
-func TestHandSize(t *testing.T) {
+func TestHandSize (t *testing.T) {
 	var testCases = [12][5]Card{
 		{None, None, None, None, None},
 		{Wood, None, None, None, None},
@@ -200,6 +200,41 @@ func TestHandSize(t *testing.T) {
 	for testNumber, cards := range testCases {
 		testPlayer.cards = cards
 		if testResults[testNumber] != getHandSize(testPlayer) {
+			t.Errorf("[%v] is not %d cards", testPlayer.cards, testResults[testNumber])
+		}
+	}
+}
+
+func TestLimitCards (t *testing.T) {
+	var testCases = [6][5]Card {
+		{None, None, None, None, None},
+		{Wood, None, None, None, None},
+		{Wood, Wood, None, None, None},
+		{Wood, Wood, Wood, None, None},
+		{Wood, Wood, Wood, Wood, None},
+		{Wood, Wood, Wood, Wood, Food},
+	}
+	var testResults = [6]int {
+		0, 1, 2, 3, 4, 4,
+	}
+	var testPlayer = Player{
+		id:        "test",
+		x:         5,
+		y:         5,
+		direction: North,
+		play:      Dice,
+		consume:   Wood,
+		discard:   Wood,
+		cards: [5]Card{None, None, None, None, None},
+		alive:     false,
+	}
+	var testArray = []*Player{&testPlayer}
+	//TODO: Add check if right card was removed
+	for testNumber, cards := range testCases {
+		testPlayer.cards = cards
+		//var pDiscard = testPlayer.discard
+		limitCards(&testArray)
+		if (getHandSize(testPlayer)) != testResults[testNumber] {
 			t.Errorf("[%v] is not %d cards", testPlayer.cards, testResults[testNumber])
 		}
 	}
