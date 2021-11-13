@@ -311,8 +311,8 @@ func main() {
 	cityList = createCityList(&gameMap)
 	for i := 0; i < 5; i++ {
 		printHandCards(*playerList[0])
-		fmt.Println("Bot at", playerList[0].x, "/", playerList[0].y, "with direction", playerList[0].direction.toString())
 		randomizeBot(playerList)
+		fmt.Println("Bot at", playerList[0].x, "/", playerList[0].y, "with direction", playerList[0].direction.toString())
 		tick(&gameMap, &cityList, &playerList)
 		//time.Sleep(time.Second*2)
 		fmt.Println("#########################")
