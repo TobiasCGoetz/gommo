@@ -75,6 +75,13 @@ func TestMove(t *testing.T) {
 	if testPlayer.x != playerX {
 		t.Errorf("Move west failed.")
 	}
+	testPlayer.direction = Stay
+	testPlayer.x = playerX
+	testPlayer.y = playerY
+	move(&testArray)
+	if testPlayer.x != playerX || testPlayer.y != playerY {
+		t.Errorf("Staying in place failed.")
+	}
 	var deadPlayer = Player{
 		id:        "test",
 		x:         playerX,
