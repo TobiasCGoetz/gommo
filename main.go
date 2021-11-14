@@ -312,7 +312,7 @@ func main() {
 	initMap(&gameMap)
 	go setupAPI()
 	for i:=0; i< 1; i++ {
-		playerList = append(playerList, &Player{strconv.Itoa(i), 5, 5, North, Dice, Wood, None, [5]Card{Food, Wood, Wood, None, None}, true})
+		playerList = append(playerList, &Player{strconv.Itoa(i), 5, 5, North, Dice, Wood, None, [5]Card{Food, Wood, Wood, None, None}, true, true})
 	}
 	cityList = createCityList(&gameMap)
 	for i := 0; i < 5; i++ {
