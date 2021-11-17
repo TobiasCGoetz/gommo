@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-//TODO: Think about tick() being one for loop over all players.
-
 func initMap (gMap *[mapWidth][mapHeight]*Tile) {
 	for a, column := range gMap {
 		for b, _ := range column {
@@ -102,7 +100,7 @@ func move(pList *[]*Player) {
 			(*pList)[a].y = 0
 		}
 		//Reset move direction per player
-		player.direction = Stay
+		(*pList)[a].direction = Stay
 	}
 }
 
