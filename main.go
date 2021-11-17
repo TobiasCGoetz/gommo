@@ -305,8 +305,8 @@ func randomizeBot(players []*Player) {
 }
 
 func addBot(players *[]*Player, bots *[]*Player, bID int) {
-	var rX = rand.Intn(mapWidth)
-	var rY = rand.Intn(mapHeight)
+	var rX = rand.Intn(mapWidth-1)
+	var rY = rand.Intn(mapHeight-1)
 	var bot = Player{
 		id:        strconv.Itoa(bID),
 		x:         rX,
@@ -331,7 +331,6 @@ func restockBots(players *[]*Player, bots *[]*Player, bID *int) {
 	}
 }
 
-//TODO: Restock dead bots
 //TODO: Handle dead players correctly
 func main() {
 	var gameMap [mapWidth][mapHeight]*Tile
