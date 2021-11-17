@@ -253,3 +253,37 @@ func TestLimitCards (t *testing.T) {
 		}
 	}
 }
+
+func TestRestockBots (t *testing.T) {
+	var testPlayerList []*Player
+	var testBotList []*Player
+	var testCases [5]int = [5]int{0, 30, 49, 50, 51}
+	var botID = 0
+	var testBot = Player{
+		id:        "test",
+		x:         5,
+		y:         5,
+		direction: North,
+		play:      Dice,
+		consume:   Wood,
+		discard:   Wood,
+		cards: [5]Card{None, None, None, None, None},
+		alive:     false,
+		isBot:     true,
+	}
+	for i := 0; i < len(testCases); i++ {
+		testPlayerList = nil
+		testBotList = nil
+		//Add bots
+		for j := 0; j < testCases[i]; j++ {
+			testPlayerList = append(testPlayerList, &testBot)
+			testBotList = append(testBotList, &testBot)
+		}
+		//Call restocking routine
+		restockBots(&testPlayerList, &testBotList, &botID)
+		//Check correct amount restocked
+		if len(testBotList) < 50 {
+			t.Errorf("Bot restocking off by %d.", 50-len(testBotList))
+		}
+	}
+}
