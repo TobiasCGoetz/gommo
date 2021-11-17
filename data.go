@@ -6,8 +6,8 @@ import (
 )
 
 type IntTuple struct {
-	x int
-	y int
+	x int `json:"x"`
+	y int `json:"y"`
 }
 
 //Terrain
@@ -62,21 +62,21 @@ func (c Card) toString() string {
 
 //Tile
 type Tile struct {
-	terrain Terrain
-	zombies int
+	terrain Terrain `json:"terrain"`
+	zombies int `json:"zombies"`
 }
 
 //Player
 type Player struct {
-	id string
-	x, y int
-	direction Direction
-	play Card
-	consume Card
-	discard Card
-	cards [5]Card
-	alive bool
-	isBot bool
+	ID string
+	X, Y int
+	Direction Direction
+	Play Card
+	Consume Card
+	Discard Card
+	Cards [5]Card
+	Alive bool
+	IsBot bool
 }
 
 func printPlayersList(s []Player) {
@@ -85,15 +85,15 @@ func printPlayersList(s []Player) {
 
 func (p Player) toString() string {
 	var r strings.Builder
-	r.WriteString(p.id)
+	r.WriteString(p.ID)
 	r.WriteString(": ")
-	r.WriteString(fmt.Sprintf("%d", p.x))
+	r.WriteString(fmt.Sprintf("%d", p.X))
 	r.WriteString("|")
-	r.WriteString(fmt.Sprintf("%d", p.y))
+	r.WriteString(fmt.Sprintf("%d", p.Y))
 	r.WriteString(" ")
-	r.WriteString(p.cards[0].toString())
-	r.WriteString(p.cards[1].toString())
-	r.WriteString(p.cards[2].toString())
-	r.WriteString(p.cards[3].toString())
+	r.WriteString(p.Cards[0].toString())
+	r.WriteString(p.Cards[1].toString())
+	r.WriteString(p.Cards[2].toString())
+	r.WriteString(p.Cards[3].toString())
 	return r.String()
 }

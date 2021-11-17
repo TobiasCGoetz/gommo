@@ -7,7 +7,7 @@ import (
 
 func setupAPI(playerList *[]*Player) {
 	router := gin.Default()
-	router.GET("/player", getPlayerHandlerFunc(playerList))
+	router.GET("/player/:id", getPlayerHandlerFunc(playerList))
 	router.Run("localhost:8080")
 }
 
@@ -17,7 +17,7 @@ func getPlayerHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
 		//passwd := c.Param("passwd")
 		//TODO: DO NOT SEARCH HERE!
 		for _, player := range *playerList {
-			if player.id == id {
+			if player.ID == id {
 				//TODO: Add and check password phrase
 				c.IndentedJSON(http.StatusOK, *player)
 				return

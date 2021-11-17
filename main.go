@@ -31,7 +31,7 @@ func printPlayers (gMap *[mapWidth][mapHeight]*Tile, pList *[]*Player) {
 		for j:=0; j < mapHeight; j++ {
 			var coordsFound = false
 			for _, player := range *pList {
-				if player.x == i && j == player.y {
+				if player.X == i && j == player.Y {
 					coordsFound = true
 				}
 			}
@@ -46,9 +46,9 @@ func printPlayers (gMap *[mapWidth][mapHeight]*Tile, pList *[]*Player) {
 }
 
 func printHandCards (player Player) {
-	fmt.Printf(player.id)
+	fmt.Printf(player.ID)
 	fmt.Printf(": ")
-	for _, card := range player.cards {
+	for _, card := range player.Cards {
 		fmt.Printf(card.toString())	
 		fmt.Printf("|")
 	}
@@ -72,35 +72,35 @@ func createCityList (gMap *[mapWidth][mapHeight]*Tile) []IntTuple  {
 func move(pList *[]*Player) {
 	//Set new coordinates per player from move
 	for a, player := range *pList {
-		if !player.alive {
+		if !player.Alive {
 			continue
 		}
-		switch player.direction {
+		switch player.Direction {
 			case North:
-				(*pList)[a].y += 1
+				(*pList)[a].Y += 1
 			case East:
-				(*pList)[a].x += 1
+				(*pList)[a].X += 1
 			case South:
-				(*pList)[a].y -= 1
+				(*pList)[a].Y -= 1
 			case West:
-				(*pList)[a].x -= 1
+				(*pList)[a].X -= 1
 			case Stay:
 				break
 		}
-		if mapWidth <= (*pList)[a].x {
-			(*pList)[a].x = mapWidth-1
+		if mapWidth <= (*pList)[a].X {
+			(*pList)[a].Y = mapWidth-1
 		}
-		if (*pList)[a].x < 0 {
-			(*pList)[a].x = 0
+		if (*pList)[a].X < 0 {
+			(*pList)[a].X = 0
 		}
-		if mapHeight <= (*pList)[a].y {
-			(*pList)[a].y = mapHeight-1
+		if mapHeight <= (*pList)[a].Y {
+			(*pList)[a].Y = mapHeight-1
 		}
-		if (*pList)[a].y < 0 {
-			(*pList)[a].y = 0
+		if (*pList)[a].Y < 0 {
+			(*pList)[a].Y = 0
 		}
 		//Reset move direction per player
-		(*pList)[a].direction = Stay
+		(*pList)[a].Direction = Stay
 	}
 }
 
@@ -116,26 +116,26 @@ func getFirstEmptyHandSlot(hand [5]Card) int {
 
 func resources(pList *[]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 	for pNr, player := range *pList {
-		if !player.alive {
+		if !player.Alive {
 			continue
 		}
-		var firstEmpty = getFirstEmptyHandSlot(player.cards)
+		var firstEmpty = getFirstEmptyHandSlot(player.Cards)
 		//Add card from tile
 		if firstEmpty > -1 {
 			//printHandCards(*playerList[0])
-			switch gMap[player.x][player.y].terrain {
+			switch gMap[player.X][player.Y].terrain {
 				case Forest:
-					(*pList)[pNr].cards[firstEmpty] = Wood
-					firstEmpty = getFirstEmptyHandSlot(player.cards)
+					(*pList)[pNr].Cards[firstEmpty] = Wood
+					firstEmpty = getFirstEmptyHandSlot(player.Cards)
 					if firstEmpty > -1 {
-						(*pList)[pNr].cards[firstEmpty] = Wood
+						(*pList)[pNr].Cards[firstEmpty] = Wood
 					}
 				case City:
-					player.cards[firstEmpty] = Weapon
+					player.Cards[firstEmpty] = Weapon
 				case Farm:
-					player.cards[firstEmpty] = Food
+					player.Cards[firstEmpty] = Food
 				case Laboratory:
-					player.cards[firstEmpty] = Research
+					player.Cards[firstEmpty] = Research
 			}
 			//printHandCards(*playerList[0])
 		}
@@ -145,23 +145,23 @@ func resources(pList *[]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 func consume(pList *[]*Player) {
 	for a, player := range *pList {
 		var playerCards = getHandSize(*player)
-		if !player.alive {
+		if !player.Alive {
 			continue
 		}
-		if (*pList)[a].consume == None {
+		if (*pList)[a].Consume == None {
 			//TODO: Instead pick Food/Wood if available
-			(*pList)[a].alive = false
+			(*pList)[a].Alive = false
 		} else {
-			b, hasCard := playerHasCard(player, player.consume)
+			b, hasCard := playerHasCard(player, player.Consume)
 			if hasCard {
-				player.cards[b] = None
+				player.Cards[b] = None
 			} else {
-				player.alive = false
+				player.Alive = false
 			}
 		}
 		var playerCards2 = getHandSize(*player)
-		if playerCards == playerCards2 && playerCards != 0 && player.alive {
-			fmt.Println("ERROR: Consumed cards should've been:", player.consume.toString())
+		if playerCards == playerCards2 && playerCards != 0 && player.Alive {
+			fmt.Println("ERROR: Consumed cards should've been:", player.Consume.toString())
 			fmt.Println("ERROR: No card has been removed from the", playerCards2, "in hand.")
 			fmt.Println("ERROR: PLAYER:")
 			fmt.Println(player)
@@ -171,7 +171,7 @@ func consume(pList *[]*Player) {
 
 func getHandSize(player Player) int {
 	var count = 0
-	for _, card := range player.cards {
+	for _, card := range player.Cards {
 		if card != None {
 			count++
 		}
@@ -182,19 +182,19 @@ func getHandSize(player Player) int {
 func limitCards(pList *[]*Player) {
 	for a, player := range *pList {
 		if getHandSize(*player) > 4 {
-			if player.discard == None {
-				(*pList)[a].cards[4] = None
+			if player.Discard == None {
+				(*pList)[a].Cards[4] = None
 			}
 		} else {
-			for f, card := range player.cards {
-				if card == player.discard && card != None {
+			for f, card := range player.Cards {
+				if card == player.Discard && card != None {
 					fmt.Printf(card.toString())
 					fmt.Printf("\n")
-					(*pList)[a].cards[f] = None
+					(*pList)[a].Cards[f] = None
 				}
 			}
 		}
-		player.discard = None
+		player.Discard = None
 	}
 }
 
@@ -202,7 +202,7 @@ func handleCombat(gMap *[mapWidth][mapHeight]*Tile, pList *[]*Player) {
 	//Create groups from position
 	var combatGroups = make(map[IntTuple][]*Player)
 	for _, player := range *pList {
-		var pos = IntTuple{ player.x, player.y }
+		var pos = IntTuple{ player.X, player.Y }
 		combatGroups[pos] = append(combatGroups[pos], player)
 	}
 	for _, group := range combatGroups {
@@ -214,25 +214,25 @@ func handleCombat(gMap *[mapWidth][mapHeight]*Tile, pList *[]*Player) {
 func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
 	//Calculate dice + weapon VS zombies per group
 	var attackValue = 0
-	var x = group[0].x
-	var y = group[0].y
+	var x = group[0].X
+	var y = group[0].Y
 	for a, player := range group {
-		if player.play == Weapon {
+		if player.Play == Weapon {
 			cardIndex, hasCard := playerHasCard(player, Weapon)
 			if hasCard {
 				attackValue += 6
-				group[a].cards[cardIndex] = None
+				group[a].Cards[cardIndex] = None
 			} else {
 				attackValue += rand.Intn(6)
 			}
 		} else {
 			attackValue += rand.Intn(6)
 		}
-		group[a].play = Dice
+		group[a].Play = Dice
 	}
 	if attackValue < gMap[x][y].zombies {
 		for a, _ := range group {
-			group[a].alive = false
+			group[a].Alive = false
 		}
 		gMap[x][y].zombies += len(group)
 	} else {
@@ -272,7 +272,7 @@ func tick(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple, pList *[]*Player
 }
 
 func playerHasCard (player *Player, card Card) (int, bool) {
-	for a, c := range player.cards {
+	for a, c := range player.Cards {
 		if c == card {
 			return a, true
 		}
@@ -283,23 +283,23 @@ func playerHasCard (player *Player, card Card) (int, bool) {
 func randomizeBot(players []*Player) {
 	for _, player := range players {
 		//Randomize movement
-		player.direction = directions[rand.Intn(len(directions))]
+		player.Direction = directions[rand.Intn(len(directions))]
 		//Randomize card played
-		player.play = Dice
+		player.Play = Dice
 		//Randomize consume
 		a, found := playerHasCard(player, Food)
-		player.consume = Food
+		player.Consume = Food
 		if !found {
 			a, found = playerHasCard(player, Wood)
-			player.consume = Wood
+			player.Consume = Wood
 			if a == -1 {
-				player.consume = None
+				player.Consume = None
 			}
 		}
 		//Randomize discard
 		_, found = playerHasCard(player, None)
 		if !found {
-			player.discard = player.cards[0]
+			player.Discard = player.Cards[0]
 		}
 	}
 }
@@ -308,16 +308,16 @@ func addBot(players *[]*Player, bots *[]*Player, bID int) {
 	var rX = rand.Intn(mapWidth-1)
 	var rY = rand.Intn(mapHeight-1)
 	var bot = Player{
-		id:        strconv.Itoa(bID),
-		x:         rX,
-		y:         rY,
-		direction: Stay,
-		play:      None,
-		consume:   None,
-		discard:   None,
-		cards:     [5]Card{ Food, Wood, Wood, None, None },
-		alive:     true,
-		isBot:     true,
+		ID:        strconv.Itoa(bID),
+		X:         rX,
+		Y:         rY,
+		Direction: Stay,
+		Play:      None,
+		Consume:   None,
+		Discard:   None,
+		Cards:     [5]Card{ Food, Wood, Wood, None, None },
+		Alive:     true,
+		IsBot:     true,
 	}
 	*players = append(*players, &bot)
 	*bots = append(*bots, &bot)
@@ -338,13 +338,13 @@ func main() {
 	var playerList []*Player
 	var botList []*Player
 	var botID = 0
-	//var isRunning = true
+	var isRunning = true
 	rand.Seed(time.Now().UnixNano())
 	initMap(&gameMap)
 	go setupAPI(&playerList)
 	cityList = createCityList(&gameMap)
-	//for isRunning {
-	for testRun :=0; testRun < 50; testRun++ {
+	for isRunning {
+	//for testRun :=0; testRun < 50; testRun++ {
 		restockBots(&playerList, &botList, &botID)
 		randomizeBot(botList)
 		tick(&gameMap, &cityList, &playerList)
