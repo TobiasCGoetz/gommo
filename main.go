@@ -283,7 +283,7 @@ func playerHasCard (player *Player, card Card) (int, bool) {
 func randomizeBot(players []*Player) {
 	for _, player := range players {
 		//Randomize movement
-		player.Direction = directions[rand.Intn(len(directions))]
+		player.Direction = Directions[rand.Intn(len(Directions))]
 		//Randomize card played
 		player.Play = Dice
 		//Randomize consume
