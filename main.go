@@ -20,7 +20,7 @@ func initMap (gMap *[mapWidth][mapHeight]*Tile) {
 func printMap (gMap *[mapWidth][mapHeight]*Tile) {
 	for a, row := range gMap {
 		for b, _ := range row {
-			fmt.Printf("%c|", gMap[a][b].terrain.toString()[0])
+			fmt.Printf("%c|", gMap[a][b].Terrain.toString()[0])
 		}
 		fmt.Printf("\n")
 	}
@@ -38,7 +38,7 @@ func printPlayers (gMap *[mapWidth][mapHeight]*Tile, pList *[]*Player) {
 			if coordsFound {
 				fmt.Printf("X|")
 			} else {
-				fmt.Printf("%c|", gMap[i][j].terrain.toString()[0])
+				fmt.Printf("%c|", gMap[i][j].Terrain.toString()[0])
 			}
 		}
 		fmt.Printf("\n")
@@ -60,7 +60,7 @@ func createCityList (gMap *[mapWidth][mapHeight]*Tile) []IntTuple  {
 	fmt.Println("createCityList()")
 	for a, column := range gMap {
 		for b, tile := range column {
-			if tile.terrain == City {
+			if tile.Terrain == City {
 				var coordinates = IntTuple{ a, b }
 				cities = append(cities, coordinates)
 			}
@@ -123,7 +123,7 @@ func resources(pList *[]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 		//Add card from tile
 		if firstEmpty > -1 {
 			//printHandCards(*playerList[0])
-			switch gMap[player.X][player.Y].terrain {
+			switch gMap[player.X][player.Y].Terrain {
 				case Forest:
 					(*pList)[pNr].Cards[firstEmpty] = Wood
 					firstEmpty = getFirstEmptyHandSlot(player.Cards)
@@ -212,7 +212,7 @@ func handleCombat(gMap *[mapWidth][mapHeight]*Tile, pList *[]*Player) {
 
 //TODO: Reevaluate when call by value is okay (argument is not altered)
 func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
-	//Calculate dice + weapon VS zombies per group
+	//Calculate dice + weapon VS Zombies per group
 	var attackValue = 0
 	var x = group[0].X
 	var y = group[0].Y
@@ -230,13 +230,13 @@ func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
 		}
 		group[a].Play = Dice
 	}
-	if attackValue < gMap[x][y].zombies {
+	if attackValue < gMap[x][y].Zombies {
 		for a, _ := range group {
 			group[a].Alive = false
 		}
-		gMap[x][y].zombies += len(group)
+		gMap[x][y].Zombies += len(group)
 	} else {
-		gMap[x][y].zombies = 0
+		gMap[x][y].Zombies = 0
 	}
 
 }
@@ -244,20 +244,20 @@ func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
 func spread(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple) {
 	for _, city := range *cities {
 		//North
-		if city.y < mapHeight-1 && gMap[city.x][city.y+1].zombies < zombieCutoff  {
-			gMap[city.x][city.y+1].zombies++
+		if city.Y < mapHeight-1 && gMap[city.X][city.Y+1].Zombies < zombieCutoff  {
+			gMap[city.X][city.Y+1].Zombies++
 		}
 		//East
-		if city.x < mapWidth-1 && gMap[city.x+1][city.y].zombies < zombieCutoff  {
-			gMap[city.x+1][city.y].zombies++
+		if city.X < mapWidth-1 && gMap[city.X+1][city.Y].Zombies < zombieCutoff  {
+			gMap[city.X+1][city.Y].Zombies++
 		}
 		//South
-		if city.y > 0  && gMap[city.x][city.y-1].zombies < zombieCutoff {
-			gMap[city.x][city.y-1].zombies++
+		if city.Y > 0  && gMap[city.X][city.Y-1].Zombies < zombieCutoff {
+			gMap[city.X][city.Y-1].Zombies++
 		}
 		//West
-		if city.x > 0  && gMap[city.x-1][city.y].zombies < zombieCutoff {
-			gMap[city.x-1][city.y].zombies++
+		if city.X > 0  && gMap[city.X-1][city.Y].Zombies < zombieCutoff {
+			gMap[city.X-1][city.Y].Zombies++
 		}
 	}
 }

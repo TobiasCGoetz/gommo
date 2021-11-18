@@ -6,8 +6,8 @@ import (
 )
 
 type IntTuple struct {
-	x int `json:"x"`
-	y int `json:"y"`
+	X int
+	Y int
 }
 
 //Terrain
@@ -62,8 +62,8 @@ func (c Card) toString() string {
 
 //Tile
 type Tile struct {
-	terrain Terrain `json:"terrain"`
-	zombies int `json:"zombies"`
+	Terrain Terrain
+	Zombies int
 }
 
 //Player
