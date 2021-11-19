@@ -16,6 +16,8 @@ func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile) {
 	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(playerList, gameMap))
 	router.Run("localhost:8080")
 }
+
+//TODO: Add surrounding players info
 func getSurroundingsHandlerFunc (playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
