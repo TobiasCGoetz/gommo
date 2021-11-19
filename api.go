@@ -25,23 +25,50 @@ func getRemainingTimerHandlerFunc (turnTimer *uint8) gin.HandlerFunc {
 	return fn
 }
 
-//TODO: Add surrounding players info, fix out-of-gamemap access
+//TODO: Add surrounding players info
 func getSurroundingsHandlerFunc (playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		for _, player := range *playerList {
 			if player.ID == id {
+				var NW = Tile{Edge, -1}
+				var NN = Tile{Edge, -1}
+				var NE = Tile{Edge, -1}
+				var WW = Tile{Edge, -1}
+				var CE = *gameMap[player.X][player.Y]
+				var EE = Tile{Edge, -1}
+				var SW = Tile{Edge, -1}
+				var SS = Tile{Edge, -1}
+				var SE = Tile{Edge, -1}
+
+				if player.X > 0 && player.Y < mapWidth-1 {
+					NW = *gameMap[player.X-1][player.Y+1]
+				}
+				if player.X < mapWidth-1 && player.Y < mapHeight-1 {
+					NN = *gameMap[player.X][player.Y+1]
+					NE = *gameMap[player.X+1][player.Y+1]
+					EE = *gameMap[player.X+1][player.Y]
+				}
+				if player.X < mapWidth-1 && player.Y > 0 {
+					SE = *gameMap[player.X+1][player.Y-1]
+				}
+				if player.X > 0 && player.Y > 0 {
+					WW = *gameMap[player.X-1][player.Y]
+					SW = *gameMap[player.X-1][player.Y-1]
+					SS = *gameMap[player.X][player.Y-1]
+				}
+
 				//TODO: Add and check password phrase
 				var miniMap = Surroundings{
-					NW: *gameMap[player.X-1][player.Y+1],
-					NN: *gameMap[player.X][player.Y+1],
-					NE: *gameMap[player.X+1][player.Y+1],
-					WW: *gameMap[player.X-1][player.Y],
-					CE: *gameMap[player.X][player.Y],
-					EE: *gameMap[player.X+1][player.Y],
-					SW: *gameMap[player.X-1][player.Y-1],
-					SS: *gameMap[player.X][player.Y-1],
-					SE: *gameMap[player.X+1][player.Y-1],
+					NW: NW,
+					NN: NN,
+					NE: NE,
+					WW: WW,
+					CE: CE,
+					EE: EE,
+					SW: SW,
+					SS: SS,
+					SE: SE,
 				}
 				c.IndentedJSON(http.StatusOK, miniMap)
 				return
