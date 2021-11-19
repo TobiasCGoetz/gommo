@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile) {
+func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTime *uint8) {
 	router := gin.Default()
 	router.GET("/player/:id", getPlayerHandlerFunc(playerList))
 	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc(playerList))
@@ -17,7 +17,8 @@ func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile) {
 	router.Run("localhost:8080")
 }
 
-//TODO: Add surrounding players info
+
+//TODO: Add surrounding players info, fix out-of-gamemap access
 func getSurroundingsHandlerFunc (playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
