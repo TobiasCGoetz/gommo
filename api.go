@@ -6,14 +6,40 @@ import (
 	"strconv"
 )
 
-func setupAPI(playerList *[]*Player) {
+func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile) {
 	router := gin.Default()
 	router.GET("/player/:id", getPlayerHandlerFunc(playerList))
-	router.PUT("player/:id/direction/:dir", setDirectionHandlerFunc(playerList))
-	router.PUT("player/:id/consume/:card", setConsumeHandlerFunc(playerList))
-	router.PUT("player/:id/discard/:card", setDiscardHandlerFunc(playerList))
-	router.PUT("player/:id/play/:card", setPlayHandlerFunc(playerList))
+	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc(playerList))
+	router.PUT("/player/:id/consume/:card", setConsumeHandlerFunc(playerList))
+	router.PUT("/player/:id/discard/:card", setDiscardHandlerFunc(playerList))
+	router.PUT("/player/:id/play/:card", setPlayHandlerFunc(playerList))
+	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(playerList, gameMap))
 	router.Run("localhost:8080")
+}
+func getSurroundingsHandlerFunc (playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		id := c.Param("id")
+		for _, player := range *playerList {
+			if player.ID == id {
+				//TODO: Add and check password phrase
+				var miniMap = Surroundings{
+					NW: *gameMap[player.X-1][player.Y+1],
+					NN: *gameMap[player.X][player.Y+1],
+					NE: *gameMap[player.X+1][player.Y+1],
+					WW: *gameMap[player.X-1][player.Y],
+					CE: *gameMap[player.X][player.Y],
+					EE: *gameMap[player.X+1][player.Y],
+					SW: *gameMap[player.X-1][player.Y-1],
+					SS: *gameMap[player.X][player.Y-1],
+					SE: *gameMap[player.X+1][player.Y-1],
+				}
+				c.IndentedJSON(http.StatusOK, miniMap)
+				return
+			}
+		}
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Player not found."})
+	}
+	return fn
 }
 
 func setDiscardHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
@@ -32,6 +58,7 @@ func setDiscardHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
 				return
 			}
 		}
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Player not found."})
 	}
 	return fn
 }
@@ -51,6 +78,7 @@ func setPlayHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
 				return
 			}
 		}
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Player not found."})
 	}
 	return fn
 }
