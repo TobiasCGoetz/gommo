@@ -210,7 +210,6 @@ func handleCombat(gMap *[mapWidth][mapHeight]*Tile, pList *[]*Player) {
 	}
 }
 
-//TODO: Reevaluate when call by value is okay (argument is not altered)
 func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
 	//Calculate dice + weapon VS Zombies per group
 	var attackValue = 0
@@ -238,7 +237,6 @@ func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
 	} else {
 		gMap[x][y].Zombies = 0
 	}
-
 }
 
 func spread(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple) {
@@ -357,7 +355,6 @@ func restockBots(players *[]*Player, bots *[]*Player, bID *int) {
 	}
 }
 
-//TODO: Handle dead players correctly
 func main() {
 	var gameMap [mapWidth][mapHeight]*Tile
 	var cityList []IntTuple
