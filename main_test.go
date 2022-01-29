@@ -16,10 +16,10 @@ func TestInitMap (t *testing.T) {
 	}
 }
 
-func fakeInitMap(gMap *[mapWidth][mapHeight]*Tile, terrain Terrain) {
+func fakeInitMap(gMap *[mapWidth][mapHeight]*Tile, terrain Terrain, zombieNr int) {
 	for a, column := range gMap {
 		for b, _ := range column {
-			var tile = Tile{terrain, 0}
+			var tile = Tile{terrain, zombieNr}
 			gMap[a][b] = &tile
 		}
 	}
@@ -27,7 +27,7 @@ func fakeInitMap(gMap *[mapWidth][mapHeight]*Tile, terrain Terrain) {
 
 func TestCreateCityList(t *testing.T) {
 	var gameMap [mapWidth][mapHeight]*Tile
-	fakeInitMap(&gameMap, City)
+	fakeInitMap(&gameMap, City, 0)
 	var cityList = createCityList(&gameMap)
 	var count = 0
 	for x := 0; x < mapWidth; x++ {
@@ -102,9 +102,34 @@ func TestMove(t *testing.T) {
 	}
 }
 
+func TestConsumeWoodAttracts(t *testing.T) {
+	var gameMap [mapWidth][mapHeight]*Tile
+	fakeInitMap(&gameMap, Forest, 1)
+	var testPlayerList []*Player
+	var playerX = 5
+	var playerY = 5
+	var testPlayer = Player{
+		ID:        "testPlayer",
+		X:         playerX,
+		Y:         playerY,
+		Direction: Stay,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   None,
+		Cards: [5]Card{Wood, None, None, None, None},
+		Alive:     true,
+		IsBot:     true,
+	}
+	testPlayerList = append(testPlayerList, &testPlayer)
+	consume(&testPlayerList, &gameMap)
+	if gameMap[playerX][playerY].Zombies != 9 {
+		t.Errorf("Tile %d/%d was meant to have 9 zombies not %d", playerX, playerY, gameMap[playerX][playerY].Zombies)
+	}
+}
+
 func TestResources(t *testing.T) {
 	var gameMap [mapWidth][mapHeight]*Tile
-	fakeInitMap(&gameMap, Farm)
+	fakeInitMap(&gameMap, Farm, 0)
 	var testPlayer = Player{
 		ID:        "test",
 		X:         5,
@@ -144,6 +169,8 @@ func TestResources(t *testing.T) {
 }
 
 func TestConsume(t *testing.T) {
+	var gameMap [mapWidth][mapHeight]*Tile
+	fakeInitMap(&gameMap, City, 0)
 	var testPlayer = Player{
 		ID:        "test",
 		X:         5,
@@ -157,7 +184,7 @@ func TestConsume(t *testing.T) {
 		IsBot:     true,
 	}
 	var testArray = []*Player{&testPlayer}
-	consume(&testArray)
+	consume(&testArray, &gameMap)
 	if testPlayer.Cards[4] != None {
 		t.Errorf("Player was not supposed to have resources remaining.")
 	}
@@ -175,7 +202,7 @@ func TestConsume(t *testing.T) {
 		IsBot:     true,
 	}
 	testArray = []*Player{&deadPlayer}
-	consume(&testArray)
+	consume(&testArray, &gameMap)
 	if deadPlayer.Cards[4] != Wood {
 		t.Errorf("Dead player's not supposed to consume anything.")
 	}
@@ -256,6 +283,8 @@ func TestLimitCards (t *testing.T) {
 }
 
 func TestPlayerConsumeFallback (t *testing.T) {
+	var gameMap [mapWidth][mapHeight]*Tile
+	fakeInitMap(&gameMap, City, 0)
 	var testPlayerList []*Player
 	var testPlayer = Player{
 		ID:        "testPlayer",
@@ -270,7 +299,7 @@ func TestPlayerConsumeFallback (t *testing.T) {
 		IsBot:     true,
 	}
 	testPlayerList = append(testPlayerList, &testPlayer)
-	consume(&testPlayerList)
+	consume(&testPlayerList, &gameMap)
 	var _, hasCard = playerHasCard(testPlayerList[0], Wood)
 	if hasCard {
 		t.Errorf("Consume fallback to Food failed")
@@ -291,7 +320,7 @@ func TestPlayerConsumeFallback (t *testing.T) {
 		IsBot:     true,
 	}
 	testPlayerList = append(testPlayerList, &testPlayer)
-	consume(&testPlayerList)
+	consume(&testPlayerList, &gameMap)
 	_, hasCard = playerHasCard(testPlayerList[0], Wood)
 	if (hasCard) {
 		t.Errorf("Consume fallback to Wood failed")
