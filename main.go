@@ -150,16 +150,21 @@ func consume(pList *[]*Player) {
 			continue
 		}
 		if (*pList)[a].Consume == None {
-			//TODO: Instead pick Food/Wood if available
-			(*pList)[a].Alive = false
-		} else {
-			b, hasCard := playerHasCard(player, player.Consume)
+			_, hasCard := playerHasCard(player, Food)
 			if hasCard {
-				player.Cards[b] = None
+				(*pList)[a].Consume = Food
 			} else {
-				player.Alive = false
+				(*pList)[a].Consume = Wood
 			}
+			(*pList)[a].Alive = false
 		}
+		b, hasCard := playerHasCard(player, player.Consume)
+		if hasCard {
+			player.Cards[b] = None
+		} else {
+			player.Alive = false
+		}
+
 		var playerCards2 = getHandSize(*player)
 		if playerCards == playerCards2 && playerCards != 0 && player.Alive {
 			fmt.Println("ERROR: Consumed cards should've been:", player.Consume.toString())
