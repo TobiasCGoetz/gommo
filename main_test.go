@@ -255,6 +255,50 @@ func TestLimitCards (t *testing.T) {
 	}
 }
 
+func TestPlayerConsumeFallback (t *testing.T) {
+	var testPlayerList []*Player
+	var testPlayer = Player{
+		ID:        "testPlayer",
+		X:         5,
+		Y:         5,
+		Direction: North,
+		Play:      Dice,
+		Consume:   None,
+		Discard:   None,
+		Cards: [5]Card{Food, None, None, None, None},
+		Alive:     true,
+		IsBot:     true,
+	}
+	testPlayerList = append(testPlayerList, &testPlayer)
+	consume(&testPlayerList)
+	var _, hasCard = playerHasCard(testPlayerList[0], Wood)
+	if hasCard {
+		t.Errorf("Consume fallback to Food failed")
+	}
+
+	//Test for Wood fallback
+	testPlayerList = nil
+	testPlayer = Player{
+		ID:        "testPlayer",
+		X:         5,
+		Y:         5,
+		Direction: North,
+		Play:      Dice,
+		Consume:   None,
+		Discard:   None,
+		Cards: [5]Card{Wood, None, None, None, None},
+		Alive:     true,
+		IsBot:     true,
+	}
+	testPlayerList = append(testPlayerList, &testPlayer)
+	consume(&testPlayerList)
+	_, hasCard = playerHasCard(testPlayerList[0], Wood)
+	if (hasCard) {
+		t.Errorf("Consume fallback to Wood failed")
+	}
+
+}
+
 func TestRestockBots (t *testing.T) {
 	var testPlayerList []*Player
 	var testBotList []*Player
