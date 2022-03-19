@@ -18,6 +18,7 @@ func initMap (gMap *[mapWidth][mapHeight]*Tile) {
 	}
 }
 
+/*
 func printMap (gMap *[mapWidth][mapHeight]*Tile) {
 	for a, row := range gMap {
 		for b, _ := range row {
@@ -55,6 +56,7 @@ func printHandCards (player Player) {
 	}
 	fmt.Printf("\n")
 }
+*/
 
 func createCityList (gMap *[mapWidth][mapHeight]*Tile) []IntTuple  {
 	var cities []IntTuple
