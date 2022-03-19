@@ -60,7 +60,6 @@ func printHandCards (player Player) {
 
 func createCityList (gMap *[mapWidth][mapHeight]*Tile) []IntTuple  {
 	var cities []IntTuple
-	fmt.Println("createCityList()")
 	for a, column := range gMap {
 		for b, tile := range column {
 			if tile.Terrain == City {
