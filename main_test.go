@@ -114,6 +114,46 @@ func TestMove(t *testing.T) {
 	}
 }
 
+func TestGetFirstEmptyHandSlot(t *testing.T) {
+	var playerX = 5
+	var playerY = 5
+	var testPlayer = Player{
+		ID:        "test",
+		X:         playerX,
+		Y:         playerY,
+		Direction: North,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   Wood,
+		Cards:     [5]Card{None, None, None, None, None},
+		Alive:     true,
+		IsBot:	   true,
+	}
+	var testCases = [12][5]Card{
+		{None, None, None, None, None},
+		{Wood, None, None, None, None},
+		{Food, None, None, None, None},
+		{Weapon, None, None, None, None},
+		{None, Wood, None, None, None},
+		{None, None, Wood, None, None},
+		{None, None, None, Wood, None},
+		{None, None, None, None, Wood},
+		{Wood, Wood, None, None, None},
+		{Wood, Wood, Wood, None, None},
+		{Wood, Wood, Wood, Wood, None},
+		{Wood, Wood, Wood, Wood, Wood},
+	}
+	var testResults = [12]int {
+		0, 1, 1, 1, 0, 0, 0, 0, 2, 3, 4, -1,
+	}
+	for testNumber, cards := range testCases {
+		testPlayer.Cards = cards
+		if testResults[testNumber] != getFirstEmptyHandSlot(testPlayer.Cards) {
+			t.Errorf("[%v] first empty slot is not %d", testPlayer.Cards, testResults[testNumber])
+		}
+	}
+}
+
 func TestConsumeWoodAttracts(t *testing.T) {
 	var gameMap [mapWidth][mapHeight]*Tile
 	fakeInitMap(&gameMap, Forest, 1)
