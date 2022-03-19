@@ -256,7 +256,6 @@ func limitCards(pList *[]*Player) {
 	}
 }
 
-//TODO: Verify player positions
 func handleCombat(gMap *[mapWidth][mapHeight]*Tile, pList *[]*Player) {
 	//Create groups from position
 	var combatGroups = make(map[IntTuple][]*Player)
@@ -278,7 +277,7 @@ func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
 		if player.Play == Weapon {
 			cardIndex, hasCard := playerHasCard(player, Weapon)
 			if hasCard {
-				attackValue += 6
+				attackValue += weaponStrength
 				group[a].Cards[cardIndex] = None
 			} else {
 				attackValue += rand.Intn(6)
