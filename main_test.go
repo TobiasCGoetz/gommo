@@ -193,6 +193,7 @@ func TestSpread(t *testing.T) {
 	fakeInitMap(&gameMap, Forest, 1)
 	gameMap[10][10] = &Tile{City, zombieCutoff}
 	gameMap[12][10] = &Tile{City, zombieCutoff}
+	gameMap[99][99] = &Tile{City, 4}
 	var cityList = createCityList(&gameMap)
 	spread(&gameMap, &cityList)
 	var testCases = []IntTuple{
@@ -209,11 +210,13 @@ func TestSpread(t *testing.T) {
 		//{11, 9},
 		{12, 9},
 		//{13, 9},
+		{99, 99},
 	}
 	var testResults = []int{
 		2, 2, //2, 2, 3, 2, 2,
 		2, 3, 2, //2, 3, 2,
 		2, 2, //2 ,2, 3, 2, 2,
+		5,
 	}
 	for testNumber, coords := range testCases {
 		if testResults[testNumber] != gameMap[coords.X][coords.Y].Zombies {
