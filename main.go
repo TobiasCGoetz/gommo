@@ -256,6 +256,7 @@ func limitCards(pList *[]*Player) {
 	}
 }
 
+//TODO: Verify player positions
 func handleCombat(gMap *[mapWidth][mapHeight]*Tile, pList *[]*Player) {
 	//Create groups from position
 	var combatGroups = make(map[IntTuple][]*Player)
