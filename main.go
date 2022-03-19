@@ -97,7 +97,7 @@ func move(pList *[]*Player) {
 				break
 		}
 		if mapWidth <= (*pList)[a].X {
-			(*pList)[a].Y = mapWidth-1
+			(*pList)[a].X = mapWidth-1
 		}
 		if (*pList)[a].X < 0 {
 			(*pList)[a].X = 0
