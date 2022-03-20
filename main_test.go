@@ -482,7 +482,6 @@ func TestLimitCards (t *testing.T) {
 	}
 	var testArray = []*Player{&testPlayer}
 	//TODO: Add check if right card was removed
-	//TODO: Fix player.Discard != none path
 	for testNumber, cards := range testCases {
 		testPlayer.Cards = cards
 		testPlayer.Discard = Wood
