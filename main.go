@@ -366,6 +366,7 @@ func randomizeBot(players []*Player) {
 }
 
 //TODO: Somehow remove inactive players
+//TODO: Make sure ID has no /
 func addPlayer(players *[]*Player) string {
 	var rX = rand.Intn(mapWidth-1)
 	var rY = rand.Intn(mapHeight-1)
