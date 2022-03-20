@@ -226,10 +226,51 @@ func TestFight(t *testing.T)  {
 }
 
 func TestHandleCombat(t *testing.T) {
-	//TODO
-	//Create test map
-	//Create player cluster
-	//Check validity
+	var loc = IntTuple{10, 10}
+	var gameMap [mapWidth][mapHeight]*Tile
+	fakeInitMap(&gameMap, Forest, 0)
+	gameMap[loc.X][loc.Y] = &Tile{City, 99}
+	var testPlayer1 = Player{
+		ID:        "test1",
+		X:         loc.X,
+		Y:         loc.Y,
+		Direction: North,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   Wood,
+		Cards:     [5]Card{None, None, None, None, None},
+		Alive:     true,
+		IsBot:	   true,
+	}
+	var testPlayer2 = Player{
+		ID:        "test2",
+		X:         loc.X,
+		Y:         loc.Y,
+		Direction: North,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   Wood,
+		Cards:     [5]Card{None, None, None, None, None},
+		Alive:     true,
+		IsBot:	   true,
+	}
+	var testPlayer3 = Player{
+		ID:        "test3",
+		X:         loc.X,
+		Y:         loc.Y,
+		Direction: North,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   Wood,
+		Cards:     [5]Card{None, None, None, None, None},
+		Alive:     true,
+		IsBot:	   true,
+	}
+	var testArray = []*Player{&testPlayer1, &testPlayer2, &testPlayer3}
+	handleCombat(&gameMap, &testArray)
+	if testPlayer1.Alive || testPlayer2.Alive || testPlayer3.Alive {
+		t.Errorf("Not all players died.")
+	}
 }
 
 func TestSpread(t *testing.T) {
@@ -444,11 +485,14 @@ func TestLimitCards (t *testing.T) {
 	//TODO: Fix player.Discard != none path
 	for testNumber, cards := range testCases {
 		testPlayer.Cards = cards
-		//var pDiscard = testPlayer.discard
+		testPlayer.Discard = Wood
 		limitCards(&testArray)
 		if (getHandSize(testPlayer)) != testResults[testNumber] {
 			t.Errorf("[%v] is not %d cards", testPlayer.Cards, testResults[testNumber])
 		}
+	}
+	if testPlayer.Cards[4] != Food {
+		t.Errorf("Wrong card removed by LimitCards")
 	}
 }
 
