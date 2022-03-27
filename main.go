@@ -11,7 +11,7 @@ import (
 func initMap (gMap *[mapWidth][mapHeight]*Tile) {
 	for a, column := range gMap {
 		for b, _ := range column {
-			choice := rand.Intn(len(terrainTypes))
+			choice := rand.Intn(len(terrainTypes)-1)
 			var tile = Tile{ terrainTypes[choice], 0 }
 			gMap[a][b] = &tile
 		}
