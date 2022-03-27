@@ -167,7 +167,6 @@ func consume(pList *[]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 			} else {
 				(*pList)[a].Consume = Wood
 			}
-			(*pList)[a].Alive = false
 		}
 		b, hasCard := playerHasCard(player, player.Consume)
 		if hasCard {
@@ -283,10 +282,10 @@ func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
 				attackValue += weaponStrength
 				group[a].Cards[cardIndex] = None
 			} else {
-				attackValue += rand.Intn(6)
+				attackValue += rand.Intn(playerMaxAttack-1)+playerMinAttack
 			}
 		} else {
-			attackValue += rand.Intn(6)
+			attackValue += rand.Intn(playerMaxAttack-1)+playerMinAttack
 		}
 		group[a].Play = Dice
 	}
