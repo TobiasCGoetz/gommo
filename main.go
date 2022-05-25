@@ -12,51 +12,11 @@ func initMap (gMap *[mapWidth][mapHeight]*Tile) {
 	for a, column := range gMap {
 		for b, _ := range column {
 			choice := rand.Intn(len(terrainTypes)-1)
-			var tile = Tile{ terrainTypes[choice], 0 }
+			var tile = Tile{ terrainTypes[choice], 0, []Player{} }
 			gMap[a][b] = &tile
 		}
 	}
 }
-
-/*
-func printMap (gMap *[mapWidth][mapHeight]*Tile) {
-	for a, row := range gMap {
-		for b, _ := range row {
-			fmt.Printf("%c|", gMap[a][b].Terrain.toString()[0])
-		}
-		fmt.Printf("\n")
-	}
-}
-
-func printPlayers (gMap *[mapWidth][mapHeight]*Tile, pList *[]*Player) {
-	for  i:=0; i < mapWidth; i++ {
-		for j:=0; j < mapHeight; j++ {
-			var coordsFound = false
-			for _, player := range *pList {
-				if player.X == i && j == player.Y {
-					coordsFound = true
-				}
-			}
-			if coordsFound {
-				fmt.Printf("X|")
-			} else {
-				fmt.Printf("%c|", gMap[i][j].Terrain.toString()[0])
-			}
-		}
-		fmt.Printf("\n")
-	}
-}
-
-func printHandCards (player Player) {
-	fmt.Printf(player.ID)
-	fmt.Printf(": ")
-	for _, card := range player.Cards {
-		fmt.Printf(card.toString())	
-		fmt.Printf("|")
-	}
-	fmt.Printf("\n")
-}
-*/
 
 func createCityList (gMap *[mapWidth][mapHeight]*Tile) []IntTuple  {
 	var cities []IntTuple
@@ -73,7 +33,7 @@ func createCityList (gMap *[mapWidth][mapHeight]*Tile) []IntTuple  {
 
 func getMapTile(x int, y int, gMap *[mapWidth][mapHeight]*Tile) *Tile {
 	if x < 0 || x >= mapWidth || y < 0 || y >= mapHeight {
-		return &Tile{Edge, -1}
+		return &Tile{Edge, -1, []Player{}}
 		fmt.Printf("Prevented tile access at %d/%d", x, y)
 	}
 	var truncX = x % 100

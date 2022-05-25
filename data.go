@@ -61,10 +61,10 @@ func (c Card) toString() string {
 	return []string{"Food", "Wood", "Weapon", "Dice", "Research", "None"}[c]
 }
 
-//Tile
 type Tile struct {
 	Terrain Terrain
 	Zombies int
+	Players []Player
 }
 
 type Surroundings struct {
