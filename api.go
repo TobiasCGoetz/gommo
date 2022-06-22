@@ -188,3 +188,20 @@ func getPlayerHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
 	return fn
 }
 
+func sanitizeSurroundingsInfo (surroundings *Surroundings) {
+	maskPlayerInfo(&surroundings.NW)
+	maskPlayerInfo(&surroundings.NN)
+	maskPlayerInfo(&surroundings.NE)
+	maskPlayerInfo(&surroundings.WW)
+	maskPlayerInfo(&surroundings.CE)
+	maskPlayerInfo(&surroundings.EE)
+	maskPlayerInfo(&surroundings.SW)
+	maskPlayerInfo(&surroundings.SS)
+	maskPlayerInfo(&surroundings.SE)
+}
+
+func maskPlayerInfo (tile *Tile) {
+	for _, player := range tile.Players {
+		player.ID = "Spielername"
+	}
+}
