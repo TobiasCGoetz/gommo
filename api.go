@@ -9,7 +9,7 @@ import (
 func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTime *uint8) {
 	router := gin.Default()
 	router.GET("/player/:id", getPlayerHandlerFunc(playerList))
-	router.POST("/player", addPlayerHandlerFunc(playerList))
+	router.POST("/player/:name", addPlayerHandlerFunc(playerList))
 	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc(playerList))
 	router.PUT("/player/:id/consume/:card", setConsumeHandlerFunc(playerList))
 	router.PUT("/player/:id/discard/:card", setDiscardHandlerFunc(playerList))
@@ -21,7 +21,7 @@ func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTi
 
 func addPlayerHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		var pID = addPlayer(playerList)
+		var pID = addPlayer(playerList, c.Param("name"))
 		c.IndentedJSON(http.StatusOK, pID)
 	}
 	return fn

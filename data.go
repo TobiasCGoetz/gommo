@@ -82,6 +82,7 @@ type Surroundings struct {
 //Player
 type Player struct {
 	ID string
+	Name string
 	X, Y int
 	Direction Direction
 	Play Card
@@ -99,6 +100,7 @@ func printPlayersList(s []Player) {
 func (p Player) toString() string {
 	var r strings.Builder
 	r.WriteString(p.ID)
+	r.WriteString(p.Name)
 	r.WriteString(": ")
 	r.WriteString(fmt.Sprintf("%d", p.X))
 	r.WriteString("|")
