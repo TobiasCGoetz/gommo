@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestInitMap (t *testing.T) {
+func TestInitMap(t *testing.T) {
 	var testMap [mapWidth][mapHeight]*Tile
 	initMap(&testMap)
 	for _, column := range testMap {
@@ -19,7 +19,7 @@ func TestInitMap (t *testing.T) {
 func fakeInitMap(gMap *[mapWidth][mapHeight]*Tile, terrain Terrain, zombieNr int) {
 	for a, column := range gMap {
 		for b, _ := range column {
-			var tile = Tile{terrain, zombieNr}
+			var tile = Tile{terrain, zombieNr, []Player{}}
 			gMap[a][b] = &tile
 		}
 	}
@@ -43,7 +43,7 @@ func TestCreateCityList(t *testing.T) {
 func TestGetMapTile(t *testing.T) {
 	var testMap [mapWidth][mapHeight]*Tile
 	initMap(&testMap)
-	testMap[13][42] = &Tile{City, 99}
+	testMap[13][42] = &Tile{City, 99, []Player{}}
 	var testTile = getMapTile(13, 42, &testMap)
 	if testTile.Terrain == City && testTile.Zombies == 99 {
 		return
@@ -52,7 +52,7 @@ func TestGetMapTile(t *testing.T) {
 	}
 }
 
-//TODO: Figure out if positive Y == North is stupid
+// TODO: Figure out if positive Y == North is stupid
 func TestMove(t *testing.T) {
 	var playerX = 5
 	var playerY = 5
@@ -66,7 +66,7 @@ func TestMove(t *testing.T) {
 		Discard:   Wood,
 		Cards:     [5]Card{Wood, Wood, Food, None, None},
 		Alive:     true,
-		IsBot:	   true,
+		IsBot:     true,
 	}
 	var testArray = []*Player{&testPlayer}
 	//Test directions
@@ -100,8 +100,8 @@ func TestMove(t *testing.T) {
 	testPlayer.X = 2 * mapWidth
 	testPlayer.Direction = East
 	move(&testArray)
-	if testPlayer.X != mapWidth - 1 {
-		t.Errorf("Player (%d / %d) is %d out of bounds east", testPlayer.X, testPlayer.Y, testPlayer.X - mapWidth - 1)
+	if testPlayer.X != mapWidth-1 {
+		t.Errorf("Player (%d / %d) is %d out of bounds east", testPlayer.X, testPlayer.Y, testPlayer.X-mapWidth-1)
 	}
 	testPlayer.X = -10
 	testPlayer.Direction = Stay
@@ -112,8 +112,8 @@ func TestMove(t *testing.T) {
 	testPlayer.X = 10
 	testPlayer.Y = 2 * mapHeight
 	move(&testArray)
-	if testPlayer.Y != mapHeight - 1 {
-		t.Errorf("Player is %d out of bounds north", testPlayer.Y - mapHeight - 1)
+	if testPlayer.Y != mapHeight-1 {
+		t.Errorf("Player is %d out of bounds north", testPlayer.Y-mapHeight-1)
 	}
 	testPlayer.Y = -10
 	move(&testArray)
@@ -153,7 +153,7 @@ func TestGetFirstEmptyHandSlot(t *testing.T) {
 		Discard:   Wood,
 		Cards:     [5]Card{None, None, None, None, None},
 		Alive:     true,
-		IsBot:	   true,
+		IsBot:     true,
 	}
 	var testCases = [12][5]Card{
 		{None, None, None, None, None},
@@ -169,7 +169,7 @@ func TestGetFirstEmptyHandSlot(t *testing.T) {
 		{Wood, Wood, Wood, Wood, None},
 		{Wood, Wood, Wood, Wood, Wood},
 	}
-	var testResults = [12]int {
+	var testResults = [12]int{
 		0, 1, 1, 1, 0, 0, 0, 0, 2, 3, 4, -1,
 	}
 	for testNumber, cards := range testCases {
@@ -180,7 +180,7 @@ func TestGetFirstEmptyHandSlot(t *testing.T) {
 	}
 }
 
-func TestFight(t *testing.T)  {
+func TestFight(t *testing.T) {
 	var loc1 = IntTuple{10, 10}
 	var loc2 = IntTuple{13, 13}
 	var loc3 = IntTuple{21, 21}
@@ -199,7 +199,7 @@ func TestFight(t *testing.T)  {
 		Discard:   Wood,
 		Cards:     [5]Card{None, None, None, None, None},
 		Alive:     true,
-		IsBot:	   true,
+		IsBot:     true,
 	}
 	combatGroups[loc1] = append(combatGroups[loc1], &testPlayer, &testPlayer, &testPlayer, &testPlayer)
 	fight(&gameMap, combatGroups[loc1])
@@ -229,7 +229,7 @@ func TestHandleCombat(t *testing.T) {
 	var loc = IntTuple{10, 10}
 	var gameMap [mapWidth][mapHeight]*Tile
 	fakeInitMap(&gameMap, Forest, 0)
-	gameMap[loc.X][loc.Y] = &Tile{City, 99}
+	gameMap[loc.X][loc.Y] = &Tile{City, 99, []Player{}}
 	var testPlayer1 = Player{
 		ID:        "test1",
 		X:         loc.X,
@@ -240,7 +240,7 @@ func TestHandleCombat(t *testing.T) {
 		Discard:   Wood,
 		Cards:     [5]Card{None, None, None, None, None},
 		Alive:     true,
-		IsBot:	   true,
+		IsBot:     true,
 	}
 	var testPlayer2 = Player{
 		ID:        "test2",
@@ -252,7 +252,7 @@ func TestHandleCombat(t *testing.T) {
 		Discard:   Wood,
 		Cards:     [5]Card{None, None, None, None, None},
 		Alive:     true,
-		IsBot:	   true,
+		IsBot:     true,
 	}
 	var testPlayer3 = Player{
 		ID:        "test3",
@@ -264,7 +264,7 @@ func TestHandleCombat(t *testing.T) {
 		Discard:   Wood,
 		Cards:     [5]Card{None, None, None, None, None},
 		Alive:     true,
-		IsBot:	   true,
+		IsBot:     true,
 	}
 	var testArray = []*Player{&testPlayer1, &testPlayer2, &testPlayer3}
 	handleCombat(&gameMap, &testArray)
@@ -276,9 +276,9 @@ func TestHandleCombat(t *testing.T) {
 func TestSpread(t *testing.T) {
 	var gameMap [mapWidth][mapHeight]*Tile
 	fakeInitMap(&gameMap, Forest, 1)
-	gameMap[10][10] = &Tile{City, zombieCutoff}
-	gameMap[12][10] = &Tile{City, zombieCutoff}
-	gameMap[99][99] = &Tile{City, 4}
+	gameMap[10][10] = &Tile{City, zombieCutoff, []Player{}}
+	gameMap[12][10] = &Tile{City, zombieCutoff, []Player{}}
+	gameMap[99][99] = &Tile{City, 4, []Player{}}
 	var cityList = createCityList(&gameMap)
 	spread(&gameMap, &cityList)
 	var testCases = []IntTuple{
@@ -310,7 +310,7 @@ func TestSpread(t *testing.T) {
 	}
 }
 
-//TODO: Test player starves
+// TODO: Test player starves
 func TestConsumeWoodAttracts(t *testing.T) {
 	var gameMap [mapWidth][mapHeight]*Tile
 	fakeInitMap(&gameMap, Forest, 1)
@@ -325,7 +325,7 @@ func TestConsumeWoodAttracts(t *testing.T) {
 		Play:      Dice,
 		Consume:   Wood,
 		Discard:   None,
-		Cards: [5]Card{Wood, None, None, None, None},
+		Cards:     [5]Card{Wood, None, None, None, None},
 		Alive:     true,
 		IsBot:     true,
 	}
@@ -336,7 +336,7 @@ func TestConsumeWoodAttracts(t *testing.T) {
 	}
 }
 
-//TODO: Test other tiles but Farm
+// TODO: Test other tiles but Farm
 func TestResources(t *testing.T) {
 	var gameMap [mapWidth][mapHeight]*Tile
 	fakeInitMap(&gameMap, Farm, 0)
@@ -348,7 +348,7 @@ func TestResources(t *testing.T) {
 		Play:      Dice,
 		Consume:   Wood,
 		Discard:   None,
-		Cards:     [5]Card{ None, None, None, None, None },
+		Cards:     [5]Card{None, None, None, None, None},
 		Alive:     true,
 		IsBot:     true,
 	}
@@ -407,9 +407,9 @@ func TestConsume(t *testing.T) {
 		Consume:   Wood,
 		Discard:   None,
 		//TODO: Test more combinations
-		Cards:     [5]Card{None, None, None, None, Wood},
-		Alive:     false,
-		IsBot:     true,
+		Cards: [5]Card{None, None, None, None, Wood},
+		Alive: false,
+		IsBot: true,
 	}
 	testArray = []*Player{&deadPlayer}
 	consume(&testArray, &gameMap)
@@ -418,7 +418,7 @@ func TestConsume(t *testing.T) {
 	}
 }
 
-func TestHandSize (t *testing.T) {
+func TestHandSize(t *testing.T) {
 	var testCases = [12][5]Card{
 		{None, None, None, None, None},
 		{Wood, None, None, None, None},
@@ -433,7 +433,7 @@ func TestHandSize (t *testing.T) {
 		{Wood, Wood, Wood, Wood, None},
 		{Wood, Wood, Wood, Wood, Wood},
 	}
-	var testResults = [12]int {
+	var testResults = [12]int{
 		0, 1, 1, 1, 1, 1, 1, 1, 2, 3, 4, 5,
 	}
 	var testPlayer = Player{
@@ -444,7 +444,7 @@ func TestHandSize (t *testing.T) {
 		Play:      Dice,
 		Consume:   Wood,
 		Discard:   None,
-		Cards: [5]Card{None, None, None, None, None},
+		Cards:     [5]Card{None, None, None, None, None},
 		Alive:     false,
 		IsBot:     true,
 	}
@@ -456,8 +456,8 @@ func TestHandSize (t *testing.T) {
 	}
 }
 
-func TestLimitCards (t *testing.T) {
-	var testCases = [6][5]Card {
+func TestLimitCards(t *testing.T) {
+	var testCases = [6][5]Card{
 		{None, None, None, None, None},
 		{Wood, None, None, None, None},
 		{Wood, Wood, None, None, None},
@@ -465,7 +465,7 @@ func TestLimitCards (t *testing.T) {
 		{Wood, Wood, Wood, Wood, None},
 		{Wood, Wood, Wood, Wood, Food},
 	}
-	var testResults = [6]int {
+	var testResults = [6]int{
 		0, 1, 2, 3, 4, 4,
 	}
 	var testPlayer = Player{
@@ -476,7 +476,7 @@ func TestLimitCards (t *testing.T) {
 		Play:      Dice,
 		Consume:   Wood,
 		Discard:   Wood,
-		Cards: [5]Card{None, None, None, None, None},
+		Cards:     [5]Card{None, None, None, None, None},
 		Alive:     false,
 		IsBot:     true,
 	}
@@ -495,7 +495,7 @@ func TestLimitCards (t *testing.T) {
 	}
 }
 
-func TestPlayerConsumeFallback (t *testing.T) {
+func TestPlayerConsumeFallback(t *testing.T) {
 	var gameMap [mapWidth][mapHeight]*Tile
 	fakeInitMap(&gameMap, City, 0)
 	var testPlayerList []*Player
@@ -507,7 +507,7 @@ func TestPlayerConsumeFallback (t *testing.T) {
 		Play:      Dice,
 		Consume:   None,
 		Discard:   None,
-		Cards: [5]Card{Food, None, None, None, None},
+		Cards:     [5]Card{Food, None, None, None, None},
 		Alive:     true,
 		IsBot:     true,
 	}
@@ -528,7 +528,7 @@ func TestPlayerConsumeFallback (t *testing.T) {
 		Play:      Dice,
 		Consume:   None,
 		Discard:   None,
-		Cards: [5]Card{Wood, None, None, None, None},
+		Cards:     [5]Card{Wood, None, None, None, None},
 		Alive:     true,
 		IsBot:     true,
 	}
@@ -541,7 +541,7 @@ func TestPlayerConsumeFallback (t *testing.T) {
 
 }
 
-func TestRestockBots (t *testing.T) {
+func TestRestockBots(t *testing.T) {
 	var testPlayerList []*Player
 	var testBotList []*Player
 	var testCases = [5]int{0, 30, 49, 50, 51}
@@ -554,7 +554,7 @@ func TestRestockBots (t *testing.T) {
 		Play:      Dice,
 		Consume:   Wood,
 		Discard:   Wood,
-		Cards: [5]Card{None, None, None, None, None},
+		Cards:     [5]Card{None, None, None, None, None},
 		Alive:     false,
 		IsBot:     true,
 	}
