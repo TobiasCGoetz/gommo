@@ -4,6 +4,7 @@ default:
   before_script:
     - apt-get update -qq && apt-get install -y curl
     - curl -L https://fly.io/install.sh | sh
+    - go mod download github.com/gin-gonic/gin
     - make build
 
 deploy:
