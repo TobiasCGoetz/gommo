@@ -1,3 +1,3 @@
 FROM scratch
 ADD gommo /
-CMD["/gommo"]
+CMD ["/gommo"]
