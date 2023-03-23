@@ -19,6 +19,24 @@ func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTi
 	router.Run("0.0.0.0:8080")
 }
 
+// getPlayerOrNil returns a pointer to the referenced player or nil
+//
+// This will perform a lookup given a playerID and return a pointer to the Player or nil.
+// Parameters:
+//
+//	playerList: PlayerList to be searched
+//	id: PlayerID that will be searche for
+//
+// Returns: *Player or nil
+func getPlayerOrNil(playerList *[]*Player, id string) *Player {
+	for pNr, player := range *playerList {
+		if player.ID == id {
+			return (*playerList)[pNr]
+		}
+	}
+	return nil
+}
+
 func addPlayerHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		var pName = filterPlayerName(c.Param("name"))
@@ -68,7 +86,6 @@ func getSurroundingsHandlerFunc(playerList *[]*Player, gameMap *[mapWidth][mapHe
 					SS = *gameMap[player.X][player.Y-1]
 				}
 
-				//TODO: Add and check password phrase
 				var miniMap = Surroundings{
 					NW: NW,
 					NN: NN,
@@ -95,37 +112,40 @@ func setDiscardHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 		cardStr := c.Param("card")
 		var card, err = strconv.Atoi(cardStr)
 		if err != nil || card >= len(cardTypes) {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "No number recognized"})
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
 		}
-		for pNr, player := range *playerList {
-			if player.ID == id {
-				//TODO: Add and check password phrase
-				(*playerList)[pNr].Discard = cardTypes[card]
-				c.IndentedJSON(http.StatusOK, *player)
-				return
-			}
+		playerPtr := getPlayerOrNil(playerList, id)
+		if playerPtr != nil {
+			(playerPtr).Discard = cardTypes[card]
+			c.Status(http.StatusOK)
+			return
+		} else {
+			c.AbortWithStatus(http.StatusForbidden)
+			return
 		}
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Player not found."})
 	}
 	return fn
 }
+
 func setPlayHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		cardStr := c.Param("card")
 		var card, err = strconv.Atoi(cardStr)
 		if err != nil || card >= len(cardTypes) {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "No number recognized"})
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
 		}
-		for pNr, player := range *playerList {
-			if player.ID == id {
-				//TODO: Add and check password phrase
-				(*playerList)[pNr].Play = cardTypes[card]
-				c.IndentedJSON(http.StatusOK, *player)
-				return
-			}
+		playerPtr := getPlayerOrNil(playerList, id)
+		if playerPtr != nil {
+			(*playerPtr).Play = cardTypes[card]
+			c.Status(http.StatusOK)
+			return
+		} else {
+			c.AbortWithStatus(http.StatusForbidden)
+			return
 		}
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Player not found."})
 	}
 	return fn
 }
@@ -136,17 +156,17 @@ func setConsumeHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 		cardStr := c.Param("card")
 		var card, err = strconv.Atoi(cardStr)
 		if err != nil || card >= len(cardTypes) {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "No number recognized"})
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
 		}
-		for pNr, player := range *playerList {
-			if player.ID == id {
-				//TODO: Add and check password phrase
-				(*playerList)[pNr].Consume = cardTypes[card]
-				c.IndentedJSON(http.StatusOK, *player)
-				return
-			}
+		playerPtr := getPlayerOrNil(playerList, id)
+		if playerPtr != nil {
+			(*playerPtr).Consume = cardTypes[card]
+			c.Status(http.StatusOK)
+			return
+		} else {
+			c.AbortWithStatus(http.StatusForbidden)
 		}
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Player not found."})
 	}
 	return fn
 }
@@ -157,17 +177,16 @@ func setDirectionHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 		dirStr := c.Param("dir")
 		var dir, err = strconv.Atoi(dirStr)
 		if err != nil || dir >= len(Directions) {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "No number recognized"})
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
 		}
-		for pNr, player := range *playerList {
-			if player.ID == id {
-				//TODO: Add and check password phrase
-				(*playerList)[pNr].Direction = Directions[dir]
-				c.IndentedJSON(http.StatusOK, *player)
-				return
-			}
+		playerPtr := getPlayerOrNil(playerList, id)
+		if playerPtr != nil {
+			(*playerPtr).Direction = Directions[dir]
+			c.Status(http.StatusOK)
+		} else {
+			c.AbortWithStatus(http.StatusForbidden)
 		}
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Player not found."})
 	}
 	return fn
 }
@@ -176,15 +195,14 @@ func getPlayerHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		//passwd := c.Param("passwd")
-		//TODO: DO NOT SEARCH HERE!
-		for _, player := range *playerList {
-			if player.ID == id {
-				//TODO: Add and check password phrase
-				c.IndentedJSON(http.StatusOK, *player)
-				return
-			}
+		//TODO: USE A MAP HERE
+		playerPtr := getPlayerOrNil(playerList, id)
+		if playerPtr != nil {
+			c.IndentedJSON(http.StatusOK, (*playerPtr))
+			return
+		} else {
+			c.AbortWithStatus(http.StatusForbidden)
 		}
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Player not found."})
 	}
 	return fn
 }
