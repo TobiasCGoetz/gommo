@@ -183,7 +183,6 @@ func consume(pList *[]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 		} else {
 			player.Alive = false
 		}
-
 		var playerCards2 = getHandSize(*player)
 		if playerCards == playerCards2 && playerCards != 0 && player.Alive {
 			fmt.Println("ERROR: Consumed cards should've been:", player.Consume.toString())
@@ -421,6 +420,15 @@ func restockBots(players *[]*Player, bots *[]*Player, bID *int) {
 	}
 }
 
+func havePlayersWon(players *[]*Player) bool {
+	for _, player := range *players {
+		if player.hasWinCondition() {
+			return true
+		}
+	}
+	return false
+}
+
 func main() {
 	if len(os.Args) == 2 {
 		idSalt = os.Args[1]
@@ -433,20 +441,26 @@ func main() {
 	var botID = 0
 	var turnTimer = uint8(turnLength)
 	var isRunning = true
-	rand.Seed(time.Now().UnixNano())
-	initMap(&gameMap)
 	go setupAPI(&playerList, &gameMap, &turnTimer)
-	cityList = createCityList(&gameMap)
 	for isRunning {
-		if turnTimer == 0 {
-			randomizeBot(botList)
-			tick(&gameMap, &cityList, &playerList)
-			restockBots(&playerList, &botList, &botID)
-			turnTimer = uint8(turnLength)
-		} else {
-			time.Sleep(time.Second)
-			turnTimer--
-			//fmt.Println("Remaining turnTimer at", turnTimer)
+		rand.Seed(time.Now().UnixNano())
+		initMap(&gameMap)
+		cityList = createCityList(&gameMap)
+		var remainingTurns = uint16(maxTurns)
+		for ; remainingTurns > 0; remainingTurns-- {
+			if turnTimer == 0 {
+				randomizeBot(botList)
+				tick(&gameMap, &cityList, &playerList)
+				if havePlayersWon(&playerList) { //TODO: Add GameID, Victory-Check endpoint
+					break
+				}
+				restockBots(&playerList, &botList, &botID)
+				turnTimer = uint8(turnLength)
+			} else {
+				time.Sleep(time.Second)
+				turnTimer--
+			}
 		}
+		fmt.Println("Restarting game.")
 	}
 }

@@ -93,8 +93,18 @@ type Player struct {
 	IsBot     bool
 }
 
-func printPlayersList(s []Player) {
-	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)
+func (p Player) hasWinCondition() bool {
+	var numberOfResearchs = 0
+	for _, card := range p.Cards {
+		if card == Research {
+			numberOfResearchs++
+		}
+	}
+	if numberOfResearchs < victoryNumber {
+		return false
+	} else {
+		return true
+	}
 }
 
 func (p Player) toString() string {
@@ -111,4 +121,8 @@ func (p Player) toString() string {
 	r.WriteString(p.Cards[2].toString())
 	r.WriteString(p.Cards[3].toString())
 	return r.String()
+}
+
+func printPlayersList(s []Player) {
+	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)
 }
