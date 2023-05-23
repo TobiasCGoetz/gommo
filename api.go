@@ -21,6 +21,8 @@ func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTi
 	router.Run("0.0.0.0:8080")
 }
 
+//TODO: Add config-info endpoint for mapSize, turnTimer, gameState and more
+
 // getPlayerOrNil returns a pointer to the referenced player or nil
 //
 // This will perform a lookup given a playerID and return a pointer to the Player or nil.
