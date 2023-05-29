@@ -440,7 +440,7 @@ func main() {
 	var playerList []*Player
 	var botList []*Player
 	var botID = 0
-	var turnTimer = uint8(turnLength)
+	var turnTimer = int8(turnLength)
 	hasWon = false
 	go setupAPI(&playerList, &gameMap, &turnTimer, &hasWon)
 	for true {
@@ -455,9 +455,10 @@ func main() {
 					tick(&gameMap, &cityList, &playerList)
 					hasWon = havePlayersWon(&playerList)
 					restockBots(&playerList, &botList, &botID)
-					turnTimer = uint8(turnLength)
+					turnTimer = int8(turnLength)
 					if hasWon {
 						remainingTurns = 0
+						turnTimer = -1
 					}
 				} else {
 					time.Sleep(time.Second)

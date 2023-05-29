@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTime *uint8, hasWon *bool) {
+func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTime *int8, hasWon *bool) {
 	router := gin.Default()
 	//Player endpoints
 	router.POST("/player/:name", addPlayerHandlerFunc(playerList))
@@ -93,7 +93,7 @@ func addPlayerHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	return fn
 }
 
-func getRemainingTimerHandlerFunc(turnTimer *uint8) gin.HandlerFunc {
+func getRemainingTimerHandlerFunc(turnTimer *int8) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, *turnTimer)
 	}
