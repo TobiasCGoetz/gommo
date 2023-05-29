@@ -14,37 +14,17 @@ func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTi
 	router.POST("/player/:name", addPlayerHandlerFunc(playerList))
 	router.GET("/player/:id", getPlayerHandlerFunc(playerList))
 	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(playerList, gameMap))
-	router.GET("/turnTimer", getRemainingTimerHandlerFunc(turnTime))
 	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc(playerList))
 	router.PUT("/player/:id/consume/:card", setConsumeHandlerFunc(playerList))
 	router.PUT("/player/:id/discard/:card", setDiscardHandlerFunc(playerList))
 	router.PUT("/player/:id/play/:card", setPlayHandlerFunc(playerList))
 	//Config endpoints
-	router.GET("/config/turnTimer", getConfigTurnTimerHandlerFunc())
+	router.GET("/config/turnTimer", getRemainingTimerHandlerFunc(turnTime))
+	router.GET("/config/turnLength", getConfigTurnTimerHandlerFunc())
 	router.GET("/config/mapSize", getConfigMapSizeHandlerFunc())
-	router.GET("config/hasWon", getConfigGameStateHandlerFunc(hasWon))
+	router.GET("/config/hasWon", getConfigGameStateHandlerFunc(hasWon))
+	router.GET("/config", getAllConfigHandlerFunc(turnTime, hasWon))
 	router.Run("0.0.0.0:8080")
-}
-
-func getConfigGameStateHandlerFunc(hasWon *bool) gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		c.IndentedJSON(http.StatusOK, &hasWon)
-	}
-	return fn
-}
-
-func getConfigTurnTimerHandlerFunc() gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		c.IndentedJSON(http.StatusOK, turnLength)
-	}
-	return fn
-}
-
-func getConfigMapSizeHandlerFunc() gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		c.IndentedJSON(http.StatusOK, IntTuple{mapWidth, mapHeight})
-	}
-	return fn
 }
 
 // getPlayerOrNil returns a pointer to the referenced player or nil
@@ -82,6 +62,41 @@ func authPlayer(tokenString string, userName string) bool {
 		return verifyJWT(*token, userName)
 	}
 	return true
+}
+
+func getAllConfigHandlerFunc(turnTimer *int8, hasWon *bool) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		var r = make(map[string]int8)
+		r["turnTime"] = *turnTimer
+		r["turnLength"] = int8(turnLength)
+		r["hasWon"] = 0
+		if *hasWon {
+			r["hasWon"] = 1
+		}
+		c.IndentedJSON(http.StatusOK, r)
+	}
+	return fn
+}
+
+func getConfigGameStateHandlerFunc(hasWon *bool) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		c.IndentedJSON(http.StatusOK, &hasWon)
+	}
+	return fn
+}
+
+func getConfigTurnTimerHandlerFunc() gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		c.IndentedJSON(http.StatusOK, turnLength)
+	}
+	return fn
+}
+
+func getConfigMapSizeHandlerFunc() gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		c.IndentedJSON(http.StatusOK, IntTuple{mapWidth, mapHeight})
+	}
+	return fn
 }
 
 func addPlayerHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
