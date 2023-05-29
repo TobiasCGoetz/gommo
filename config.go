@@ -11,3 +11,5 @@ const playerMaxAttack int = 6
 const turnLength int = 60
 const maxTurns int = 500
 const victoryNumber int = 2
+
+var hasWon bool = false

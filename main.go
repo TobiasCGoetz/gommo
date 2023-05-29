@@ -441,9 +441,9 @@ func main() {
 	var botList []*Player
 	var botID = 0
 	var turnTimer = uint8(turnLength)
-	var isRunning = true
-	go setupAPI(&playerList, &gameMap, &turnTimer)
-	for isRunning {
+	hasWon = false
+	go setupAPI(&playerList, &gameMap, &turnTimer, &hasWon)
+	for true {
 		r = rand.New(rand.NewSource(time.Now().Unix()))
 		initMap(&gameMap)
 		cityList = createCityList(&gameMap)
@@ -453,16 +453,18 @@ func main() {
 				if turnTimer == 0 {
 					randomizeBot(botList)
 					tick(&gameMap, &cityList, &playerList)
-					if havePlayersWon(&playerList) { //TODO: Add GameID, Victory-Check endpoint
-						break
-					}
+					hasWon = havePlayersWon(&playerList)
 					restockBots(&playerList, &botList, &botID)
 					turnTimer = uint8(turnLength)
+					if hasWon {
+						remainingTurns = 0
+					}
 				} else {
 					time.Sleep(time.Second)
 				}
 			}
 		}
+		time.Sleep(120 * time.Second)
 		fmt.Println("Restarting game.")
 	}
 }

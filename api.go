@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTime *uint8) {
+func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTime *uint8, hasWon *bool) {
 	router := gin.Default()
 	//Player endpoints
 	router.POST("/player/:name", addPlayerHandlerFunc(playerList))
@@ -22,10 +22,16 @@ func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTi
 	//Config endpoints
 	router.GET("/config/turnTimer", getConfigTurnTimerHandlerFunc())
 	router.GET("/config/mapSize", getConfigMapSizeHandlerFunc())
+	router.GET("config/hasWon", getConfigGameStateHandlerFunc(hasWon))
 	router.Run("0.0.0.0:8080")
 }
 
-//TODO: Add config-info endpoint for mapSize, turnTimer, gameState and more
+func getConfigGameStateHandlerFunc(hasWon *bool) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		c.IndentedJSON(http.StatusOK, &hasWon)
+	}
+	return fn
+}
 
 func getConfigTurnTimerHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
