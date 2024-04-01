@@ -1,0 +1,83 @@
+{
+  "CE": {
+    "playerCount": 0,
+    "playersPlanMoveEast": 0,
+    "playersPlanMoveNorth": 0,
+    "playersPlanMoveSouth": 0,
+    "playersPlanMoveWest": 0,
+    "tileType": "",
+    "zombieCount": 0
+  },
+  "EE": {
+    "playerCount": 0,
+    "playersPlanMoveEast": 0,
+    "playersPlanMoveNorth": 0,
+    "playersPlanMoveSouth": 0,
+    "playersPlanMoveWest": 0,
+    "tileType": "",
+    "zombieCount": 0
+  },
+  "NE": {
+    "playerCount": 0,
+    "playersPlanMoveEast": 0,
+    "playersPlanMoveNorth": 0,
+    "playersPlanMoveSouth": 0,
+    "playersPlanMoveWest": 0,
+    "tileType": "",
+    "zombieCount": 0
+  },
+  "NN": {
+    "playerCount": 0,
+    "playersPlanMoveEast": 0,
+    "playersPlanMoveNorth": 0,
+    "playersPlanMoveSouth": 0,
+    "playersPlanMoveWest": 0,
+    "tileType": "",
+    "zombieCount": 0
+  },
+  "NW": {
+    "playerCount": 0,
+    "playersPlanMoveEast": 0,
+    "playersPlanMoveNorth": 0,
+    "playersPlanMoveSouth": 0,
+    "playersPlanMoveWest": 0,
+    "tileType": "",
+    "zombieCount": 0
+  },
+  "SE": {
+    "playerCount": 0,
+    "playersPlanMoveEast": 0,
+    "playersPlanMoveNorth": 0,
+    "playersPlanMoveSouth": 0,
+    "playersPlanMoveWest": 0,
+    "tileType": "",
+    "zombieCount": 0
+  },
+  "SS": {
+    "playerCount": 0,
+    "playersPlanMoveEast": 0,
+    "playersPlanMoveNorth": 0,
+    "playersPlanMoveSouth": 0,
+    "playersPlanMoveWest": 0,
+    "tileType": "",
+    "zombieCount": 0
+  },
+  "SW": {
+    "playerCount": 0,
+    "playersPlanMoveEast": 0,
+    "playersPlanMoveNorth": 0,
+    "playersPlanMoveSouth": 0,
+    "playersPlanMoveWest": 0,
+    "tileType": "",
+    "zombieCount": 0
+  },
+  "WW": {
+    "playerCount": 0,
+    "playersPlanMoveEast": 0,
+    "playersPlanMoveNorth": 0,
+    "playersPlanMoveSouth": 0,
+    "playersPlanMoveWest": 0,
+    "tileType": "",
+    "zombieCount": 0
+  }
+}
