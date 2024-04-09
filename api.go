@@ -1,9 +1,7 @@
 package main
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 	"net/http"
 	"strconv"
 )
@@ -43,25 +41,6 @@ func getPlayerOrNil(playerList *[]*Player, id string) *Player {
 		}
 	}
 	return nil
-}
-
-func parseJWT(tokenString string) (*jwt.Token, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		_, ok := token.Method.(*jwt.SigningMethodECDSA)
-		if !ok {
-			return nil, errors.New("JWT didn't parse.")
-		}
-		return token, nil
-	})
-	return token, err
-}
-
-func authPlayer(tokenString string, userName string) bool {
-	token, err := parseJWT(tokenString)
-	if err != nil {
-		return verifyJWT(*token, userName)
-	}
-	return true
 }
 
 func getAllConfigHandlerFunc(turnTimer *int8, hasWon *bool) gin.HandlerFunc {
