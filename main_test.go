@@ -1,12 +1,14 @@
 package main
 
 import (
+	"math/rand"
 	"testing"
 )
 
 func TestInitMap(t *testing.T) {
 	var testMap [mapWidth][mapHeight]*Tile
-	initMap(&testMap)
+	r = rand.New(rand.NewSource(10))
+	initMap(*r, &testMap)
 	for _, column := range testMap {
 		for _, tile := range column {
 			if tile == nil {
@@ -43,7 +45,8 @@ func TestCreateCityList(t *testing.T) {
 
 func TestGetMapTile(t *testing.T) {
 	var testMap [mapWidth][mapHeight]*Tile
-	initMap(&testMap)
+	r = rand.New(rand.NewSource(10))
+	initMap(*r, &testMap)
 	testMap[13][42] = &Tile{City, 99, []Player{}}
 	var testTile = getMapTile(13, 42, &testMap)
 	if testTile.Terrain == City && testTile.Zombies == 99 {
