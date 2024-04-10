@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTime *int8, hasWon *bool) {
@@ -94,7 +95,7 @@ func getRemainingTimerHandlerFunc(turnTimer *int8) gin.HandlerFunc {
 	return fn
 }
 
-// TODO: Add surrounding players info
+// TODO: Reduce playerCount to number, change Terrain to String, add playersPlanMoveXYZ
 func getSurroundingsHandlerFunc(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
