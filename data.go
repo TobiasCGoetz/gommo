@@ -67,16 +67,26 @@ type Tile struct {
 	Players []Player
 }
 
+type MapPiece struct {
+	tileType             string
+	zombieCount          int
+	playerCount          int
+	playersPlanMoveNorth int
+	playersPlanMoveEast  int
+	playersPlanMoveSouth int
+	playersPlanMoveWest  int
+}
+
 type Surroundings struct {
-	NW Tile
-	NN Tile
-	NE Tile
-	WW Tile
-	CE Tile
-	EE Tile
-	SW Tile
-	SS Tile
-	SE Tile
+	NW MapPiece
+	NN MapPiece
+	NE MapPiece
+	WW MapPiece
+	CE MapPiece
+	EE MapPiece
+	SW MapPiece
+	SS MapPiece
+	SE MapPiece
 }
 
 // Player

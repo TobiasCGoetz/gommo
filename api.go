@@ -95,6 +95,19 @@ func getRemainingTimerHandlerFunc(turnTimer *int8) gin.HandlerFunc {
 	return fn
 }
 
+func tileToMapPiece(tile Tile) MapPiece {
+	//terrain, zombies, players, planNorth/East/South/West
+	return MapPiece{
+		tile.Terrain.toString(),
+		tile.Zombies,
+		len(tile.Players),
+		0,
+		0,
+		0,
+		0,
+	}
+}
+
 // TODO: Reduce playerCount to number, change Terrain to String, add playersPlanMoveXYZ
 func getSurroundingsHandlerFunc(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
@@ -107,33 +120,15 @@ func getSurroundingsHandlerFunc(playerList *[]*Player, gameMap *[mapWidth][mapHe
 			player := *playerPtr
 
 			//Construct empty minimap
-			var NW = Tile{Edge, -1, []Player{}}
-			var NN = Tile{Edge, -1, []Player{}}
-			var NE = Tile{Edge, -1, []Player{}}
-			var WW = Tile{Edge, -1, []Player{}}
-			var CE = *gameMap[player.X][player.Y]
-			var EE = Tile{Edge, -1, []Player{}}
-			var SW = Tile{Edge, -1, []Player{}}
-			var SS = Tile{Edge, -1, []Player{}}
-			var SE = Tile{Edge, -1, []Player{}}
-
-			//Fill minimap
-			if player.X > 0 && player.Y < mapWidth-1 {
-				NW = *gameMap[player.X-1][player.Y+1]
-			}
-			if player.X < mapWidth-1 && player.Y < mapHeight-1 {
-				NN = *gameMap[player.X][player.Y+1]
-				NE = *gameMap[player.X+1][player.Y+1]
-				EE = *gameMap[player.X+1][player.Y]
-			}
-			if player.X < mapWidth-1 && player.Y > 0 {
-				SE = *gameMap[player.X+1][player.Y-1]
-			}
-			if player.X > 0 && player.Y > 0 {
-				WW = *gameMap[player.X-1][player.Y]
-				SW = *gameMap[player.X-1][player.Y-1]
-				SS = *gameMap[player.X][player.Y-1]
-			}
+			var NW = tileToMapPiece(*gameMap[player.X-1][player.Y-1])
+			var NN = tileToMapPiece(*gameMap[player.X][player.Y-1])
+			var NE = tileToMapPiece(*gameMap[player.X+1][player.Y-1])
+			var WW = tileToMapPiece(*gameMap[player.X-1][player.Y])
+			var CE = tileToMapPiece(*gameMap[player.X][player.Y])
+			var EE = tileToMapPiece(*gameMap[player.X+1][player.Y])
+			var SW = tileToMapPiece(*gameMap[player.X-1][player.Y+1])
+			var SS = tileToMapPiece(*gameMap[player.X][player.Y+1])
+			var SE = tileToMapPiece(*gameMap[player.X+1][player.Y+1])
 
 			var miniMap = Surroundings{
 				NW: NW,
@@ -146,7 +141,6 @@ func getSurroundingsHandlerFunc(playerList *[]*Player, gameMap *[mapWidth][mapHe
 				SS: SS,
 				SE: SE,
 			}
-			sanitizeSurroundingsInfo(&miniMap)
 			c.IndentedJSON(http.StatusOK, miniMap)
 			return
 		}
@@ -253,18 +247,6 @@ func getPlayerHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 		}
 	}
 	return fn
-}
-
-func sanitizeSurroundingsInfo(surroundings *Surroundings) {
-	maskPlayerInfo(&surroundings.NW)
-	maskPlayerInfo(&surroundings.NN)
-	maskPlayerInfo(&surroundings.NE)
-	maskPlayerInfo(&surroundings.WW)
-	maskPlayerInfo(&surroundings.CE)
-	maskPlayerInfo(&surroundings.EE)
-	maskPlayerInfo(&surroundings.SW)
-	maskPlayerInfo(&surroundings.SS)
-	maskPlayerInfo(&surroundings.SE)
 }
 
 func filterPlayerName(name string) string {
