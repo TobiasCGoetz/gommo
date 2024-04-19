@@ -21,7 +21,7 @@ func TestInitMap(t *testing.T) {
 func fakeInitMap(terrain Terrain, zombieNr int) [mapWidth][mapHeight]*Tile {
 	fakeMap := [mapWidth][mapHeight]*Tile{}
 	for a, column := range fakeMap {
-		for b, _ := range column {
+		for b := range column {
 			var tile = Tile{terrain, zombieNr, []Player{}}
 			fakeMap[a][b] = &tile
 		}
