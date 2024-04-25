@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"strconv"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -52,28 +53,28 @@ func getAllConfigHandlerFunc(turnTimer *int8, hasWon *bool) gin.HandlerFunc {
 		if *hasWon {
 			r["hasWon"] = 1
 		}
-		c.IndentedJSON(http.StatusOK, r)
+		c.JSON(http.StatusOK, r)
 	}
 	return fn
 }
 
 func getConfigGameStateHandlerFunc(hasWon *bool) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		c.IndentedJSON(http.StatusOK, &hasWon)
+		c.JSON(http.StatusOK, &hasWon)
 	}
 	return fn
 }
 
 func getConfigTurnTimerHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		c.IndentedJSON(http.StatusOK, turnLength)
+		c.JSON(http.StatusOK, turnLength)
 	}
 	return fn
 }
 
 func getConfigMapSizeHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		c.IndentedJSON(http.StatusOK, IntTuple{mapWidth, mapHeight})
+		c.JSON(http.StatusOK, IntTuple{mapWidth, mapHeight})
 	}
 	return fn
 }
@@ -82,14 +83,14 @@ func addPlayerHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		var pName = filterPlayerName(c.Param("name"))
 		var pID = addPlayer(playerList, pName)
-		c.IndentedJSON(http.StatusOK, pID)
+		c.JSON(http.StatusOK, pID)
 	}
 	return fn
 }
 
 func getRemainingTimerHandlerFunc(turnTimer *int8) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		c.IndentedJSON(http.StatusOK, *turnTimer)
+		c.JSON(http.StatusOK, *turnTimer)
 	}
 	return fn
 }
@@ -139,7 +140,7 @@ func getSurroundingsHandlerFunc(playerList *[]*Player, gameMap *[mapWidth][mapHe
 				SS: SS,
 				SE: SE,
 			}
-			c.IndentedJSON(http.StatusOK, miniMap)
+			c.JSON(http.StatusOK, miniMap)
 			return
 		}
 	}
@@ -238,7 +239,7 @@ func getPlayerHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 		//TODO: USE A MAP HERE
 		playerPtr := getPlayerOrNil(playerList, id)
 		if playerPtr != nil {
-			c.IndentedJSON(http.StatusOK, (*playerPtr))
+			c.JSON(http.StatusOK, (*playerPtr))
 			return
 		} else {
 			c.AbortWithStatus(http.StatusForbidden)
