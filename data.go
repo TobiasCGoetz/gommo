@@ -103,6 +103,12 @@ type Player struct {
 	IsBot     bool
 }
 
+type ConfigResponse struct {
+	TurnLength int
+	TurnTime   int
+	HaveWon    bool
+}
+
 func (p Player) hasWinCondition() bool {
 	var numberOfResearchs = 0
 	for _, card := range p.Cards {
