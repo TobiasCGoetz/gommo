@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -210,14 +211,10 @@ func setDirectionHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		dirStr := c.Param("dir")
-		var dir, err = strconv.Atoi(dirStr)
-		if err != nil || dir >= len(Directions) {
-			c.AbortWithStatus(http.StatusBadRequest)
-			return
-		}
+		var dir = directions[strings.ToLower(dirStr)]
 		playerPtr := getPlayerOrNil(playerList, id)
 		if playerPtr != nil {
-			(*playerPtr).Direction = Directions[dir]
+			(*playerPtr).Direction = dir
 			c.Status(http.StatusOK)
 		} else {
 			c.AbortWithStatus(http.StatusForbidden)
