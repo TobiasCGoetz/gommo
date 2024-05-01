@@ -190,14 +190,10 @@ func setConsumeHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		cardStr := c.Param("card")
-		var card, err = strconv.Atoi(cardStr)
-		if err != nil || card >= len(cardTypes) {
-			c.AbortWithStatus(http.StatusBadRequest)
-			return
-		}
+		var card = cards[strings.ToLower(cardStr)]
 		playerPtr := getPlayerOrNil(playerList, id)
 		if playerPtr != nil {
-			(*playerPtr).Consume = cardTypes[card]
+			(*playerPtr).Consume = card
 			c.Status(http.StatusOK)
 			return
 		} else {
