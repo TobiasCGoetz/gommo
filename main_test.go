@@ -79,50 +79,63 @@ func TestMove(t *testing.T) {
 	if testPlayerMap[testPlayer.ID].Y != playerY+1 {
 		t.Errorf("Move north failed.")
 	}
+	testPlayer.Y = testPlayerMap[testPlayer.ID].Y
 	testPlayer.Direction = South
+	testPlayerMap[testPlayer.ID] = testPlayer
 	move(&testPlayerMap)
-	if testPlayer.Y != playerY {
+	if testPlayerMap[testPlayer.ID].Y != playerY {
 		t.Errorf("Move south failed.")
 	}
+	testPlayer.X = testPlayerMap[testPlayer.ID].X
 	testPlayer.Direction = East
+	testPlayerMap[testPlayer.ID] = testPlayer
 	move(&testPlayerMap)
-	if testPlayer.X != playerX+1 {
+	if testPlayerMap[testPlayer.ID].X != playerX+1 {
 		t.Errorf("Move east failed.")
 	}
+	testPlayer.X = testPlayerMap[testPlayer.ID].X
 	testPlayer.Direction = West
+	testPlayerMap[testPlayer.ID] = testPlayer
 	move(&testPlayerMap)
-	if testPlayer.X != playerX {
+	if testPlayerMap[testPlayer.ID].X != playerX {
 		t.Errorf("Move west failed.")
 	}
 	testPlayer.Direction = Stay
 	testPlayer.X = playerX
 	testPlayer.Y = playerY
+	testPlayerMap[testPlayer.ID] = testPlayer
 	move(&testPlayerMap)
-	if testPlayer.X != playerX || testPlayer.Y != playerY {
+	if testPlayerMap[testPlayer.ID].X != playerX || testPlayerMap[testPlayer.ID].Y != playerY {
 		t.Errorf("Staying in place failed.")
 	}
 	//Test edge behaviour
 	testPlayer.X = 2 * mapWidth
 	testPlayer.Direction = East
+	testPlayerMap[testPlayer.ID] = testPlayer
 	move(&testPlayerMap)
-	if testPlayer.X != mapWidth-1 {
+	if testPlayerMap[testPlayer.ID].X != mapWidth-1 {
 		t.Errorf("Player (%d / %d) is %d out of bounds east", testPlayer.X, testPlayer.Y, testPlayer.X-mapWidth-1)
 	}
 	testPlayer.X = -10
-	testPlayer.Direction = Stay
+	testPlayer.Direction = West
+	testPlayerMap[testPlayer.ID] = testPlayer
 	move(&testPlayerMap)
-	if testPlayer.X != 0 {
+	if testPlayerMap[testPlayer.ID].X != 0 {
 		t.Errorf("Player is %d out of bounds west", testPlayer.X)
 	}
 	testPlayer.X = 10
 	testPlayer.Y = 2 * mapHeight
+	testPlayer.Direction = South
+	testPlayerMap[testPlayer.ID] = testPlayer
 	move(&testPlayerMap)
-	if testPlayer.Y != mapHeight-1 {
+	if testPlayerMap[testPlayer.ID].Y != mapHeight-1 {
 		t.Errorf("Player is %d out of bounds north", testPlayer.Y-mapHeight-1)
 	}
 	testPlayer.Y = -10
+	testPlayerMap[testPlayer.ID] = testPlayer
+	testPlayer.Direction = North
 	move(&testPlayerMap)
-	if testPlayer.Y != 0 {
+	if testPlayerMap[testPlayer.ID].Y != 0 {
 		t.Errorf("Player is %d out of bounds south", testPlayer.Y)
 	}
 	//Test dead player
@@ -141,7 +154,7 @@ func TestMove(t *testing.T) {
 	testPlayerMap = make(map[string]Player)
 	testPlayerMap[deadPlayer.ID] = deadPlayer
 	move(&testPlayerMap)
-	if deadPlayer.Y != playerY {
+	if testPlayerMap[deadPlayer.ID].Y != playerY {
 		t.Errorf("Dead player wasn't supposed to move %d tiles north", deadPlayer.Y-5)
 	}
 }
