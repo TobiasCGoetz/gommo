@@ -200,6 +200,7 @@ func TestGetFirstEmptyHandSlot(t *testing.T) {
 }
 
 func TestFight(t *testing.T) {
+	r = rand.New(rand.NewSource(1))
 	var loc1 = IntTuple{10, 10}
 	var loc2 = IntTuple{13, 13}
 	var loc3 = IntTuple{21, 21}
