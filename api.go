@@ -35,11 +35,7 @@ func setupAPI(playerMap *map[string]*Player, gameMap *[mapWidth][mapHeight]*Tile
 // Parameters:
 func getPlayerOrNil(playerMap map[string]*Player, id string) *Player {
 	var player = playerMap[id]
-	if player.ID == "" {
-		return nil
-	} else {
-		return player
-	}
+	return player
 }
 
 func getAllConfigHandlerFunc(turnTimer int8, hasWon bool) gin.HandlerFunc {
