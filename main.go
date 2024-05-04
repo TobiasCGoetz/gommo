@@ -195,7 +195,7 @@ func getHandSize(player Player) int {
 }
 
 func limitCards(playerMap *map[string]Player) {
-	for mapKey, _ := range *playerMap {
+	for mapKey := range *playerMap {
 		var player = (*playerMap)[mapKey]
 		if getHandSize(player) > 4 {
 			var cardPos, hasCard = playerHasCard(player, player.Discard)
