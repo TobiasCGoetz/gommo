@@ -44,7 +44,7 @@ func getMapTile(x int, y int, gMap *[mapWidth][mapHeight]*Tile) *Tile {
 	return (*gMap)[truncX][truncY]
 }
 
-func move(playerMap *map[string]Player) {
+func move(playerMap *map[string]*Player) {
 	//Set new coordinates per player from move
 	for _, player := range *playerMap {
 		if !player.Alive {
@@ -100,7 +100,7 @@ func getFirstEmptyHandSlot(hand [5]Card) int {
 	return firstEmpty
 }
 
-func resources(playerMap *map[string]Player, gMap [mapWidth][mapHeight]*Tile) {
+func resources(playerMap *map[string]*Player, gMap [mapWidth][mapHeight]*Tile) {
 	for playerID, _ := range *playerMap {
 		var player = (*playerMap)[playerID]
 		if !player.Alive {
@@ -128,7 +128,7 @@ func resources(playerMap *map[string]Player, gMap [mapWidth][mapHeight]*Tile) {
 	}
 }
 
-func consume(playerMap *map[string]Player, gMap *[mapWidth][mapHeight]*Tile) {
+func consume(playerMap *map[string]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 	for playerID, _ := range *playerMap {
 		//Fetch current player state
 		var player = (*playerMap)[playerID]
@@ -184,7 +184,7 @@ func consume(playerMap *map[string]Player, gMap *[mapWidth][mapHeight]*Tile) {
 	}
 }
 
-func getHandSize(player Player) int {
+func getHandSize(player *Player) int {
 	var count = 0
 	for _, card := range player.Cards {
 		if card != None {
@@ -194,7 +194,7 @@ func getHandSize(player Player) int {
 	return count
 }
 
-func limitCards(playerMap *map[string]Player) {
+func limitCards(playerMap *map[string]*Player) {
 	for mapKey := range *playerMap {
 		var player = (*playerMap)[mapKey]
 		if getHandSize(player) > 4 {
@@ -211,13 +211,13 @@ func limitCards(playerMap *map[string]Player) {
 }
 
 // TODO: THIS REQUIRES playerMap to hold *Player instead!
-func handleCombat(gMap *[mapWidth][mapHeight]*Tile, playerMap *map[string]Player) {
+func handleCombat(gMap *[mapWidth][mapHeight]*Tile, playerMap *map[string]*Player) {
 	//Create groups from position
 	var combatGroups = make(map[IntTuple][]*Player)
 	for mapKey := range *playerMap {
 		var player = (*playerMap)[mapKey]
 		var pos = IntTuple{player.X, player.Y}
-		combatGroups[pos] = append(combatGroups[pos], &player)
+		combatGroups[pos] = append(combatGroups[pos], player)
 	}
 	for _, group := range combatGroups {
 		fight(gMap, group)
@@ -231,7 +231,7 @@ func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
 	var y = group[0].Y
 	for a, player := range group {
 		if player.Play == Weapon {
-			cardIndex, hasCard := playerHasCard(*player, Weapon)
+			cardIndex, hasCard := playerHasCard(player, Weapon)
 			if hasCard {
 				attackValue += weaponStrength
 				group[a].Cards[cardIndex] = None
@@ -280,7 +280,7 @@ func spread(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple) {
 	}
 }
 
-func updatePlayerPositions(playerMap *map[string]Player, gMap *[mapWidth][mapHeight]*Tile) {
+func updatePlayerPositions(playerMap *map[string]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 	//Clear all player info in tiles
 	for _, tileRow := range *gMap {
 		for _, tile := range tileRow {
@@ -290,12 +290,12 @@ func updatePlayerPositions(playerMap *map[string]Player, gMap *[mapWidth][mapHei
 	//Reposition all players
 	for _, player := range *playerMap {
 		var tilePList = gMap[player.X][player.Y].Players
-		gMap[player.X][player.Y].Players = append(tilePList, player)
+		gMap[player.X][player.Y].Players = append(tilePList, *player)
 	}
 }
 
 // TODO: Unify order of attributes across functions
-func tick(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple, playerMap *map[string]Player) {
+func tick(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple, playerMap *map[string]*Player) {
 	move(playerMap)
 	resources(playerMap, *gMap)
 	handleCombat(gMap, playerMap)
@@ -305,7 +305,7 @@ func tick(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple, playerMap *map[s
 	updatePlayerPositions(playerMap, gMap)
 }
 
-func playerHasCard(player Player, card Card) (int, bool) {
+func playerHasCard(player *Player, card Card) (int, bool) {
 	for a, c := range player.Cards {
 		if c == card {
 			return a, true
@@ -322,16 +322,16 @@ func randomizeBot(bots []*Player) {
 		bot.Play = Dice
 		//Randomize consume
 
-		if _, foodFound := playerHasCard(*bot, Food); foodFound {
+		if _, foodFound := playerHasCard(bot, Food); foodFound {
 			bot.Consume = Food
-		} else if _, woodFound := playerHasCard(*bot, Wood); woodFound {
+		} else if _, woodFound := playerHasCard(bot, Wood); woodFound {
 			bot.Consume = Wood
 		} else {
 			bot.Consume = None
 		}
 
 		//Randomize discard
-		_, found := playerHasCard(*bot, None)
+		_, found := playerHasCard(bot, None)
 		if !found {
 			bot.Discard = bot.Cards[0]
 		}
@@ -340,7 +340,7 @@ func randomizeBot(bots []*Player) {
 
 // TODO: Somehow remove inactive players
 // TODO: Make sure ID has no /
-func addPlayer(playerMap *map[string]Player, playerName string) string {
+func addPlayer(playerMap *map[string]*Player, playerName string) string {
 	var rX = r.Intn(mapWidth - 1)
 	var rY = r.Intn(mapHeight - 1)
 	var nowString = strconv.Itoa(int(time.Now().UnixNano() << 2))
@@ -362,11 +362,11 @@ func addPlayer(playerMap *map[string]Player, playerName string) string {
 		Alive:     true,
 		IsBot:     false,
 	}
-	(*playerMap)[playerID] = player
+	(*playerMap)[playerID] = &player
 	return playerID
 }
 
-func addBot(playerMap *map[string]Player, bots *[]*Player, bID int) {
+func addBot(playerMap *map[string]*Player, bots *[]*Player, bID int) {
 	var rX = r.Intn(mapWidth - 1)
 	var rY = r.Intn(mapHeight - 1)
 	var bot = Player{
@@ -381,11 +381,11 @@ func addBot(playerMap *map[string]Player, bots *[]*Player, bID int) {
 		Alive:     true,
 		IsBot:     true,
 	}
-	(*playerMap)[strconv.Itoa(bID)] = bot
+	(*playerMap)[strconv.Itoa(bID)] = &bot
 	*bots = append(*bots, &bot)
 }
 
-func restockBots(playerMap *map[string]Player, bots *[]*Player, bID *int) {
+func restockBots(playerMap *map[string]*Player, bots *[]*Player, bID *int) {
 	var botDelta = botNumber - len(*bots)
 	for i := 0; i < botDelta; i++ {
 		addBot(playerMap, bots, *bID)
@@ -393,7 +393,7 @@ func restockBots(playerMap *map[string]Player, bots *[]*Player, bID *int) {
 	}
 }
 
-func havePlayersWon(playerMap map[string]Player) bool {
+func havePlayersWon(playerMap map[string]*Player) bool {
 	for _, player := range playerMap {
 		if player.hasWinCondition() {
 			return true
@@ -409,7 +409,7 @@ func main() {
 	}
 	var gameMap [mapWidth][mapHeight]*Tile
 	var cityList []IntTuple
-	var playerMap = make(map[string]Player)
+	var playerMap = make(map[string]*Player)
 	var botList []*Player
 	var botID = 0
 	var turnTimer = int8(turnLength)
