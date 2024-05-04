@@ -4,25 +4,28 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
 	"github.com/gin-gonic/gin"
 )
 
-func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTime *int8, hasWon *bool) {
+func setupAPI(playerMap *map[string]Player, gameMap *[mapWidth][mapHeight]*Tile, turnTime *int8, hasWon *bool) {
 	router := gin.Default()
+	//GET endpoints only receive call-by-value arguments
+	//POST/PUT endpoints receive a pointer to enable writes
 	//Player endpoints
-	router.POST("/player/:name", addPlayerHandlerFunc(playerList))
-	router.GET("/player/:id", getPlayerHandlerFunc(playerList))
-	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(playerList, gameMap))
-	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc(playerList))
-	router.PUT("/player/:id/consume/:card", setConsumeHandlerFunc(playerList))
-	router.PUT("/player/:id/discard/:card", setDiscardHandlerFunc(playerList))
-	router.PUT("/player/:id/play/:card", setPlayHandlerFunc(playerList))
+	router.POST("/player/:name", addPlayerHandlerFunc(playerMap))
+	router.GET("/player/:id", getPlayerHandlerFunc(*playerMap))
+	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(*playerMap, *gameMap))
+	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc(playerMap))
+	router.PUT("/player/:id/consume/:card", setConsumeHandlerFunc(playerMap))
+	router.PUT("/player/:id/discard/:card", setDiscardHandlerFunc(playerMap))
+	router.PUT("/player/:id/play/:card", setPlayHandlerFunc(playerMap))
 	//Config endpoints
-	router.GET("/config/turnTimer", getRemainingTimerHandlerFunc(turnTime))
+	router.GET("/config/turnTimer", getRemainingTimerHandlerFunc(*turnTime))
 	router.GET("/config/turnLength", getConfigTurnTimerHandlerFunc())
 	router.GET("/config/mapSize", getConfigMapSizeHandlerFunc())
-	router.GET("/config/hasWon", getConfigGameStateHandlerFunc(hasWon))
-	router.GET("/config", getAllConfigHandlerFunc(turnTime, hasWon))
+	router.GET("/config/hasWon", getConfigGameStateHandlerFunc(*hasWon))
+	router.GET("/config", getAllConfigHandlerFunc(*turnTime, *hasWon))
 	router.Run("0.0.0.0:8080")
 }
 
@@ -30,32 +33,26 @@ func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTi
 //
 // This will perform a lookup given a playerID and return a pointer to the Player or nil.
 // Parameters:
-//
-//	playerList: PlayerList to be searched
-//	id: PlayerID that will be searched for
-//
-// Returns: *Player or nil
-func getPlayerOrNil(playerList *[]*Player, id string) *Player {
-	//TODO: Refactor playerList to be a map!!
-	for pNr, player := range *playerList {
-		if player.ID == id {
-			return (*playerList)[pNr]
-		}
+func getPlayerOrNil(playerMap map[string]Player, id string) *Player {
+	var player = playerMap[id]
+	if player.ID == "" {
+		return nil
+	} else {
+		return &player
 	}
-	return nil
 }
 
-func getAllConfigHandlerFunc(turnTimer *int8, hasWon *bool) gin.HandlerFunc {
+func getAllConfigHandlerFunc(turnTimer int8, hasWon bool) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		var response = ConfigResponse{int(*turnTimer), turnLength, *hasWon}
+		var response = ConfigResponse{int(turnTimer), turnLength, hasWon}
 		c.JSON(http.StatusOK, response)
 	}
 	return fn
 }
 
-func getConfigGameStateHandlerFunc(hasWon *bool) gin.HandlerFunc {
+func getConfigGameStateHandlerFunc(hasWon bool) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		c.JSON(http.StatusOK, &hasWon)
+		c.JSON(http.StatusOK, hasWon)
 	}
 	return fn
 }
@@ -74,37 +71,36 @@ func getConfigMapSizeHandlerFunc() gin.HandlerFunc {
 	return fn
 }
 
-func addPlayerHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
+func addPlayerHandlerFunc(playerMap *map[string]Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		var pName = filterPlayerName(c.Param("name"))
-		var pID = addPlayer(playerList, pName)
+		var pID = addPlayer(playerMap, pName)
 		c.JSON(http.StatusOK, pID)
 	}
 	return fn
 }
 
-func getRemainingTimerHandlerFunc(turnTimer *int8) gin.HandlerFunc {
+func getRemainingTimerHandlerFunc(turnTimer int8) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		c.JSON(http.StatusOK, *turnTimer)
+		c.JSON(http.StatusOK, turnTimer)
 	}
 	return fn
 }
 
-func tileToMapPiece(tile Tile) MapPiece {	
+func tileToMapPiece(tile Tile) MapPiece {
 	var planNorth, planEast, planSouth, planWest = 0, 0, 0, 0
 	for _, player := range tile.Players {
 		switch player.Direction {
-			case North:
-				planNorth++
-			case East:
-				planEast++
-			case South:
-				planSouth++
-			case West:
-				planWest++
-			}
+		case North:
+			planNorth++
+		case East:
+			planEast++
+		case South:
+			planSouth++
+		case West:
+			planWest++
 		}
-
+	}
 	return MapPiece{
 		tile.Terrain.toString(),
 		tile.Zombies,
@@ -116,10 +112,10 @@ func tileToMapPiece(tile Tile) MapPiece {
 	}
 }
 
-func getSurroundingsHandlerFunc(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile) gin.HandlerFunc {
+func getSurroundingsHandlerFunc(playerMap map[string]Player, gameMap [mapWidth][mapHeight]*Tile) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
-		playerPtr := getPlayerOrNil(playerList, id)
+		playerPtr := getPlayerOrNil(playerMap, id)
 		if playerPtr == nil { //TODO: If nil else function or invert? Make them all identical!
 			c.AbortWithStatus(http.StatusForbidden)
 			return
@@ -154,7 +150,7 @@ func getSurroundingsHandlerFunc(playerList *[]*Player, gameMap *[mapWidth][mapHe
 	return fn
 }
 
-func setDiscardHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
+func setDiscardHandlerFunc(playerMap *map[string]Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		cardStr := c.Param("card")
@@ -163,7 +159,7 @@ func setDiscardHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
-		playerPtr := getPlayerOrNil(playerList, id)
+		playerPtr := getPlayerOrNil(*playerMap, id)
 		if playerPtr != nil {
 			(playerPtr).Discard = cardTypes[card]
 			c.Status(http.StatusOK)
@@ -176,7 +172,7 @@ func setDiscardHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	return fn
 }
 
-func setPlayHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
+func setPlayHandlerFunc(playerMap *map[string]Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		cardStr := c.Param("card")
@@ -185,7 +181,7 @@ func setPlayHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
-		playerPtr := getPlayerOrNil(playerList, id)
+		playerPtr := getPlayerOrNil(*playerMap, id)
 		if playerPtr != nil {
 			(*playerPtr).Play = cardTypes[card]
 			c.Status(http.StatusOK)
@@ -198,12 +194,12 @@ func setPlayHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	return fn
 }
 
-func setConsumeHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
+func setConsumeHandlerFunc(playerMap *map[string]Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		cardStr := c.Param("card")
 		var card = cards[strings.ToLower(cardStr)]
-		playerPtr := getPlayerOrNil(playerList, id)
+		playerPtr := getPlayerOrNil(*playerMap, id)
 		if playerPtr != nil {
 			(*playerPtr).Consume = card
 			c.Status(http.StatusOK)
@@ -215,12 +211,12 @@ func setConsumeHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	return fn
 }
 
-func setDirectionHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
+func setDirectionHandlerFunc(playerMap *map[string]Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		dirStr := c.Param("dir")
 		var dir = directions[strings.ToLower(dirStr)]
-		playerPtr := getPlayerOrNil(playerList, id)
+		playerPtr := getPlayerOrNil(*playerMap, id)
 		if playerPtr != nil {
 			(*playerPtr).Direction = dir
 			c.Status(http.StatusOK)
@@ -231,10 +227,10 @@ func setDirectionHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	return fn
 }
 
-func getPlayerHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
+func getPlayerHandlerFunc(playerMap map[string]Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
-		playerPtr := getPlayerOrNil(playerList, id)
+		playerPtr := getPlayerOrNil(playerMap, id)
 		if playerPtr != nil {
 			c.JSON(http.StatusOK, (*playerPtr))
 			return
