@@ -176,8 +176,10 @@ func consume(playerMap *map[string]Player, gMap *[mapWidth][mapHeight]*Tile) {
 				getMapTile(player.X, player.Y, gMap).Zombies += zombiesAttracted
 			}
 			player.Cards[cardPos] = None //Remove card from hand
+			(*playerMap)[player.ID] = player
 		} else {
 			player.Alive = false //Card not in hand, kill the player
+			(*playerMap)[player.ID] = player
 		}
 	}
 }
