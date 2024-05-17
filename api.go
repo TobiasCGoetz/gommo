@@ -29,10 +29,6 @@ func setupAPI(playerMap *map[string]*Player, gameMap *[mapWidth][mapHeight]*Tile
 	router.Run("0.0.0.0:8080")
 }
 
-// getPlayerOrNil returns a pointer to the referenced player or nil
-//
-// This will perform a lookup given a playerID and return a pointer to the Player or nil.
-// Parameters:
 func getPlayerOrNil(playerMap map[string]*Player, id string) *Player {
 	var player = playerMap[id]
 	return player
@@ -84,6 +80,9 @@ func getRemainingTimerHandlerFunc(turnTimer int8) gin.HandlerFunc {
 }
 
 func tileToMapPiece(tile *Tile) MapPiece {
+	if tile == nil {
+		return MapPiece{Edge.toString(), 0, 0, 0, 0, 0, 0}
+	}
 	var planNorth, planEast, planSouth, planWest = 0, 0, 0, 0
 	for _, player := range tile.Players {
 		switch player.Direction {
