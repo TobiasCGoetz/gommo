@@ -12,5 +12,7 @@ const turnLength int = 15
 const maxTurns int = 500
 const victoryNumber int = 2
 
+const defaultDirection = South
+
 var idSalt = "6LIBN8OWPzTKctUvbZtXV2mFn2tCq3qZKjHYbTTnLWtu6oGTU3ow3tuNx9SBTuND"
 var hasWon bool = false

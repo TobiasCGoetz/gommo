@@ -95,7 +95,7 @@ func move(playerMap *map[string]*Player) {
 			player.Y = 0
 		}
 		//Reset move direction
-		player.Direction = Stay
+		//player.Direction = defaultDirection
 		//Write new state
 		(*playerMap)[player.ID] = player
 	}
@@ -378,7 +378,7 @@ func addPlayer(playerMap *map[string]*Player, playerName string) string {
 		Name:      playerName,
 		X:         rX,
 		Y:         rY,
-		Direction: Stay,
+		Direction: defaultDirection,
 		Play:      None,
 		Consume:   None,
 		Discard:   None,
@@ -440,7 +440,7 @@ func main() {
 	hasWon = false
 	r = rand.New(rand.NewSource(time.Now().Unix()))
 	initMap(*r, &gameMap)
-	time.Sleep(time.Second)
+	//Data set up, now we can start the API
 
 	go setupAPI(&playerMap, &gameMap, &turnTimer, &hasWon)
 
