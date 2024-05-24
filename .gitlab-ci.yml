@@ -1,0 +1,31 @@
+image: golang:1.21-10
+
+cache:
+  paths:
+    - /apt-cache
+    - /go/src/github.com
+    - /go/src/golang.org
+    - /go/src/google.golang.org
+    - /go/src/gopkg.in
+
+stages:
+  - test
+  - build
+
+before_script:
+  - mkdir -p /go/src/gitlab.com/pantomath-io /go/src/_/builds
+  - cp -r $CI_PROJECT_DIR /go/src/gitlab.com/pantomath-io/pantomath
+  - ln -s /go/src/gitlab.com/pantomath-io /go/src/_/builds/pantomath-io
+  - make dep
+
+test:
+  stage: test
+  script:
+    - make test
+  only:
+  - master
+
+build:
+  stage: build
+  script:
+    - make build
