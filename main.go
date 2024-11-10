@@ -95,9 +95,10 @@ func move(playerMap *map[string]*Player) {
 			player.Y = 0
 		}
 		//Reset move direction
-		//player.Direction = defaultDirection
+		player.Direction = defaultDirection
 		//Write new state
 		(*playerMap)[player.ID] = player
+		fmt.Println(player.Name, "is now at", player.X, "|", player.Y)
 	}
 }
 
