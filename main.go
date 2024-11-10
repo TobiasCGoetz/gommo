@@ -68,18 +68,18 @@ func move(playerMap *map[string]*Player) {
 		switch player.Direction {
 		case North:
 			player.Y += 1
-			(*playerMap)[player.ID] = player
 		case East:
 			player.X += 1
-			(*playerMap)[player.ID] = player
 		case South:
 			player.Y -= 1
-			(*playerMap)[player.ID] = player
 		case West:
 			player.X -= 1
 		case Stay:
 			return
 		}
+		
+		//Write new coordinates
+		(*playerMap)[player.ID] = player
 
 		//Prevent out-of-map moves
 		if mapWidth <= player.X {
@@ -98,7 +98,6 @@ func move(playerMap *map[string]*Player) {
 		player.Direction = defaultDirection
 		//Write new state
 		(*playerMap)[player.ID] = player
-		fmt.Println(player.Name, "is now at", player.X, "|", player.Y)
 	}
 }
 

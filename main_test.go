@@ -149,6 +149,40 @@ func TestMove(t *testing.T) {
 	}
 }
 
+func TestMoveCycle(t *testing.T) {
+	t.Log("Beginning TestMoveCylce")
+	var playerX, playerY = 10, 10
+	var testPlayer = Player{
+		ID:        "test",
+		X:         playerX,
+		Y:         playerY,
+		Direction: North,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   Wood,
+		Cards:     [5]Card{Wood, Wood, Food, None, None},
+		Alive:     true,
+		IsBot:     true,
+	}
+	var referencePlayer = testPlayer
+	var testPlayerMap = make(map[string]*Player)
+	testPlayerMap[testPlayer.ID] = &testPlayer
+	var possibleDirections = Directions
+	//Test directions
+	for _, dir := range possibleDirections {
+		t.Logf("%s", dir.toString())
+		testPlayer.Direction = dir
+		move(&testPlayerMap)
+		t.Logf("%d | %d", testPlayer.X, testPlayer.Y)
+	}
+
+	if testPlayer.X != referencePlayer.X || testPlayer.Y != referencePlayer.Y {
+		t.Errorf("TestPlayer moved away instead of returning home: %d | %d",
+			testPlayer.X-referencePlayer.X,
+			testPlayer.Y-referencePlayer.Y)
+	}
+}
+
 func TestGetFirstEmptyHandSlot(t *testing.T) {
 	var playerX = 5
 	var playerY = 5
