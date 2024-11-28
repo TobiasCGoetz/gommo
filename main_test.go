@@ -56,6 +56,53 @@ func TestGetMapTile(t *testing.T) {
 	}
 }
 
+func TestTileToMapPiece(t *testing.T) {
+	var playerX = 5
+	var playerY = 5
+	var testPlayer = Player{
+		ID:        "test",
+		X:         playerX,
+		Y:         playerY,
+		Direction: North,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   Wood,
+		Cards:     [5]Card{Wood, Wood, Food, None, None},
+		Alive:     true,
+		IsBot:     true,
+	}
+	var zombieCount = 99
+	var tile = &Tile{City, zombieCount, []Player{testPlayer}}
+	var mapPiece = tileToMapPiece(tile)
+	
+	if mapPiece.TileType != City.toString() {
+		t.Errorf("tileToMapPiece returned wrong terrain")
+	}
+        if mapPiece.ZombieCount != zombieCount {
+		t.Errorf("tileToMapPiece returned wrong zombieCount")
+	}
+
+        if mapPiece.PlayerCount != 1 {
+		t.Errorf("tileToMapPiece returned wrong playerCount")
+	}
+
+        if mapPiece.PlayersPlanMoveNorth != 1 {
+		t.Errorf("tileToMapPiece miscounted players moving north")
+	}
+
+        if mapPiece.PlayersPlanMoveEast != 0 {
+		t.Errorf("tileToMapPiece miscounted players moving east")
+	}
+
+        if mapPiece.PlayersPlanMoveSouth != 0 {
+		t.Errorf("tileToMapPiece miscounted players moving south")
+	}
+
+        if mapPiece.PlayersPlanMoveWest != 0 {
+		t.Errorf("tileToMapPiece miscounted players moving west")
+	}
+}
+
 // TODO: Figure out if positive Y == North is stupid
 func TestMove(t *testing.T) {
 	var playerX = 5
