@@ -5,11 +5,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func setupAPI(playerMap *map[string]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTime *int8, hasWon *bool) {
 	router := gin.Default()
+	router.Use(cors.Default())
 	//GET endpoints only receive call-by-value arguments
 	//POST/PUT endpoints receive a pointer to enable writes
 	//Player endpoints
