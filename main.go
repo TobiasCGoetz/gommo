@@ -129,13 +129,17 @@ func limitCards() {
 
 func handleCombat() {
 	//Create groups from position
-	var combatGroups = make(map[IntTuple][]Player)
+	var combatGroups = make(map[IntTuple][]*Player)
+	for _, player := range playerList {
+		var pos = IntTuple{ player.x, player.y }
+		combatGroups[pos] = append(combatGroups[pos], &player)
+	}
 	for _, group := range combatGroups {
 		fight(group)
 	}
 }
 
-func fight(group []Player) {
+func fight(group []*Player) {
 	//Calculate dice + weapon VS zombies per group
 }
 
@@ -202,7 +206,7 @@ func randomizePlayerInput(player *Player) {
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	var me Player = Player{"me", 2, 5, North, Weapon, Food, None, [5]Card{Food, Wood, Wood, None, None}}
+	var me Player = Player{"me", 2, 5, North, Weapon, Food, None, [5]Card{Food, Wood, Wood, None, None}, true}
 	playerList = append(playerList, me)
 	initMap(&gameMap)
 	printMap(&gameMap)
