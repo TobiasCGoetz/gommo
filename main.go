@@ -286,6 +286,21 @@ func spread(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple) {
 	}
 }
 
+func updatePlayerPositions(pList *[]*Player, gMap*[mapWidth][mapHeight]*Tile) {
+	//Clear all player info in tiles
+	for _, tileRow := range *gMap {
+		for _, tile := range tileRow {
+			(*tile).Players = []Player{}
+		}
+	}
+	//Reposition all players
+	for _, player := range *pList {
+		var tilePList = gMap[player.X][player.Y].Players
+		tilePList = append(tilePList, *player)
+	}
+}
+
+//TODO: Unify order of attributes across functions
 func tick(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple, pList *[]*Player) {
 	move(pList)
 	resources(pList, gMap)
@@ -293,6 +308,7 @@ func tick(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple, pList *[]*Player
 	spread(gMap, cities)
 	consume(pList, gMap)
 	limitCards(pList)
+	updatePlayerPositions(pList, gMap)
 }
 
 func playerHasCard (player *Player, card Card) (int, bool) {
