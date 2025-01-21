@@ -446,19 +446,20 @@ func main() {
 		rand.Seed(time.Now().UnixNano())
 		initMap(&gameMap)
 		cityList = createCityList(&gameMap)
-		var remainingTurns = uint16(maxTurns)
+		var remainingTurns = maxTurns
 		for ; remainingTurns > 0; remainingTurns-- {
-			if turnTimer == 0 {
-				randomizeBot(botList)
-				tick(&gameMap, &cityList, &playerList)
-				if havePlayersWon(&playerList) { //TODO: Add GameID, Victory-Check endpoint
-					break
+			for ; turnTimer > 0; turnTimer-- {
+				if turnTimer == 0 {
+					randomizeBot(botList)
+					tick(&gameMap, &cityList, &playerList)
+					if havePlayersWon(&playerList) { //TODO: Add GameID, Victory-Check endpoint
+						break
+					}
+					restockBots(&playerList, &botList, &botID)
+					turnTimer = uint8(turnLength)
+				} else {
+					time.Sleep(time.Second)
 				}
-				restockBots(&playerList, &botList, &botID)
-				turnTimer = uint8(turnLength)
-			} else {
-				time.Sleep(time.Second)
-				turnTimer--
 			}
 		}
 		fmt.Println("Restarting game.")
