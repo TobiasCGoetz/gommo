@@ -140,9 +140,26 @@ func fight(group []Player) {
 }
 
 func spread() {
-	//Get all cities
-	//Increment neighbours
-	//Maybe cutoff
+	for _, city := range cityList {
+		city.x, city.y
+		//North
+		if city.y < mapHeight-1 {
+			gameMap[city.x][city.y+1].zombies++
+		}
+		//East
+		if city.x < mapWith-1 {
+			gameMap[city.x+1][city.y].zombies++
+		}
+		//South
+		if city.y > 0 {
+			gameMap[city.x][city.y-1].zombies++
+		}
+		//West
+		if city.x > 0 {
+			gameMap[city.x-1][city.y].zombies++
+		}
+	}
+	//Maybe cutoff?
 }
 
 func tick() {
