@@ -90,17 +90,29 @@ func getRemainingTimerHandlerFunc(turnTimer *int8) gin.HandlerFunc {
 	return fn
 }
 
-// TODO: Make playersPlanMoveXYZ work
-func tileToMapPiece(tile Tile) MapPiece {
-	//terrain, zombies, players, planNorth/East/South/West
+func tileToMapPiece(tile Tile) MapPiece {	
+	var planNorth, planEast, planSouth, planWest = 0, 0, 0, 0
+	for _, player := range tile.Players {
+		switch player.Direction {
+			case North:
+				planNorth++
+			case East:
+				planEast++
+			case South:
+				planSouth++
+			case West:
+				planWest++
+			}
+		}
+
 	return MapPiece{
 		tile.Terrain.toString(),
 		tile.Zombies,
 		len(tile.Players),
-		0,
-		0,
-		0,
-		0,
+		planNorth,
+		planEast,
+		planSouth,
+		planWest,
 	}
 }
 
