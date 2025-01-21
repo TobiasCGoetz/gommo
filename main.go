@@ -23,6 +23,38 @@ func printMap (gameMap [mapWidth][mapHeight]Tile) {
 	}
 }
 
+func move() {
+	//Set new coordinates per player from move
+	//Reset move direction per player
+}
+
+func ressources() {
+	//Add card from tile
+	//Handle cutoff/selection/blocking
+}
+
+func group() {
+	//Create groups from position
+}
+
+func fight() {	
+	//Calculate dice + weapon VS zombies per group
+}
+
+func spread() {
+	//Get all cities
+	//Increment neighbours
+	//Maybe cutoff
+}
+
+func tick() {
+	move()
+	ressources()
+	group()
+	fight()
+	spread()
+}
+
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	//var forest Tile = Forest
