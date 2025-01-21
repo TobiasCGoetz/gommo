@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func setupAPI(playerMap *map[string]Player, gameMap *[mapWidth][mapHeight]*Tile, turnTime *int8, hasWon *bool) {
+func setupAPI(playerMap *map[string]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTime *int8, hasWon *bool) {
 	router := gin.Default()
 	//GET endpoints only receive call-by-value arguments
 	//POST/PUT endpoints receive a pointer to enable writes
@@ -33,12 +33,12 @@ func setupAPI(playerMap *map[string]Player, gameMap *[mapWidth][mapHeight]*Tile,
 //
 // This will perform a lookup given a playerID and return a pointer to the Player or nil.
 // Parameters:
-func getPlayerOrNil(playerMap map[string]Player, id string) *Player {
+func getPlayerOrNil(playerMap map[string]*Player, id string) *Player {
 	var player = playerMap[id]
 	if player.ID == "" {
 		return nil
 	} else {
-		return &player
+		return player
 	}
 }
 
@@ -71,7 +71,7 @@ func getConfigMapSizeHandlerFunc() gin.HandlerFunc {
 	return fn
 }
 
-func addPlayerHandlerFunc(playerMap *map[string]Player) gin.HandlerFunc {
+func addPlayerHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		var pName = filterPlayerName(c.Param("name"))
 		var pID = addPlayer(playerMap, pName)
@@ -112,7 +112,7 @@ func tileToMapPiece(tile Tile) MapPiece {
 	}
 }
 
-func getSurroundingsHandlerFunc(playerMap map[string]Player, gameMap [mapWidth][mapHeight]*Tile) gin.HandlerFunc {
+func getSurroundingsHandlerFunc(playerMap map[string]*Player, gameMap [mapWidth][mapHeight]*Tile) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		playerPtr := getPlayerOrNil(playerMap, id)
@@ -150,7 +150,7 @@ func getSurroundingsHandlerFunc(playerMap map[string]Player, gameMap [mapWidth][
 	return fn
 }
 
-func setDiscardHandlerFunc(playerMap *map[string]Player) gin.HandlerFunc {
+func setDiscardHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		cardStr := c.Param("card")
@@ -172,7 +172,7 @@ func setDiscardHandlerFunc(playerMap *map[string]Player) gin.HandlerFunc {
 	return fn
 }
 
-func setPlayHandlerFunc(playerMap *map[string]Player) gin.HandlerFunc {
+func setPlayHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		cardStr := c.Param("card")
@@ -194,7 +194,7 @@ func setPlayHandlerFunc(playerMap *map[string]Player) gin.HandlerFunc {
 	return fn
 }
 
-func setConsumeHandlerFunc(playerMap *map[string]Player) gin.HandlerFunc {
+func setConsumeHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		cardStr := c.Param("card")
@@ -211,7 +211,7 @@ func setConsumeHandlerFunc(playerMap *map[string]Player) gin.HandlerFunc {
 	return fn
 }
 
-func setDirectionHandlerFunc(playerMap *map[string]Player) gin.HandlerFunc {
+func setDirectionHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		dirStr := c.Param("dir")
@@ -227,7 +227,7 @@ func setDirectionHandlerFunc(playerMap *map[string]Player) gin.HandlerFunc {
 	return fn
 }
 
-func getPlayerHandlerFunc(playerMap map[string]Player) gin.HandlerFunc {
+func getPlayerHandlerFunc(playerMap map[string]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		playerPtr := getPlayerOrNil(playerMap, id)
