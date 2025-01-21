@@ -42,12 +42,14 @@ const (
 	Food Card = iota
 	Wood
 	Weapon
+	Research
 	None
 )
 
+var cardTypes = [5]Card{ Food, Wood, Weapon, Research, None }
 
 func (c Card) toString() string {
-	return []string{"Food", "Wood", "Weapon", "None"}[c]
+	return []string{"Food", "Wood", "Weapon", "Research", "None"}[c]
 }
 
 //Players
@@ -57,6 +59,7 @@ type Player struct {
 	x, y int
 	dir Direction
 	play Card
+	discard Card
 	cards [5]Card
 }
 
