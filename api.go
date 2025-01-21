@@ -201,7 +201,18 @@ func sanitizeSurroundingsInfo (surroundings *Surroundings) {
 }
 
 func maskPlayerInfo (tile *Tile) {
-	for _, player := range tile.Players {
-		player.ID = "Spielername"
+	for playerNr, player := range tile.Players {
+		//Filter the dead
+		if player.Alive {
+			tile.Players = append(tile.Players[:playerNr], tile.Players[playerNr+1:]...)
+			continue
+		}
+		//Come up with useful playernames
+		tile.Players[playerNr].ID = "Spielername"
+		//Blank out hidden info
+		tile.Players[playerNr].Cards = [5]Card{}
+		tile.Players[playerNr].Consume = None
+		tile.Players[playerNr].Play = None
+		tile.Players[playerNr].IsBot = true
 	}
 }
