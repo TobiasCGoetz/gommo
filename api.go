@@ -46,14 +46,8 @@ func getPlayerOrNil(playerList *[]*Player, id string) *Player {
 
 func getAllConfigHandlerFunc(turnTimer *int8, hasWon *bool) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		var r = make(map[string]int8)
-		r["turnTime"] = *turnTimer
-		r["turnLength"] = int8(turnLength)
-		r["hasWon"] = 0
-		if *hasWon {
-			r["hasWon"] = 1
-		}
-		c.JSON(http.StatusOK, r)
+		var response = ConfigResponse{int(*turnTimer), turnLength, *hasWon}
+		c.JSON(http.StatusOK, response)
 	}
 	return fn
 }
