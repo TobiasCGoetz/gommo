@@ -1,8 +1,5 @@
-image: golang:bookworm
-
 cache:
   paths:
-    - /apt-cache
     - .cache
 
 stages:
@@ -16,11 +13,17 @@ before_script:
 
 test:
   stage: test
+  tags:
+    - shell
+    - linux
   script:
     - make test
 
 buildARM:
   stage: build
+  tags:
+    - shell
+    - linux
   script:
     - make buildarm
   only:
