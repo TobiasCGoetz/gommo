@@ -183,9 +183,11 @@ func TestGetFirstEmptyHandSlot(t *testing.T) {
 func TestFight(t *testing.T)  {
 	var loc1 = IntTuple{10, 10}
 	var loc2 = IntTuple{13, 13}
+	var loc3 = IntTuple{21, 21}
 	var gameMap [mapWidth][mapHeight]*Tile
 	fakeInitMap(&gameMap, Forest, 3)
 	gameMap[loc2.X][loc2.Y].Zombies = zombieCutoff
+	gameMap[loc3.X][loc3.Y].Zombies = weaponStrength - 1
 	var combatGroups = make(map[IntTuple][]*Player)
 	var testPlayer = Player{
 		ID:        "test",
@@ -204,10 +206,22 @@ func TestFight(t *testing.T)  {
 	if gameMap[loc1.X][loc1.Y].Zombies > 0 {
 		t.Errorf("%d/%d has %d Z instead of 0", loc1.X, loc1.Y, gameMap[loc1.X][loc1.Y].Zombies)
 	}
+	testPlayer.X = loc2.X
+	testPlayer.Y = loc2.Y
 	combatGroups[loc2] = append(combatGroups[loc2], &testPlayer)
 	fight(&gameMap, combatGroups[loc2])
-	if !testPlayer.Alive {
+	if testPlayer.Alive {
 		t.Errorf("Player didn't die correctly")
+	}
+	testPlayer.Alive = true
+	testPlayer.X = loc3.X
+	testPlayer.Y = loc3.Y
+	testPlayer.Cards = [5]Card{Weapon, None, None, None, None}
+	testPlayer.Play = Weapon
+	combatGroups[loc3] = append(combatGroups[loc3], &testPlayer)
+	fight(&gameMap, combatGroups[loc3])
+	if !testPlayer.Alive || gameMap[loc3.X][loc3.Y].Zombies != 0 {
+		t.Errorf("Player didn't use weapon correctly")
 	}
 }
 
