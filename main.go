@@ -67,13 +67,13 @@ func move(playerMap *map[string]*Player) {
 		//Perform move
 		switch player.Direction {
 		case North:
-			player.Y += 1
+			player.Y -= 1 //TODO: Don't hardcode Y axis direction?
 			(*playerMap)[player.ID] = player
 		case East:
 			player.X += 1
 			(*playerMap)[player.ID] = player
 		case South:
-			player.Y -= 1
+			player.Y += 1
 			(*playerMap)[player.ID] = player
 		case West:
 			player.X -= 1
