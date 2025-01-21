@@ -111,7 +111,7 @@ func TestResources(t *testing.T) {
 	}
 	testArray = []*Player{&deadPlayer}
 	resources(&testArray, &gameMap)
-	if testPlayer.cards[0] != None {
+	if deadPlayer.cards[0] != None {
 		t.Errorf("Dead player did not have to sit out when distributing resources.")
 	}
 }
