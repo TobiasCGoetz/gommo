@@ -57,7 +57,7 @@ type Player struct {
 	x, y int
 	dir Direction
 	play Card
-	cards [4]Card
+	cards [5]Card
 }
 
 func printPlayersList(s []Player) {
