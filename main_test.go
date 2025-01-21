@@ -40,6 +40,18 @@ func TestCreateCityList(t *testing.T) {
 	}
 }
 
+func TestGetMapTile(t *testing.T) {
+	var testMap [mapWidth][mapHeight]*Tile
+	initMap(&testMap)
+	testMap[13][42] = &Tile{City, 99}
+	var testTile = getMapTile(13, 42, &testMap)
+	if testTile.Terrain == City && testTile.Zombies == 99 {
+		return
+	} else {
+		t.Errorf("GetMapTile picked the wrong tile.")
+	}
+}
+
 //TODO: Figure out if positive Y == North is stupid
 func TestMove(t *testing.T) {
 	var playerX = 5
