@@ -14,9 +14,16 @@ func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTi
 	router.PUT("/player/:id/discard/:card", setDiscardHandlerFunc(playerList))
 	router.PUT("/player/:id/play/:card", setPlayHandlerFunc(playerList))
 	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(playerList, gameMap))
+	router.GET("/turnTimer", getRemainingTimerHandlerFunc(turnTime))
 	router.Run("localhost:8080")
 }
 
+func getRemainingTimerHandlerFunc (turnTimer *uint8) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		c.IndentedJSON(http.StatusOK, *turnTimer)
+	}
+	return fn
+}
 
 //TODO: Add surrounding players info, fix out-of-gamemap access
 func getSurroundingsHandlerFunc (playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile) gin.HandlerFunc {
