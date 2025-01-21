@@ -245,6 +245,7 @@ func TestFight(t *testing.T) {
 }
 
 func TestHandleCombat(t *testing.T) {
+	r = rand.New(rand.NewSource(1))
 	var loc = IntTuple{10, 10}
 	gameMap := fakeInitMap(Forest, 0)
 	gameMap[loc.X][loc.Y] = &Tile{City, 99, []Player{}}
@@ -289,7 +290,9 @@ func TestHandleCombat(t *testing.T) {
 	testPlayerMap[testPlayer2.ID] = testPlayer2
 	testPlayerMap[testPlayer3.ID] = testPlayer3
 	handleCombat(&gameMap, &testPlayerMap)
-	if testPlayer1.Alive || testPlayer2.Alive || testPlayer3.Alive {
+	if testPlayerMap[testPlayer1.ID].Alive ||
+		testPlayerMap[testPlayer2.ID].Alive ||
+		testPlayerMap[testPlayer3.ID].Alive {
 		t.Errorf("Not all players died.")
 	}
 }

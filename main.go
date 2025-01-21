@@ -210,11 +210,12 @@ func limitCards(playerMap *map[string]Player) {
 	}
 }
 
+// TODO: THIS REQUIRES playerMap to hold *Player instead!
 func handleCombat(gMap *[mapWidth][mapHeight]*Tile, playerMap *map[string]Player) {
 	//Create groups from position
 	var combatGroups = make(map[IntTuple][]*Player)
-	for mapKey, _ := range *playerMap {
-		var player = (*playerMap)[mapKey]
+	for mapKey := range *playerMap {
+		var playerPtr = (*playerMap)[mapKey]
 		var pos = IntTuple{player.X, player.Y}
 		combatGroups[pos] = append(combatGroups[pos], &player)
 	}
