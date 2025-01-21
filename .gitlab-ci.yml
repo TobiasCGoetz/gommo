@@ -4,7 +4,7 @@ cache:
 
 stages:
   - test
-  - buildARM
+  - build
 
 before_script:
   - mkdir -p .cache
@@ -15,15 +15,13 @@ test:
   stage: test
   tags:
     - shell
-    - linux
   script:
     - make test
 
-buildARM:
+build:
   stage: build
   tags:
     - shell
-    - linux
   script:
     - make buildarm
   only:
