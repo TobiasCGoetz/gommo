@@ -185,17 +185,16 @@ func limitCards(pList *[]*Player) {
 		if getHandSize(*player) > 4 {
 			if player.Discard == None {
 				(*pList)[a].Cards[4] = None
-			}
-		} else {
-			for f, card := range player.Cards {
-				if card == player.Discard && card != None {
-					fmt.Printf(card.toString())
-					fmt.Printf("\n")
-					(*pList)[a].Cards[f] = None
+			} else {
+				var cardPos, hasCard = playerHasCard((*pList)[a], player.Discard)
+				if hasCard {
+					(*pList)[a].Cards[cardPos] = None
+				} else {
+					(*pList)[a].Cards[4] = None
 				}
 			}
 		}
-		player.Discard = None
+		(*pList)[a].Discard = None
 	}
 }
 
