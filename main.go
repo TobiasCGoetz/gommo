@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+
+var gameMap [mapWidth][mapHeight]Tile
+var playerList []Player
+
 func initMap (gameMap *[mapWidth][mapHeight]Tile) {
 	for a, column := range gameMap {
 		for b, _ := range column {
@@ -26,7 +30,20 @@ func printMap (gameMap *[mapWidth][mapHeight]Tile) {
 
 func move() {
 	//Set new coordinates per player from move
+	for _, player := range playerList {
+		switch player.dir {
+		case North:
+			player.y += 1
+		case East:
+			player.x += 1
+		case South:
+			player.y -= 1
+		case West:
+			player.x -= 1
+		}
 	//Reset move direction per player
+	player.dir = Stay
+	}
 }
 
 func ressources() {
@@ -56,21 +73,14 @@ func tick() {
 	spread()
 }
 
-func printPlayersList(s []Player) {
-	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)
-}
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	//var forest Tile = Forest
-	//var food Card = Food
 	var me Player = Player{"me", 13, 42, North, Weapon, [4]Card{Food, Wood, Wood, None}}
-	//fmt.Println(forest.toString())
-	//fmt.Println(food.toString())
-	//fmt.Println(me.toString())
-	var gameMap [mapWidth][mapHeight]Tile
-	var playerList []Player
 	playerList = append(playerList, me)
 	initMap(&gameMap)
 	printMap(&gameMap)
+	for i := 0; i < 100; i++ {
+		tick()
+	}
 }
