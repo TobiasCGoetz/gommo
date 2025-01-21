@@ -21,7 +21,8 @@ func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTi
 
 func addPlayerHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		var pID = addPlayer(playerList, c.Param("name"))
+		var pName = filterPlayerName(c.Param("name"))
+		var pID = addPlayer(playerList, pName)
 		c.IndentedJSON(http.StatusOK, pID)
 	}
 	return fn
@@ -200,6 +201,14 @@ func sanitizeSurroundingsInfo (surroundings *Surroundings) {
 	maskPlayerInfo(&surroundings.SE)
 }
 
+func filterPlayerName (name string) string {
+	if len(name) > playerNameMaxLength {
+		return name[0:playerNameMaxLength]
+	}
+	//TODO: Filter bad words
+	return name
+}
+
 func maskPlayerInfo (tile *Tile) {
 	for playerNr, player := range tile.Players {
 		//Filter the dead
@@ -207,8 +216,7 @@ func maskPlayerInfo (tile *Tile) {
 			tile.Players = append(tile.Players[:playerNr], tile.Players[playerNr+1:]...)
 			continue
 		}
-		//Come up with useful playernames
-		tile.Players[playerNr].ID = "Spielername"
+		tile.Players[playerNr].ID = ""
 		//Blank out hidden info
 		tile.Players[playerNr].Cards = [5]Card{}
 		tile.Players[playerNr].Consume = None
