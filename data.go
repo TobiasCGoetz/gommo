@@ -36,6 +36,8 @@ const (
 	Stay
 )
 
+var directions = [4]Direction{ North, East, South, West }
+
 func (d Direction) toString() string {
 	return []string{"North", "East", "South", "West", "Stay"}[d]
 }
@@ -47,14 +49,15 @@ const (
 	Food Card = iota
 	Wood
 	Weapon
+	Dice
 	Research
 	None
 )
 
-var cardTypes = [5]Card{ Food, Wood, Weapon, Research, None }
+var cardTypes = [5]Card{ Food, Wood, Weapon, Dice, Research, None }
 
 func (c Card) toString() string {
-	return []string{"Food", "Wood", "Weapon", "Research", "None"}[c]
+	return []string{"Food", "Wood", "Weapon", "Dice", "Research", "None"}[c]
 }
 
 //Tile
