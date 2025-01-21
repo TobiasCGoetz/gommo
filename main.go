@@ -76,6 +76,9 @@ func move(pList *[]*Player) {
 	fmt.Println("move()")
 	//Set new coordinates per player from move
 	for a, player := range *pList {
+		if !player.alive {
+			continue
+		}
 		switch player.direction {
 			case North:
 				(*pList)[a].y += 1
