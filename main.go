@@ -7,21 +7,21 @@ import (
 )
 
 
-var gameMap [mapWidth][mapHeight]Tile
+var gameMap [mapWidth][mapHeight]*Tile
 var cityList []IntTuple
-var playerList []Player
+var playerList []*Player
 
-func initMap (gMap *[mapWidth][mapHeight]Tile) {
+func initMap (gMap *[mapWidth][mapHeight]*Tile) {
 	for a, column := range gMap {
 		for b, _ := range column {
 			choice := rand.Intn(len(terrainTypes))
 			var tile = Tile{ terrainTypes[choice], 0 }
-			gMap[a][b] = tile
+			gMap[a][b] = &tile
 		}
 	}
 }
 
-func printMap (gMap *[mapWidth][mapHeight]Tile) {
+func printMap (gMap *[mapWidth][mapHeight]*Tile) {
 	for a, row := range gMap {
 		for b, _ := range row {
 			fmt.Printf("%c|", gMap[a][b].terrain.toString()[0])
@@ -30,7 +30,7 @@ func printMap (gMap *[mapWidth][mapHeight]Tile) {
 	}
 }
 
-func printPlayers (pList *[]Player) {
+func printPlayers (pList *[]*Player) {
 	for  i:=0; i < mapWidth; i++ {
 		for j:=0; j < mapHeight; j++ {
 			var coordsFound = false
@@ -44,8 +44,8 @@ func printPlayers (pList *[]Player) {
 			} else {
 				fmt.Printf(" |")
 			}
-			fmt.Printf("\n")
 		}
+		fmt.Printf("\n")
 	}
 }
 
@@ -63,7 +63,7 @@ func createCityList () {
 func move() {
 	//Set new coordinates per player from move
 	for a, player := range playerList {
-		switch player.dir {
+		switch player.direction {
 			case North:
 				playerList[a].y += 1
 			case East:
@@ -72,6 +72,7 @@ func move() {
 				playerList[a].y -= 1
 			case West:
 				playerList[a].x -= 1
+			case Stay:
 		}
 		if mapWidth <= playerList[a].x {
 			playerList[a].x = mapWidth-1
@@ -86,7 +87,7 @@ func move() {
 			playerList[a].y = 0
 		}
 		//Reset move direction per player
-		player.dir = Stay
+		player.direction = Stay
 	}
 }
 
@@ -97,24 +98,28 @@ func resources() {
 		for f, card := range player.cards {
 			if card == None {
 				firstEmpty = f
+			} else {
+				firstEmpty = -1
 			}
 		}
 		//Add card from tile
-		switch gameMap[player.x][player.y].terrain {
-			case Forest:
-				player.cards[firstEmpty] = Wood
-				//Only add 2. Wood if there's space
-				for f, card := range player.cards  {
-					if card == None {
-						player.cards[f] = Wood
+		if firstEmpty > -1 {
+			switch gameMap[player.x][player.y].terrain {
+				case Forest:
+					player.cards[firstEmpty] = Wood
+					//Only add 2. Wood if there's space
+					for f, card := range player.cards  {
+						if card == None {
+							player.cards[f] = Wood
+						}
 					}
-				}
-			case City:
-				player.cards[firstEmpty] = Weapon
-			case Farm:
-				player.cards[firstEmpty] = Food
-			case Laboratory:
-				player.cards[firstEmpty] = Research
+				case City:
+					player.cards[firstEmpty] = Weapon
+				case Farm:
+					player.cards[firstEmpty] = Food
+				case Laboratory:
+					player.cards[firstEmpty] = Research
+			}
 		}
 	}
 }
@@ -131,9 +136,10 @@ func getHandSize(player Player) int {
 
 func limitCards() {
 	for _, player := range playerList {
-		if getHandSize(player) > 4 {
+		if getHandSize(*player) > 4 {
 			if player.discard == None {
 				fmt.Println("Cheater:")
+				fmt.Println(player.cards)
 				fmt.Println(player.id)
 			}
 		}
@@ -151,7 +157,7 @@ func handleCombat() {
 	var combatGroups = make(map[IntTuple][]*Player)
 	for _, player := range playerList {
 		var pos = IntTuple{ player.x, player.y }
-		combatGroups[pos] = append(combatGroups[pos], &player)
+		combatGroups[pos] = append(combatGroups[pos], player)
 	}
 	for _, group := range combatGroups {
 		fight(group)
@@ -228,7 +234,7 @@ func playerHasCard (player *Player, card Card) (int, bool) {
 
 func randomizePlayerInput(player *Player) {
 	//Randomize movement
-	player.dir = directions[rand.Intn(len(directions))]
+	player.direction = directions[rand.Intn(len(directions))]
 	//Randomize card played
 	player.play = Dice
 	//Randomize consume
@@ -251,11 +257,15 @@ func randomizePlayerInput(player *Player) {
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	var me Player = Player{"me", 2, 5, North, Weapon, Food, None, [5]Card{Food, Wood, Wood, None, None}, true}
-	playerList = append(playerList, me)
+	playerList = append(playerList, &me)
 	initMap(&gameMap)
 	printMap(&gameMap)
 	createCityList()
-	for i := 0; i < 2; i++ {
+	for i := 0; i < 30; i++ {
+		fmt.Print("\033[H\033[2J")
+		printPlayers(&playerList)
+		randomizePlayerInput(&me)
 		tick()
+		time.Sleep(time.Second/2)
 	}
 }
