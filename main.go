@@ -56,7 +56,7 @@ func tick() {
 	spread()
 }
 
-func printSlice(s []Player) {
+func printPlayersList(s []Player) {
 	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)
 }
 
@@ -70,9 +70,7 @@ func main() {
 	//fmt.Println(me.toString())
 	var gameMap [mapWidth][mapHeight]Tile
 	var playerList []Player
-	printSlice(playerList)
 	playerList = append(playerList, me)
-	printSlice(playerList)
 	initMap(&gameMap)
 	printMap(&gameMap)
 }
