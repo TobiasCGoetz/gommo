@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-
+//TODO: Think about tick() being one for loop over all players.
 
 func initMap (gMap *[mapWidth][mapHeight]*Tile) {
 	fmt.Println("initMap")
@@ -150,6 +150,9 @@ func resources(pList *[]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 func consume(pList *[]*Player) {
 	fmt.Println("consume()")
 	for a, player := range *pList {
+		if !player.alive {
+			continue
+		}
 		if (*pList)[a].consume == None {
 			(*pList)[a].alive = false
 		} else {
