@@ -12,6 +12,7 @@ var cityList []IntTuple
 var playerList []*Player
 
 func initMap (gMap *[mapWidth][mapHeight]*Tile) {
+	fmt.Println("initMap")
 	for a, column := range gMap {
 		for b, _ := range column {
 			choice := rand.Intn(len(terrainTypes))
@@ -60,6 +61,7 @@ func printHandCards (player Player) {
 }
 
 func createCityList () {
+	fmt.Println("createCityList()")
 	for a, column := range gameMap {
 		for b, tile := range column {
 			if tile.terrain == City {
@@ -71,6 +73,7 @@ func createCityList () {
 }
 
 func move() {
+	fmt.Println("move()")
 	//Set new coordinates per player from move
 	for a, player := range playerList {
 		switch player.direction {
@@ -103,6 +106,7 @@ func move() {
 
 //TODO: Decide on global var vs func arguments
 func resources() {
+	fmt.Println("resources()")
 	for _, player := range playerList {
 		//TODO: Function to find first empty card space (reuse below)
 		var firstEmpty = -1
@@ -113,7 +117,7 @@ func resources() {
 		}
 		//Add card from tile
 		if firstEmpty > -1 {
-					//printHandCards(*playerList[0])
+			//printHandCards(*playerList[0])
 			switch gameMap[player.x][player.y].terrain {
 				case Forest:
 					player.cards[firstEmpty] = Wood
@@ -135,7 +139,24 @@ func resources() {
 	}
 }
 
+func consume() {
+	fmt.Println("consume()")
+	for a, player := range playerList {
+		if playerList[a].consume == None {
+			playerList[a].alive = false
+		} else {
+			b, hasCard := playerHasCard(player, player.consume)
+			if hasCard {
+				playerList[a].cards[b] = None
+			} else {
+				playerList[a].alive = false
+			}
+		}
+	}
+}
+
 func getHandSize(player Player) int {
+	fmt.Println("getHandSize()")
 	var count = 0
 	for _, card := range player.cards {
 		if card != None {
@@ -146,18 +167,21 @@ func getHandSize(player Player) int {
 }
 
 func limitCards() {
-	for _, player := range playerList {
+	fmt.Println("limitCards()")
+	for a, player := range playerList {
 		if getHandSize(*player) > 4 {
 			if player.discard == None {
-				fmt.Println("Cheater:")
-				fmt.Println(player.cards)
-				fmt.Println(player.id)
 				player.cards[4] = None
 			}
-		}
-		for f, card := range player.cards {
-			if card == player.discard {
-				player.cards[f] = None
+		} else {
+			for f, card := range player.cards {
+				if card == player.discard {
+					fmt.Printf("Removing card ")
+					fmt.Printf(string(a))
+					fmt.Printf(card.toString())
+					fmt.Printf("\n")
+					playerList[a].cards[f] = None
+				}
 			}
 		}
 		player.discard = None
@@ -165,6 +189,7 @@ func limitCards() {
 }
 
 func handleCombat() {
+	fmt.Println("handleCombat()")
 	//Create groups from position
 	var combatGroups = make(map[IntTuple][]*Player)
 	for _, player := range playerList {
@@ -177,6 +202,7 @@ func handleCombat() {
 }
 
 func fight(group []*Player) {
+	fmt.Println("fight()")
 	//Calculate dice + weapon VS zombies per group
 	var attackValue = 0
 	var x = group[0].x
@@ -206,6 +232,7 @@ func fight(group []*Player) {
 }
 
 func spread() {
+	fmt.Println("spread()")
 	for _, city := range cityList {
 		//North
 		if city.y < mapHeight-1 {
@@ -230,9 +257,10 @@ func spread() {
 func tick() {
 	move()
 	resources()
-	limitCards()
 	handleCombat()
 	spread()
+	consume()
+	limitCards()
 }
 
 func playerHasCard (player *Player, card Card) (int, bool) {
@@ -245,6 +273,7 @@ func playerHasCard (player *Player, card Card) (int, bool) {
 }
 
 func randomizeBot(players []*Player) {
+	fmt.Println("randomizeBot")
 	for _, player := range players {
 		//Randomize movement
 		player.direction = directions[rand.Intn(len(directions))]
@@ -271,13 +300,16 @@ func randomizeBot(players []*Player) {
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	initMap(&gameMap)
-	for i:=0; i< 10; i++ {
+	for i:=0; i< 1; i++ {
 		playerList = append(playerList, &Player{string(i), 5, 5, North, Dice, Wood, None, [5]Card{Food, Wood, Wood, None, None}, true})
 	}
 	createCityList()
-	for i := 0; i < 30; i++ {
+	for i := 0; i < 5; i++ {
+		printHandCards(*playerList[0])
 		randomizeBot(playerList)
 		tick()
-		time.Sleep(time.Second*2)
+		//time.Sleep(time.Second*2)
+		fmt.Println("#########################")
+		//TODO: Handle dead players correctly
 	}
 }
