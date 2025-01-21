@@ -60,16 +60,18 @@ func printHandCards (player Player) {
 	fmt.Printf("\n")
 }
 
-func createCityList () {
+func createCityList (gMap *[mapWidth][mapHeight]*Tile) []IntTuple  {
+	var cities []IntTuple
 	fmt.Println("createCityList()")
-	for a, column := range gameMap {
+	for a, column := range gMap {
 		for b, tile := range column {
 			if tile.terrain == City {
 				var coordinates = IntTuple{ a, b }
-				cityList = append(cityList, coordinates)
+				cities = append(cities, coordinates)
 			}
 		}
 	}
+	return cities
 }
 
 func move() {
@@ -304,7 +306,7 @@ func main() {
 	for i:=0; i< 1; i++ {
 		playerList = append(playerList, &Player{string(i), 5, 5, North, Dice, Wood, None, [5]Card{Food, Wood, Wood, None, None}, true})
 	}
-	createCityList()
+	cityList = createCityList(&gameMap)
 	for i := 0; i < 5; i++ {
 		printHandCards(*playerList[0])
 		randomizeBot(playerList)
