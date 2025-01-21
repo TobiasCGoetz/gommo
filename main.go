@@ -10,7 +10,6 @@ import (
 //TODO: Think about tick() being one for loop over all players.
 
 func initMap (gMap *[mapWidth][mapHeight]*Tile) {
-	fmt.Println("initMap")
 	for a, column := range gMap {
 		for b, _ := range column {
 			choice := rand.Intn(len(terrainTypes))
@@ -73,7 +72,6 @@ func createCityList (gMap *[mapWidth][mapHeight]*Tile) []IntTuple  {
 }
 
 func move(pList *[]*Player) {
-	fmt.Println("move()")
 	//Set new coordinates per player from move
 	for a, player := range *pList {
 		if !player.alive {
@@ -89,6 +87,7 @@ func move(pList *[]*Player) {
 			case West:
 				(*pList)[a].x -= 1
 			case Stay:
+				break
 		}
 		if mapWidth <= (*pList)[a].x {
 			(*pList)[a].x = mapWidth-1
@@ -118,7 +117,6 @@ func getFirstEmptyHandSlot(hand [5]Card) int {
 }
 
 func resources(pList *[]*Player, gMap *[mapWidth][mapHeight]*Tile) {
-	fmt.Println("resources()")
 	for pNr, player := range *pList {
 		if !player.alive {
 			continue
@@ -148,7 +146,6 @@ func resources(pList *[]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 }
 
 func consume(pList *[]*Player) {
-	fmt.Println("consume()")
 	for a, player := range *pList {
 		if !player.alive {
 			continue
@@ -167,7 +164,6 @@ func consume(pList *[]*Player) {
 }
 
 func getHandSize(player Player) int {
-	fmt.Println("getHandSize()")
 	var count = 0
 	for _, card := range player.cards {
 		if card != None {
@@ -178,7 +174,6 @@ func getHandSize(player Player) int {
 }
 
 func limitCards(pList *[]*Player) {
-	fmt.Println("limitCards()")
 	for a, player := range *pList {
 		if getHandSize(*player) > 4 {
 			if player.discard == None {
@@ -186,8 +181,7 @@ func limitCards(pList *[]*Player) {
 			}
 		} else {
 			for f, card := range player.cards {
-				if card == player.discard {
-					fmt.Printf("Removing card ")
+				if card == player.discard && card != None {
 					fmt.Printf(card.toString())
 					fmt.Printf("\n")
 					(*pList)[a].cards[f] = None
@@ -199,7 +193,6 @@ func limitCards(pList *[]*Player) {
 }
 
 func handleCombat(gMap *[mapWidth][mapHeight]*Tile, pList *[]*Player) {
-	fmt.Println("handleCombat()")
 	//Create groups from position
 	var combatGroups = make(map[IntTuple][]*Player)
 	for _, player := range *pList {
@@ -213,7 +206,6 @@ func handleCombat(gMap *[mapWidth][mapHeight]*Tile, pList *[]*Player) {
 
 //TODO: Reevaluate when call by value is okay (argument is not altered)
 func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
-	fmt.Println("fight()")
 	//Calculate dice + weapon VS zombies per group
 	var attackValue = 0
 	var x = group[0].x
@@ -243,7 +235,6 @@ func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
 }
 
 func spread(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple) {
-	fmt.Println("spread()")
 	for _, city := range *cities {
 		//North
 		if city.y < mapHeight-1 {
@@ -284,7 +275,6 @@ func playerHasCard (player *Player, card Card) (int, bool) {
 }
 
 func randomizeBot(players []*Player) {
-	fmt.Println("randomizeBot")
 	for _, player := range players {
 		//Randomize movement
 		player.direction = directions[rand.Intn(len(directions))]
@@ -321,6 +311,7 @@ func main() {
 	cityList = createCityList(&gameMap)
 	for i := 0; i < 5; i++ {
 		printHandCards(*playerList[0])
+		fmt.Println("Bot at", playerList[0].x, "/", playerList[0].y, "with direction", playerList[0].direction.toString())
 		randomizeBot(playerList)
 		tick(&gameMap, &cityList, &playerList)
 		//time.Sleep(time.Second*2)
