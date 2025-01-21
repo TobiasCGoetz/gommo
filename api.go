@@ -10,18 +10,36 @@ import (
 
 func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTime *uint8) {
 	router := gin.Default()
-	router.GET("/player/:id", getPlayerHandlerFunc(playerList))
+	//Player endpoints
 	router.POST("/player/:name", addPlayerHandlerFunc(playerList))
+	router.GET("/player/:id", getPlayerHandlerFunc(playerList))
+	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(playerList, gameMap))
+	router.GET("/turnTimer", getRemainingTimerHandlerFunc(turnTime))
 	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc(playerList))
 	router.PUT("/player/:id/consume/:card", setConsumeHandlerFunc(playerList))
 	router.PUT("/player/:id/discard/:card", setDiscardHandlerFunc(playerList))
 	router.PUT("/player/:id/play/:card", setPlayHandlerFunc(playerList))
-	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(playerList, gameMap))
-	router.GET("/turnTimer", getRemainingTimerHandlerFunc(turnTime))
+	//Config endpoints
+	router.GET("/config/turnTimer", getConfigTurnTimerHandlerFunc())
+	router.GET("/config/mapSize", getConfigMapSizeHandlerFunc())
 	router.Run("0.0.0.0:8080")
 }
 
 //TODO: Add config-info endpoint for mapSize, turnTimer, gameState and more
+
+func getConfigTurnTimerHandlerFunc() gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		c.IndentedJSON(http.StatusOK, turnLength)
+	}
+	return fn
+}
+
+func getConfigMapSizeHandlerFunc() gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		c.IndentedJSON(http.StatusOK, IntTuple{mapWidth, mapHeight})
+	}
+	return fn
+}
 
 // getPlayerOrNil returns a pointer to the referenced player or nil
 //

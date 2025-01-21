@@ -11,11 +11,12 @@ import (
 )
 
 var idSalt = "6LIBN8OWPzTKctUvbZtXV2mFn2tCq3qZKjHYbTTnLWtu6oGTU3ow3tuNx9SBTuND"
+var r *rand.Rand
 
 func initMap(gMap *[mapWidth][mapHeight]*Tile) {
 	for a, column := range gMap {
 		for b, _ := range column {
-			choice := rand.Intn(len(terrainTypes) - 1)
+			choice := r.Intn(len(terrainTypes) - 1)
 			var tile = Tile{terrainTypes[choice], 0, []Player{}}
 			gMap[a][b] = &tile
 		}
@@ -245,10 +246,10 @@ func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
 				attackValue += weaponStrength
 				group[a].Cards[cardIndex] = None
 			} else {
-				attackValue += rand.Intn(playerMaxAttack-1) + playerMinAttack
+				attackValue += r.Intn(playerMaxAttack-1) + playerMinAttack
 			}
 		} else {
-			attackValue += rand.Intn(playerMaxAttack-1) + playerMinAttack
+			attackValue += r.Intn(playerMaxAttack-1) + playerMinAttack
 		}
 		group[a].Play = Dice
 	}
@@ -326,7 +327,7 @@ func playerHasCard(player *Player, card Card) (int, bool) {
 func randomizeBot(players []*Player) {
 	for _, player := range players {
 		//Randomize movement
-		player.Direction = Directions[rand.Intn(len(Directions))]
+		player.Direction = Directions[r.Intn(len(Directions))]
 		//Randomize card played
 		player.Play = Dice
 		//Randomize consume
@@ -369,8 +370,8 @@ func generateJWT(userName string) (string, error) {
 // TODO: Somehow remove inactive players
 // TODO: Make sure ID has no /
 func addPlayer(players *[]*Player, playerName string) string {
-	var rX = rand.Intn(mapWidth - 1)
-	var rY = rand.Intn(mapHeight - 1)
+	var rX = r.Intn(mapWidth - 1)
+	var rY = r.Intn(mapHeight - 1)
 	var nowString = strconv.Itoa(int(time.Now().UnixNano() << 2))
 	var playerID = ""
 	for i := 0; i < len(nowString); i++ {
@@ -394,8 +395,8 @@ func addPlayer(players *[]*Player, playerName string) string {
 }
 
 func addBot(players *[]*Player, bots *[]*Player, bID int) {
-	var rX = rand.Intn(mapWidth - 1)
-	var rY = rand.Intn(mapHeight - 1)
+	var rX = r.Intn(mapWidth - 1)
+	var rY = r.Intn(mapHeight - 1)
 	var bot = Player{
 		ID:        strconv.Itoa(bID),
 		X:         rX,
@@ -443,7 +444,7 @@ func main() {
 	var isRunning = true
 	go setupAPI(&playerList, &gameMap, &turnTimer)
 	for isRunning {
-		rand.Seed(time.Now().UnixNano())
+		r = rand.New(rand.NewSource(time.Now().Unix()))
 		initMap(&gameMap)
 		cityList = createCityList(&gameMap)
 		var remainingTurns = maxTurns
