@@ -76,7 +76,7 @@ func TestMove(t *testing.T) {
 	testPlayerMap[testPlayer.ID] = testPlayer
 	//Test directions
 	move(&testPlayerMap)
-	if testPlayer.Y != playerY+1 {
+	if testPlayerMap[testPlayer.ID].Y != playerY+1 {
 		t.Errorf("Move north failed.")
 	}
 	testPlayer.Direction = South
