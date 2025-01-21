@@ -9,7 +9,7 @@ import (
 func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTime *uint8) {
 	router := gin.Default()
 	router.GET("/player/:id", getPlayerHandlerFunc(playerList))
-	router.PUT("/player", addPlayerHandlerFunc(playerList))
+	router.POST("/player", addPlayerHandlerFunc(playerList))
 	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc(playerList))
 	router.PUT("/player/:id/consume/:card", setConsumeHandlerFunc(playerList))
 	router.PUT("/player/:id/discard/:card", setDiscardHandlerFunc(playerList))
