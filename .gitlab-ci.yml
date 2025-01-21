@@ -16,6 +16,7 @@ before_script:
   - mkdir -p /go/src/gitlab.com/pantomath-io /go/src/_/builds
   - cp -r $CI_PROJECT_DIR /go/src/gitlab.com/pantomath-io/pantomath
   - ln -s /go/src/gitlab.com/pantomath-io /go/src/_/builds/pantomath-io
+  - go get gommo
 
 test:
   stage: test
