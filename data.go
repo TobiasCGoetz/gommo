@@ -21,6 +21,20 @@ func (t Tile) toString() string {
 	return []string{"Forest", "Farm", "City", "Laboratory"}[t]
 }
 
+type Direction int
+
+const (
+	North Direction = iota
+	East
+	South
+	West
+	Stay
+)
+
+func (d Direction) toString() string {
+	return []string{"North", "East", "South", "West", "Stay"}[d]
+}
+
 //Cards
 type Card int
 
@@ -31,6 +45,7 @@ const (
 	None
 )
 
+
 func (c Card) toString() string {
 	return []string{"Food", "Wood", "Weapon", "None"}[c]
 }
@@ -40,6 +55,8 @@ func (c Card) toString() string {
 type Player struct {
 	id string
 	x, y int
+	dir Direction
+	play Card
 	cards [4]Card
 }
 
