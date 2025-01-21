@@ -54,6 +54,7 @@ func TestMove(t *testing.T) {
 		discard:   Wood,
 		cards:     [5]Card{Wood, Wood, Food, None, None},
 		alive:     true,
+		isBot:	   true,
 	}
 	var testArray = []*Player{&testPlayer}
 	move(&testArray)
@@ -92,6 +93,7 @@ func TestMove(t *testing.T) {
 		discard:   Wood,
 		cards:     [5]Card{Wood, Wood, Food, None, None},
 		alive:     false,
+		isBot:     true,
 	}
 	testArray = []*Player{&deadPlayer}
 	move(&testArray)
@@ -113,6 +115,7 @@ func TestResources(t *testing.T) {
 		discard:   None,
 		cards:     [5]Card{ None, None, None, None, None },
 		alive:     true,
+		isBot:     true,
 	}
 	var testArray = []*Player{&testPlayer}
 	resources(&testArray, &gameMap)
@@ -131,6 +134,7 @@ func TestResources(t *testing.T) {
 		discard:   None,
 		cards:     [5]Card{None, None, None, None, None},
 		alive:     false,
+		isBot:     true,
 	}
 	testArray = []*Player{&deadPlayer}
 	resources(&testArray, &gameMap)
@@ -167,6 +171,7 @@ func TestConsume(t *testing.T) {
 		//TODO: Test more combinations
 		cards:     [5]Card{None, None, None, None, Wood},
 		alive:     false,
+		isBot:     true,
 	}
 	testArray = []*Player{&deadPlayer}
 	consume(&testArray)
@@ -203,6 +208,7 @@ func TestHandSize (t *testing.T) {
 		discard:   None,
 		cards: [5]Card{None, None, None, None, None},
 		alive:     false,
+		isBot:     true,
 	}
 	for testNumber, cards := range testCases {
 		testPlayer.cards = cards
@@ -234,6 +240,7 @@ func TestLimitCards (t *testing.T) {
 		discard:   Wood,
 		cards: [5]Card{None, None, None, None, None},
 		alive:     false,
+		isBot:     true,
 	}
 	var testArray = []*Player{&testPlayer}
 	//TODO: Add check if right card was removed
