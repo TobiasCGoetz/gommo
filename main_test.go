@@ -189,7 +189,37 @@ func TestFight(t *testing.T)  {
 }
 
 func TestSpread(t *testing.T) {
-	//TODO
+	var gameMap [mapWidth][mapHeight]*Tile
+	fakeInitMap(&gameMap, Forest, 1)
+	gameMap[10][10] = &Tile{City, zombieCutoff}
+	gameMap[12][10] = &Tile{City, zombieCutoff}
+	var cityList = createCityList(&gameMap)
+	spread(&gameMap, &cityList)
+	var testCases = []IntTuple{
+		//{9, 11},
+		{10, 11},
+		//{11, 11},
+		{12, 11},
+		//{13, 11},
+		{9, 10},
+		{11, 10},
+		{13, 10},
+		//{9, 9},
+		{10, 9},
+		//{11, 9},
+		{12, 9},
+		//{13, 9},
+	}
+	var testResults = []int{
+		2, 2, //2, 2, 3, 2, 2,
+		2, 3, 2, //2, 3, 2,
+		2, 2, //2 ,2, 3, 2, 2,
+	}
+	for testNumber, coords := range testCases {
+		if testResults[testNumber] != gameMap[coords.X][coords.Y].Zombies {
+			t.Errorf("%d/%d %d zombies instead of %d", coords.X, coords.Y, gameMap[coords.X][coords.Y].Zombies, testResults[testNumber])
+		}
+	}
 }
 
 //TODO: Test player starves
