@@ -7,6 +7,7 @@ import (
 
 //Tile
 type Tile int
+
 const (
 	Forest Tile = iota
 	Farm
@@ -14,7 +15,7 @@ const (
 	Laboratory
 )
 
-var tileTypes = { Forest, Farm, City, Laboratory }
+var tileTypes = [4]Tile{ Forest, Farm, City, Laboratory }
 
 func (t Tile) toString() string {
 	return []string{"Forest", "Farm", "City", "Laboratory"}[t]
