@@ -103,6 +103,8 @@ func (p Player) hasWinCondition() bool {
 	if numberOfResearchs < victoryNumber {
 		return false
 	} else {
+		fmt.Println("Player has won")
+		fmt.Println(p.toString())
 		return true
 	}
 }

@@ -449,23 +449,25 @@ func main() {
 		cityList = createCityList(&gameMap)
 		var remainingTurns = maxTurns
 		for ; remainingTurns > 0; remainingTurns-- {
-			for ; turnTimer > 0; turnTimer-- {
+			fmt.Println("Remaining turns: ", remainingTurns)
+			for turnTimer = int8(turnLength); turnTimer > 0; turnTimer-- {
 				if turnTimer == 0 {
 					randomizeBot(botList)
 					tick(&gameMap, &cityList, &playerList)
 					hasWon = havePlayersWon(&playerList)
 					restockBots(&playerList, &botList, &botID)
-					turnTimer = int8(turnLength)
 					if hasWon {
+						fmt.Println("Game over due to win")
 						remainingTurns = 0
 						turnTimer = -1
+						break
 					}
 				} else {
 					time.Sleep(time.Second)
 				}
 			}
 		}
-		time.Sleep(120 * time.Second)
 		fmt.Println("Restarting game.")
+		time.Sleep(120 * time.Second)
 	}
 }
