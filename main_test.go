@@ -72,70 +72,60 @@ func TestMove(t *testing.T) {
 		Alive:     true,
 		IsBot:     true,
 	}
-	var testPlayerMap = make(map[string]Player)
-	testPlayerMap[testPlayer.ID] = testPlayer
+	var testPlayerMap = make(map[string]*Player)
+	testPlayerMap[testPlayer.ID] = &testPlayer
 	//Test directions
 	move(&testPlayerMap)
-	if testPlayerMap[testPlayer.ID].Y != playerY+1 {
+	if testPlayer.Y != playerY+1 {
 		t.Errorf("Move north failed.")
 	}
-	testPlayer.Y = testPlayerMap[testPlayer.ID].Y
 	testPlayer.Direction = South
-	testPlayerMap[testPlayer.ID] = testPlayer
+	testPlayerMap[testPlayer.ID] = &testPlayer
 	move(&testPlayerMap)
-	if testPlayerMap[testPlayer.ID].Y != playerY {
+	if testPlayer.Y != playerY {
 		t.Errorf("Move south failed.")
 	}
-	testPlayer.X = testPlayerMap[testPlayer.ID].X
 	testPlayer.Direction = East
-	testPlayerMap[testPlayer.ID] = testPlayer
 	move(&testPlayerMap)
-	if testPlayerMap[testPlayer.ID].X != playerX+1 {
+	if testPlayer.X != playerX+1 {
 		t.Errorf("Move east failed.")
 	}
-	testPlayer.X = testPlayerMap[testPlayer.ID].X
 	testPlayer.Direction = West
-	testPlayerMap[testPlayer.ID] = testPlayer
 	move(&testPlayerMap)
-	if testPlayerMap[testPlayer.ID].X != playerX {
+	if testPlayer.X != playerX {
 		t.Errorf("Move west failed.")
 	}
 	testPlayer.Direction = Stay
 	testPlayer.X = playerX
 	testPlayer.Y = playerY
-	testPlayerMap[testPlayer.ID] = testPlayer
 	move(&testPlayerMap)
-	if testPlayerMap[testPlayer.ID].X != playerX || testPlayerMap[testPlayer.ID].Y != playerY {
+	if testPlayer.X != playerX || testPlayer.Y != playerY {
 		t.Errorf("Staying in place failed.")
 	}
 	//Test edge behaviour
 	testPlayer.X = 2 * mapWidth
 	testPlayer.Direction = East
-	testPlayerMap[testPlayer.ID] = testPlayer
 	move(&testPlayerMap)
-	if testPlayerMap[testPlayer.ID].X != mapWidth-1 {
+	if testPlayer.X != mapWidth-1 {
 		t.Errorf("Player (%d / %d) is %d out of bounds east", testPlayer.X, testPlayer.Y, testPlayer.X-mapWidth-1)
 	}
 	testPlayer.X = -10
 	testPlayer.Direction = West
-	testPlayerMap[testPlayer.ID] = testPlayer
 	move(&testPlayerMap)
-	if testPlayerMap[testPlayer.ID].X != 0 {
+	if testPlayer.X != 0 {
 		t.Errorf("Player is %d out of bounds west", testPlayer.X)
 	}
 	testPlayer.X = 10
 	testPlayer.Y = 2 * mapHeight
 	testPlayer.Direction = South
-	testPlayerMap[testPlayer.ID] = testPlayer
 	move(&testPlayerMap)
-	if testPlayerMap[testPlayer.ID].Y != mapHeight-1 {
+	if testPlayer.Y != mapHeight-1 {
 		t.Errorf("Player is %d out of bounds north", testPlayer.Y-mapHeight-1)
 	}
 	testPlayer.Y = -10
-	testPlayerMap[testPlayer.ID] = testPlayer
 	testPlayer.Direction = North
 	move(&testPlayerMap)
-	if testPlayerMap[testPlayer.ID].Y != 0 {
+	if testPlayer.Y != 0 {
 		t.Errorf("Player is %d out of bounds south", testPlayer.Y)
 	}
 	//Test dead player
@@ -151,10 +141,10 @@ func TestMove(t *testing.T) {
 		Alive:     false,
 		IsBot:     true,
 	}
-	testPlayerMap = make(map[string]Player)
-	testPlayerMap[deadPlayer.ID] = deadPlayer
+	testPlayerMap = make(map[string]*Player)
+	testPlayerMap[deadPlayer.ID] = &deadPlayer
 	move(&testPlayerMap)
-	if testPlayerMap[deadPlayer.ID].Y != playerY {
+	if deadPlayer.Y != playerY {
 		t.Errorf("Dead player wasn't supposed to move %d tiles north", deadPlayer.Y-5)
 	}
 }
@@ -285,14 +275,12 @@ func TestHandleCombat(t *testing.T) {
 		Alive:     true,
 		IsBot:     true,
 	}
-	var testPlayerMap = make(map[string]Player)
-	testPlayerMap[testPlayer1.ID] = testPlayer1
-	testPlayerMap[testPlayer2.ID] = testPlayer2
-	testPlayerMap[testPlayer3.ID] = testPlayer3
+	var testPlayerMap = make(map[string]*Player)
+	testPlayerMap[testPlayer1.ID] = &testPlayer1
+	testPlayerMap[testPlayer2.ID] = &testPlayer2
+	testPlayerMap[testPlayer3.ID] = &testPlayer3
 	handleCombat(&gameMap, &testPlayerMap)
-	if testPlayerMap[testPlayer1.ID].Alive ||
-		testPlayerMap[testPlayer2.ID].Alive ||
-		testPlayerMap[testPlayer3.ID].Alive {
+	if testPlayer1.Alive || testPlayer2.Alive || testPlayer3.Alive {
 		t.Errorf("Not all players died.")
 	}
 }
@@ -350,8 +338,8 @@ func TestConsumeWoodAttracts(t *testing.T) {
 		Alive:     true,
 		IsBot:     true,
 	}
-	var testPlayerMap = make(map[string]Player)
-	testPlayerMap[testPlayer.ID] = testPlayer
+	var testPlayerMap = make(map[string]*Player)
+	testPlayerMap[testPlayer.ID] = &testPlayer
 	consume(&testPlayerMap, &gameMap)
 	if gameMap[playerX][playerY].Zombies != 9 {
 		t.Errorf("Tile %d/%d was meant to have 9 zombies not %d", playerX, playerY, gameMap[playerX][playerY].Zombies)
@@ -373,10 +361,10 @@ func TestResources(t *testing.T) {
 		Alive:     true,
 		IsBot:     true,
 	}
-	var testPlayerMap = make(map[string]Player)
-	testPlayerMap[testPlayer.ID] = testPlayer
+	var testPlayerMap = make(map[string]*Player)
+	testPlayerMap[testPlayer.ID] = &testPlayer
 	resources(&testPlayerMap, gameMap)
-	if testPlayerMap[testPlayer.ID].Cards[0] != Food {
+	if testPlayer.Cards[0] != Food {
 		t.Log(testPlayer.Cards)
 		t.Errorf("TestPlayer received the wrong card - expected Food but got %s", testPlayer.Cards[0].toString())
 	}
@@ -393,10 +381,10 @@ func TestResources(t *testing.T) {
 		Alive:     false,
 		IsBot:     true,
 	}
-	testPlayerMap = make(map[string]Player)
-	testPlayerMap[deadPlayer.ID] = deadPlayer
+	testPlayerMap = make(map[string]*Player)
+	testPlayerMap[deadPlayer.ID] = &deadPlayer
 	resources(&testPlayerMap, gameMap)
-	if testPlayerMap[deadPlayer.ID].Cards[0] != None {
+	if deadPlayer.Cards[0] != None {
 		t.Errorf("Dead player did not have to sit out when distributing resources.")
 	}
 }
@@ -415,8 +403,8 @@ func TestConsume(t *testing.T) {
 		Alive:     true,
 		IsBot:     true,
 	}
-	var testPlayerMap = make(map[string]Player)
-	testPlayerMap[testPlayer.ID] = testPlayer
+	var testPlayerMap = make(map[string]*Player)
+	testPlayerMap[testPlayer.ID] = &testPlayer
 	consume(&testPlayerMap, &gameMap)
 	if testPlayerMap[testPlayer.ID].Cards[4] != None {
 		t.Errorf("Player was not supposed to have resources remaining.")
@@ -434,8 +422,8 @@ func TestConsume(t *testing.T) {
 		Alive: false,
 		IsBot: true,
 	}
-	testPlayerMap = make(map[string]Player)
-	testPlayerMap[deadPlayer.ID] = deadPlayer
+	testPlayerMap = make(map[string]*Player)
+	testPlayerMap[deadPlayer.ID] = &deadPlayer
 	consume(&testPlayerMap, &gameMap)
 	if deadPlayer.Cards[4] != Wood {
 		t.Errorf("Dead player's not supposed to consume anything.")
@@ -474,7 +462,7 @@ func TestHandSize(t *testing.T) {
 	}
 	for testNumber, cards := range testCases {
 		testPlayer.Cards = cards
-		if testResults[testNumber] != getHandSize(testPlayer) {
+		if testResults[testNumber] != getHandSize(&testPlayer) {
 			t.Errorf("[%v] is not %d cards", testPlayer.Cards, testResults[testNumber])
 		}
 	}
@@ -506,10 +494,10 @@ func TestLimitCards(t *testing.T) {
 	}
 	//TODO: Add check if right card was removed
 	for testNumber, cards := range testCases {
-		var testPlayerMap = make(map[string]Player)
+		var testPlayerMap = make(map[string]*Player)
 		testPlayer.Cards = cards
 		testPlayer.Discard = Wood
-		testPlayerMap[testPlayer.ID] = testPlayer
+		testPlayerMap[testPlayer.ID] = &testPlayer
 		limitCards(&testPlayerMap)
 		if (getHandSize(testPlayerMap[testPlayer.ID])) != testResults[testNumber] {
 			t.Errorf("[%v] is not %d cards", testPlayer.Cards, testResults[testNumber])
@@ -531,10 +519,10 @@ func TestPlayerConsumeFallback(t *testing.T) {
 		Alive:     true,
 		IsBot:     true,
 	}
-	var testPlayerMap = make(map[string]Player)
-	testPlayerMap[testPlayer.ID] = testPlayer
+	var testPlayerMap = make(map[string]*Player)
+	testPlayerMap[testPlayer.ID] = &testPlayer
 	consume(&testPlayerMap, &gameMap)
-	var _, hasCard = playerHasCard(testPlayerMap[testPlayer.ID], Wood)
+	var _, hasCard = playerHasCard(&testPlayer, Wood)
 	if hasCard {
 		t.Errorf("Consume fallback to Food failed")
 	}
@@ -552,10 +540,10 @@ func TestPlayerConsumeFallback(t *testing.T) {
 		Alive:     true,
 		IsBot:     true,
 	}
-	testPlayerMap = make(map[string]Player)
-	testPlayerMap[testPlayer.ID] = testPlayer
+	testPlayerMap = make(map[string]*Player)
+	testPlayerMap[testPlayer.ID] = &testPlayer
 	consume(&testPlayerMap, &gameMap)
-	_, hasCard = playerHasCard(testPlayerMap[testPlayer.ID], Wood)
+	_, hasCard = playerHasCard(&testPlayer, Wood)
 	if hasCard {
 		t.Errorf("Consume fallback to Wood failed")
 	}
@@ -564,7 +552,7 @@ func TestPlayerConsumeFallback(t *testing.T) {
 
 func TestRestockBots(t *testing.T) {
 	r = rand.New(rand.NewSource(10))
-	var testPlayerMap map[string]Player
+	var testPlayerMap map[string]*Player
 	var testBotList []*Player
 	var testCases = [5]int{0, 30, 49, 50, 51}
 	var botID = 0
@@ -581,11 +569,11 @@ func TestRestockBots(t *testing.T) {
 		IsBot:     true,
 	}
 	for i := 0; i < len(testCases); i++ {
-		testPlayerMap = make(map[string]Player)
+		testPlayerMap = make(map[string]*Player)
 		testBotList = nil
 		//Add bots
 		for j := 0; j < testCases[i]; j++ {
-			testPlayerMap[testBot.ID] = testBot
+			testPlayerMap[testBot.ID] = &testBot
 			testBotList = append(testBotList, &testBot)
 		}
 		//Call restocking routine

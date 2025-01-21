@@ -17,8 +17,8 @@ func TestGetPlayerOrNil(t *testing.T) {
 		Alive:     true,
 		IsBot:     true,
 	}
-	var testMap = make(map[string]Player)
-	testMap[testPlayer.ID] = testPlayer
+	var testMap = make(map[string]*Player)
+	testMap[testPlayer.ID] = &testPlayer
 
 	playerFound := getPlayerOrNil(testMap, testPlayer.ID)
 	if playerFound == nil {
