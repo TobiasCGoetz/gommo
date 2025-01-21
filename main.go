@@ -8,6 +8,7 @@ import (
 
 
 var gameMap [mapWidth][mapHeight]Tile
+var cityList []IntTuple
 var playerList []Player
 
 func initMap (gameMap *[mapWidth][mapHeight]Tile) {
@@ -26,6 +27,17 @@ func printMap (gameMap *[mapWidth][mapHeight]Tile) {
 			fmt.Printf("%c|", gameMap[a][b].terrain.toString()[0])
 		}
 		fmt.Printf("\n")
+	}
+}
+
+func createCityList () {
+	for a, column := range gameMap {
+		for b, tile := range column {
+			if tile.terrain == City {
+				var coordinates = IntTuple{ a, b }
+				cityList = append(cityList, coordinates)
+			}
+		}
 	}
 }
 
@@ -117,7 +129,7 @@ func limitCards() {
 
 func handleCombat() {
 	//Create groups from position
-	var combatGroups = make(map[string][]Player)
+	var combatGroups = make(map[IntTuple][]Player)
 	for _, group := range combatGroups {
 		fight(group)
 	}
@@ -148,7 +160,8 @@ func main() {
 	playerList = append(playerList, me)
 	initMap(&gameMap)
 	printMap(&gameMap)
-	for i := 0; i < 100; i++ {
+	createCityList()
+	for i := 0; i < 2; i++ {
 		tick()
 	}
 }

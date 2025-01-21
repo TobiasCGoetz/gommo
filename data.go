@@ -5,6 +5,11 @@ import (
 	"fmt"
 )
 
+type IntTuple struct {
+	x int
+	y int
+}
+
 //Terrain
 type Terrain int
 
