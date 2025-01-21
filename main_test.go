@@ -16,18 +16,19 @@ func TestInitMap(t *testing.T) {
 	}
 }
 
-func fakeInitMap(gMap *[mapWidth][mapHeight]*Tile, terrain Terrain, zombieNr int) {
-	for a, column := range gMap {
+func fakeInitMap(terrain Terrain, zombieNr int) [mapWidth][mapHeight]*Tile {
+	fakeMap := [mapWidth][mapHeight]*Tile{}
+	for a, column := range fakeMap {
 		for b, _ := range column {
 			var tile = Tile{terrain, zombieNr, []Player{}}
-			gMap[a][b] = &tile
+			fakeMap[a][b] = &tile
 		}
 	}
+	return fakeMap
 }
 
 func TestCreateCityList(t *testing.T) {
-	var gameMap [mapWidth][mapHeight]*Tile
-	fakeInitMap(&gameMap, City, 0)
+	gameMap := fakeInitMap(City, 0)
 	var cityList = createCityList(&gameMap)
 	var count = 0
 	for x := 0; x < mapWidth; x++ {
@@ -184,8 +185,7 @@ func TestFight(t *testing.T) {
 	var loc1 = IntTuple{10, 10}
 	var loc2 = IntTuple{13, 13}
 	var loc3 = IntTuple{21, 21}
-	var gameMap [mapWidth][mapHeight]*Tile
-	fakeInitMap(&gameMap, Forest, 3)
+	gameMap := fakeInitMap(Forest, 3)
 	gameMap[loc2.X][loc2.Y].Zombies = zombieCutoff
 	gameMap[loc3.X][loc3.Y].Zombies = weaponStrength - 1
 	var combatGroups = make(map[IntTuple][]*Player)
@@ -227,8 +227,7 @@ func TestFight(t *testing.T) {
 
 func TestHandleCombat(t *testing.T) {
 	var loc = IntTuple{10, 10}
-	var gameMap [mapWidth][mapHeight]*Tile
-	fakeInitMap(&gameMap, Forest, 0)
+	gameMap := fakeInitMap(Forest, 0)
 	gameMap[loc.X][loc.Y] = &Tile{City, 99, []Player{}}
 	var testPlayer1 = Player{
 		ID:        "test1",
@@ -274,8 +273,7 @@ func TestHandleCombat(t *testing.T) {
 }
 
 func TestSpread(t *testing.T) {
-	var gameMap [mapWidth][mapHeight]*Tile
-	fakeInitMap(&gameMap, Forest, 1)
+	gameMap := fakeInitMap(Forest, 1)
 	gameMap[10][10] = &Tile{City, zombieCutoff, []Player{}}
 	gameMap[12][10] = &Tile{City, zombieCutoff, []Player{}}
 	gameMap[99][99] = &Tile{City, 4, []Player{}}
@@ -312,8 +310,7 @@ func TestSpread(t *testing.T) {
 
 // TODO: Test player starves
 func TestConsumeWoodAttracts(t *testing.T) {
-	var gameMap [mapWidth][mapHeight]*Tile
-	fakeInitMap(&gameMap, Forest, 1)
+	gameMap := fakeInitMap(Forest, 1)
 	var testPlayerList []*Player
 	var playerX = 5
 	var playerY = 5
@@ -338,8 +335,7 @@ func TestConsumeWoodAttracts(t *testing.T) {
 
 // TODO: Test other tiles but Farm
 func TestResources(t *testing.T) {
-	var gameMap [mapWidth][mapHeight]*Tile
-	fakeInitMap(&gameMap, Farm, 0)
+	gameMap := fakeInitMap(Farm, 0)
 	var testPlayer = Player{
 		ID:        "test",
 		X:         5,
@@ -379,8 +375,7 @@ func TestResources(t *testing.T) {
 }
 
 func TestConsume(t *testing.T) {
-	var gameMap [mapWidth][mapHeight]*Tile
-	fakeInitMap(&gameMap, City, 0)
+	gameMap := fakeInitMap(City, 0)
 	var testPlayer = Player{
 		ID:        "test",
 		X:         5,
@@ -496,8 +491,7 @@ func TestLimitCards(t *testing.T) {
 }
 
 func TestPlayerConsumeFallback(t *testing.T) {
-	var gameMap [mapWidth][mapHeight]*Tile
-	fakeInitMap(&gameMap, City, 0)
+	gameMap := fakeInitMap(City, 0)
 	var testPlayerList []*Player
 	var testPlayer = Player{
 		ID:        "testPlayer",
