@@ -54,7 +54,7 @@ const (
 	None
 )
 
-var cardTypes = [5]Card{ Food, Wood, Weapon, Dice, Research, None }
+var cardTypes = [6]Card{ Food, Wood, Weapon, Dice, Research, None }
 
 func (c Card) toString() string {
 	return []string{"Food", "Wood", "Weapon", "Dice", "Research", "None"}[c]
