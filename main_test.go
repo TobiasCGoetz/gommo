@@ -579,7 +579,7 @@ func TestRestockBots(t *testing.T) {
 		//Call restocking routine
 		restockBots(&testPlayerMap, &testBotList, &botID)
 		//Check correct amount restocked
-		if len(testBotList) < 50 {
+		if len(testBotList) < botNumber {
 			t.Errorf("Bot restocking off by %d.", 50-len(testBotList))
 		}
 	}
