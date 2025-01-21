@@ -69,6 +69,7 @@ type Player struct {
 	x, y int
 	dir Direction
 	play Card
+	consume Card
 	discard Card
 	cards [5]Card
 }
