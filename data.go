@@ -5,19 +5,19 @@ import (
 	"fmt"
 )
 
-//Tile
-type Tile int
+//Terrain
+type Terrain int
 
 const (
-	Forest Tile = iota
+	Forest Terrain = iota
 	Farm
 	City
 	Laboratory
 )
 
-var tileTypes = [4]Tile{ Forest, Farm, City, Laboratory }
+var terrainTypes = [4]Terrain{ Forest, Farm, City, Laboratory }
 
-func (t Tile) toString() string {
+func (t Terrain) toString() string {
 	return []string{"Forest", "Farm", "City", "Laboratory"}[t]
 }
 
@@ -52,8 +52,13 @@ func (c Card) toString() string {
 	return []string{"Food", "Wood", "Weapon", "Research", "None"}[c]
 }
 
-//Players
+//Tile
+type Tile struct {
+	terrain Terrain
+	zombies int
+}
 
+//Player
 type Player struct {
 	id string
 	x, y int

@@ -13,8 +13,9 @@ var playerList []Player
 func initMap (gameMap *[mapWidth][mapHeight]Tile) {
 	for a, column := range gameMap {
 		for b, _ := range column {
-			choice := rand.Intn(len(tileTypes))
-			gameMap[a][b] = tileTypes[choice]
+			choice := rand.Intn(len(terrainTypes))
+			var tile = Tile{ terrainTypes[choice], 0 }
+			gameMap[a][b] = tile
 		}
 	}
 }
@@ -22,7 +23,7 @@ func initMap (gameMap *[mapWidth][mapHeight]Tile) {
 func printMap (gameMap *[mapWidth][mapHeight]Tile) {
 	for a, row := range gameMap {
 		for b, _ := range row {
-			fmt.Printf("%c|", gameMap[a][b].toString()[0])
+			fmt.Printf("%c|", gameMap[a][b].terrain.toString()[0])
 		}
 		fmt.Printf("\n")
 	}
@@ -68,7 +69,7 @@ func resources() {
 			}
 		}
 		//Add card from tile
-		switch gameMap[player.x][player.y] {
+		switch gameMap[player.x][player.y].terrain {
 			case Forest:
 				player.cards[firstEmpty] = Wood
 				//Only add 2. Wood if there's space
