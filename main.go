@@ -13,7 +13,7 @@ var r *rand.Rand
 
 func initMap(r rand.Rand, gMap *[mapWidth][mapHeight]*Tile) {
 	for a, column := range gMap {
-		for b, _ := range column {
+		for b := range column {
 			choice := r.Intn(len(terrainTypes) - 1)
 			var tile = Tile{terrainTypes[choice], 0, []Player{}}
 			gMap[a][b] = &tile
@@ -252,7 +252,7 @@ func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
 		group[a].Play = Dice
 	}
 	if attackValue < gMap[x][y].Zombies {
-		for a, _ := range group {
+		for a := range group {
 			group[a].Alive = false
 		}
 		gMap[x][y].Zombies += len(group)
