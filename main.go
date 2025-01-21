@@ -215,7 +215,7 @@ func handleCombat(gMap *[mapWidth][mapHeight]*Tile, playerMap *map[string]Player
 	//Create groups from position
 	var combatGroups = make(map[IntTuple][]*Player)
 	for mapKey := range *playerMap {
-		var playerPtr = (*playerMap)[mapKey]
+		var player = (*playerMap)[mapKey]
 		var pos = IntTuple{player.X, player.Y}
 		combatGroups[pos] = append(combatGroups[pos], &player)
 	}
