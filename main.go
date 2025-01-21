@@ -170,11 +170,35 @@ func tick() {
 	spread()
 }
 
+func playerHasCard(player &Player, card Card) (int, bool) {
+	for a, c := range player.cards {
+		if c == card {
+			return a, true
+		}
+	}
+	return -1, false
+}
+
 func randomizePlayerInput(player &Player) {
 	//Randomize movement
+	player.dir = directions[rand.Intn(len(directions))]
 	//Randomize card played
+	player.play = Dice
 	//Randomize consume
+	a, found := playerHasCard(player, Food)
+	player.consume = Food
+	if !found {
+		a, found = playerHasCard(player, Wood)
+		player.consume = Wood
+		if a == -1 {
+			player.consume = None
+		}
+	}
 	//Randomize discard
+	_, found := playerHasCard(player, None)
+	if !found {
+		player.discard = player.cards[0]
+	}
 }
 
 func main() {
