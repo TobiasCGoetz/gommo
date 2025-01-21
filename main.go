@@ -72,6 +72,10 @@ func createCityList (gMap *[mapWidth][mapHeight]*Tile) []IntTuple  {
 }
 
 func getMapTile(x int, y int, gMap *[mapWidth][mapHeight]*Tile) *Tile {
+	if x < 0 || x >= mapWidth || y < 0 || y >= mapHeight {
+		return &Tile{Edge, -1}
+		fmt.Printf("Prevented tile access at %d/%d", x, y)
+	}
 	var truncX = x % 100
 	var truncY = y % 100
 	return (*gMap)[truncX][truncY]
