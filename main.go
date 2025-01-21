@@ -147,6 +147,7 @@ func resources(pList *[]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 
 func consume(pList *[]*Player) {
 	for a, player := range *pList {
+		var playerCards = getHandSize(*player)
 		if !player.alive {
 			continue
 		}
@@ -159,6 +160,11 @@ func consume(pList *[]*Player) {
 			} else {
 				(*pList)[a].alive = false
 			}
+		}
+		var playerCards2 = getHandSize(*player)
+		if playerCards == playerCards2 {
+			fmt.Println("ERROR: Consumed cards should've been:", player.consume.toString())
+			fmt.Println("ERROR: No card has been removed.")
 		}
 	}
 }
