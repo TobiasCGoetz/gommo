@@ -338,15 +338,22 @@ func main() {
 	var playerList []*Player
 	var botList []*Player
 	var botID = 0
+	var turnTimer = uint8(turnLength)
 	var isRunning = true
 	rand.Seed(time.Now().UnixNano())
 	initMap(&gameMap)
-	go setupAPI(&playerList, &gameMap)
+	go setupAPI(&playerList, &gameMap, &turnTimer)
 	cityList = createCityList(&gameMap)
 	for isRunning {
-	//for testRun :=0; testRun < 50; testRun++ {
-		restockBots(&playerList, &botList, &botID)
-		randomizeBot(botList)
-		tick(&gameMap, &cityList, &playerList)
+		if turnTimer == 0 {
+			randomizeBot(botList)
+			tick(&gameMap, &cityList, &playerList)
+			restockBots(&playerList, &botList, &botID)
+			turnTimer = uint8(turnLength)
+		} else {
+			time.Sleep(time.Second)
+			turnTimer--
+			fmt.Println("Remaining turnTimer at", turnTimer)
+		}
 	}
 }
