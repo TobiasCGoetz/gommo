@@ -75,6 +75,22 @@ func TestMove(t *testing.T) {
 	if testPlayer.x != playerX {
 		t.Errorf("Move west failed.")
 	}
+	var deadPlayer = Player{
+		id:        "test",
+		x:         playerX,
+		y:         playerY,
+		direction: North,
+		play:      Dice,
+		consume:   Wood,
+		discard:   Wood,
+		cards:     [5]Card{Wood, Wood, Food, None, None},
+		alive:     true,
+	}
+	testArray = []*Player{&deadPlayer}
+	move(&testArray)
+	if deadPlayer.y != 5 {
+		t.Errorf("Dead player wasn't supposed to move %d tiles north", deadPlayer.y-5)
+	}
 }
 
 func TestResources(t *testing.T) {
@@ -115,3 +131,4 @@ func TestResources(t *testing.T) {
 		t.Errorf("Dead player did not have to sit out when distributing resources.")
 	}
 }
+
