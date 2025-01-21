@@ -297,8 +297,14 @@ func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
 	}
 }
 
+//TODO: citiesList can be value instead of reference
+//TODO: decide if spread is 4 or 8 directions
 func spread(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple) {
 	for _, city := range *cities {
+		if gMap[city.X][city.Y].Zombies < zombieCutoff {
+			gMap[city.X][city.Y].Zombies++
+			continue
+		}
 		//North
 		if city.Y < mapHeight-1 && gMap[city.X][city.Y+1].Zombies < zombieCutoff  {
 			gMap[city.X][city.Y+1].Zombies++
