@@ -146,7 +146,7 @@ func spread() {
 			gameMap[city.x][city.y+1].zombies++
 		}
 		//East
-		if city.x < mapWith-1 {
+		if city.x < mapWidth-1 {
 			gameMap[city.x+1][city.y].zombies++
 		}
 		//South
@@ -194,7 +194,7 @@ func randomizePlayerInput(player *Player) {
 		}
 	}
 	//Randomize discard
-	_, found := playerHasCard(player, None)
+	_, found = playerHasCard(player, None)
 	if !found {
 		player.discard = player.cards[0]
 	}
@@ -202,7 +202,7 @@ func randomizePlayerInput(player *Player) {
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	var me Player = Player{"me", 2, 5, North, Weapon, None, [5]Card{Food, Wood, Wood, None, None}}
+	var me Player = Player{"me", 2, 5, North, Weapon, Food, None, [5]Card{Food, Wood, Wood, None, None}}
 	playerList = append(playerList, me)
 	initMap(&gameMap)
 	printMap(&gameMap)
