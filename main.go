@@ -3,14 +3,12 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/golang-jwt/jwt"
 	"math/rand"
 	"os"
 	"strconv"
 	"time"
 )
 
-var idSalt = "6LIBN8OWPzTKctUvbZtXV2mFn2tCq3qZKjHYbTTnLWtu6oGTU3ow3tuNx9SBTuND"
 var r *rand.Rand
 
 func initMap(gMap *[mapWidth][mapHeight]*Tile) {
@@ -346,25 +344,6 @@ func randomizeBot(players []*Player) {
 			player.Discard = player.Cards[0]
 		}
 	}
-}
-
-func verifyJWT(token jwt.Token, userName string) bool {
-	if token.Claims.(jwt.MapClaims)["user"] == userName {
-		return token.Valid
-	}
-	return false
-}
-
-func generateJWT(userName string) (string, error) {
-	token := jwt.New(jwt.SigningMethodEdDSA)
-	claims := token.Claims.(jwt.MapClaims)
-	claims["name"] = userName
-	claims["authorized"] = true
-	tokenString, err := token.SignedString(idSalt)
-	if err != nil {
-		return "", err
-	}
-	return tokenString, nil
 }
 
 // TODO: Somehow remove inactive players
