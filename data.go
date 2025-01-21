@@ -68,13 +68,13 @@ type Tile struct {
 }
 
 type MapPiece struct {
-	tileType             string
-	zombieCount          int
-	playerCount          int
-	playersPlanMoveNorth int
-	playersPlanMoveEast  int
-	playersPlanMoveSouth int
-	playersPlanMoveWest  int
+	TileType             string
+	ZombieCount          int
+	PlayerCount          int
+	PlayersPlanMoveNorth int
+	PlayersPlanMoveEast  int
+	PlayersPlanMoveSouth int
+	PlayersPlanMoveWest  int
 }
 
 type Surroundings struct {
