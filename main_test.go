@@ -45,60 +45,60 @@ func TestMove(t *testing.T) {
 	var playerX = 5
 	var playerY = 5
 	var testPlayer = Player{
-		id:        "test",
-		x:         playerX,
-		y:         playerY,
-		direction: North,
-		play:      Dice,
-		consume:   Wood,
-		discard:   Wood,
-		cards:     [5]Card{Wood, Wood, Food, None, None},
-		alive:     true,
-		isBot:	   true,
+		ID:        "test",
+		X:         playerX,
+		Y:         playerY,
+		Direction: North,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   Wood,
+		Cards:     [5]Card{Wood, Wood, Food, None, None},
+		Alive:     true,
+		IsBot:	   true,
 	}
 	var testArray = []*Player{&testPlayer}
 	move(&testArray)
-	if testPlayer.y != playerY+1 {
+	if testPlayer.Y != playerY+1 {
 		t.Errorf("Move north failed.")
 	}
-	testPlayer.direction = South
+	testPlayer.Direction = South
 	move(&testArray)
-	if testPlayer.y != playerY {
+	if testPlayer.Y != playerY {
 		t.Errorf("Move south failed.")
 	}
-	testPlayer.direction = East
+	testPlayer.Direction = East
 	move(&testArray)
-	if testPlayer.x != playerX+1 {
+	if testPlayer.X != playerX+1 {
 		t.Errorf("Move east failed.")
 	}
-	testPlayer.direction = West
+	testPlayer.Direction = West
 	move(&testArray)
-	if testPlayer.x != playerX {
+	if testPlayer.X != playerX {
 		t.Errorf("Move west failed.")
 	}
-	testPlayer.direction = Stay
-	testPlayer.x = playerX
-	testPlayer.y = playerY
+	testPlayer.Direction = Stay
+	testPlayer.X = playerX
+	testPlayer.Y = playerY
 	move(&testArray)
-	if testPlayer.x != playerX || testPlayer.y != playerY {
+	if testPlayer.X != playerX || testPlayer.Y != playerY {
 		t.Errorf("Staying in place failed.")
 	}
 	var deadPlayer = Player{
-		id:        "test",
-		x:         playerX,
-		y:         playerY,
-		direction: North,
-		play:      Dice,
-		consume:   Wood,
-		discard:   Wood,
-		cards:     [5]Card{Wood, Wood, Food, None, None},
-		alive:     false,
-		isBot:     true,
+		ID:        "test",
+		X:         playerX,
+		Y:         playerY,
+		Direction: North,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   Wood,
+		Cards:     [5]Card{Wood, Wood, Food, None, None},
+		Alive:     false,
+		IsBot:     true,
 	}
 	testArray = []*Player{&deadPlayer}
 	move(&testArray)
-	if deadPlayer.y != playerY {
-		t.Errorf("Dead player wasn't supposed to move %d tiles north", deadPlayer.y-5)
+	if deadPlayer.Y != playerY {
+		t.Errorf("Dead player wasn't supposed to move %d tiles north", deadPlayer.Y-5)
 	}
 }
 
@@ -106,76 +106,77 @@ func TestResources(t *testing.T) {
 	var gameMap [mapWidth][mapHeight]*Tile
 	fakeInitMap(&gameMap, Farm)
 	var testPlayer = Player{
-		id:        "test",
-		x:         5,
-		y:         5,
-		direction: North,
-		play:      Dice,
-		consume:   Wood,
-		discard:   None,
-		cards:     [5]Card{ None, None, None, None, None },
-		alive:     true,
-		isBot:     true,
+		ID:        "test",
+		X:         5,
+		Y:         5,
+		Direction: North,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   None,
+		Cards:     [5]Card{ None, None, None, None, None },
+		Alive:     true,
+		IsBot:     true,
 	}
 	var testArray = []*Player{&testPlayer}
 	resources(&testArray, &gameMap)
-	if testPlayer.cards[0] != Food {
-		t.Log(testPlayer.cards)
-		t.Errorf("TestPlayer received the wrong card - expected Food but got %s", testPlayer.cards[0].toString())
+	if testPlayer.Cards[0] != Food {
+		t.Log(testPlayer.Cards)
+		t.Errorf("TestPlayer received the wrong card - expected Food but got %s", testPlayer.Cards[0].toString())
 	}
 	//Dead players sit out
 	var deadPlayer = Player{
-		id:        "test",
-		x:         5,
-		y:         5,
-		direction: North,
-		play:      Dice,
-		consume:   Wood,
-		discard:   None,
-		cards:     [5]Card{None, None, None, None, None},
-		alive:     false,
-		isBot:     true,
+		ID:        "test",
+		X:         5,
+		Y:         5,
+		Direction: North,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   None,
+		Cards:     [5]Card{None, None, None, None, None},
+		Alive:     false,
+		IsBot:     true,
 	}
 	testArray = []*Player{&deadPlayer}
 	resources(&testArray, &gameMap)
-	if deadPlayer.cards[0] != None {
+	if deadPlayer.Cards[0] != None {
 		t.Errorf("Dead player did not have to sit out when distributing resources.")
 	}
 }
 
 func TestConsume(t *testing.T) {
 	var testPlayer = Player{
-		id:        "test",
-		x:         5,
-		y:         5,
-		direction: North,
-		play:      Dice,
-		consume:   Wood,
-		discard:   None,
-		cards:     [5]Card{None, None, None, None, Wood},
-		alive:     true,
+		ID:        "test",
+		X:         5,
+		Y:         5,
+		Direction: North,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   None,
+		Cards:     [5]Card{None, None, None, None, Wood},
+		Alive:     true,
+		IsBot:     true,
 	}
 	var testArray = []*Player{&testPlayer}
 	consume(&testArray)
-	if testPlayer.cards[4] != None {
+	if testPlayer.Cards[4] != None {
 		t.Errorf("Player was not supposed to have resources remaining.")
 	}
 	var deadPlayer = Player{
-		id:        "test",
-		x:         5,
-		y:         5,
-		direction: North,
-		play:      Dice,
-		consume:   Wood,
-		discard:   None,
+		ID:        "test",
+		X:         5,
+		Y:         5,
+		Direction: North,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   None,
 		//TODO: Test more combinations
-		cards:     [5]Card{None, None, None, None, Wood},
-		alive:     false,
-		isBot:     true,
+		Cards:     [5]Card{None, None, None, None, Wood},
+		Alive:     false,
+		IsBot:     true,
 	}
 	testArray = []*Player{&deadPlayer}
 	consume(&testArray)
-	if deadPlayer.cards[4] != Wood {
+	if deadPlayer.Cards[4] != Wood {
 		t.Errorf("Dead player's not supposed to consume anything.")
 	}
 }
@@ -199,21 +200,21 @@ func TestHandSize (t *testing.T) {
 		0, 1, 1, 1, 1, 1, 1, 1, 2, 3, 4, 5,
 	}
 	var testPlayer = Player{
-		id:        "test",
-		x:         5,
-		y:         5,
-		direction: North,
-		play:      Dice,
-		consume:   Wood,
-		discard:   None,
-		cards: [5]Card{None, None, None, None, None},
-		alive:     false,
-		isBot:     true,
+		ID:        "test",
+		X:         5,
+		Y:         5,
+		Direction: North,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   None,
+		Cards: [5]Card{None, None, None, None, None},
+		Alive:     false,
+		IsBot:     true,
 	}
 	for testNumber, cards := range testCases {
-		testPlayer.cards = cards
+		testPlayer.Cards = cards
 		if testResults[testNumber] != getHandSize(testPlayer) {
-			t.Errorf("[%v] is not %d cards", testPlayer.cards, testResults[testNumber])
+			t.Errorf("[%v] is not %d cards", testPlayer.Cards, testResults[testNumber])
 		}
 	}
 }
@@ -231,25 +232,25 @@ func TestLimitCards (t *testing.T) {
 		0, 1, 2, 3, 4, 4,
 	}
 	var testPlayer = Player{
-		id:        "test",
-		x:         5,
-		y:         5,
-		direction: North,
-		play:      Dice,
-		consume:   Wood,
-		discard:   Wood,
-		cards: [5]Card{None, None, None, None, None},
-		alive:     false,
-		isBot:     true,
+		ID:        "test",
+		X:         5,
+		Y:         5,
+		Direction: North,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   Wood,
+		Cards: [5]Card{None, None, None, None, None},
+		Alive:     false,
+		IsBot:     true,
 	}
 	var testArray = []*Player{&testPlayer}
 	//TODO: Add check if right card was removed
 	for testNumber, cards := range testCases {
-		testPlayer.cards = cards
+		testPlayer.Cards = cards
 		//var pDiscard = testPlayer.discard
 		limitCards(&testArray)
 		if (getHandSize(testPlayer)) != testResults[testNumber] {
-			t.Errorf("[%v] is not %d cards", testPlayer.cards, testResults[testNumber])
+			t.Errorf("[%v] is not %d cards", testPlayer.Cards, testResults[testNumber])
 		}
 	}
 }
@@ -260,16 +261,16 @@ func TestRestockBots (t *testing.T) {
 	var testCases [5]int = [5]int{0, 30, 49, 50, 51}
 	var botID = 0
 	var testBot = Player{
-		id:        "test",
-		x:         5,
-		y:         5,
-		direction: North,
-		play:      Dice,
-		consume:   Wood,
-		discard:   Wood,
-		cards: [5]Card{None, None, None, None, None},
-		alive:     false,
-		isBot:     true,
+		ID:        "test",
+		X:         5,
+		Y:         5,
+		Direction: North,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   Wood,
+		Cards: [5]Card{None, None, None, None, None},
+		Alive:     false,
+		IsBot:     true,
 	}
 	for i := 0; i < len(testCases); i++ {
 		testPlayerList = nil
