@@ -11,7 +11,7 @@ import (
 
 var r *rand.Rand
 
-func initMap(gMap *[mapWidth][mapHeight]*Tile) {
+func initMap(r rand.Rand, gMap *[mapWidth][mapHeight]*Tile) {
 	for a, column := range gMap {
 		for b, _ := range column {
 			choice := r.Intn(len(terrainTypes) - 1)
@@ -424,7 +424,7 @@ func main() {
 	go setupAPI(&playerList, &gameMap, &turnTimer, &hasWon)
 	for true {
 		r = rand.New(rand.NewSource(time.Now().Unix()))
-		initMap(&gameMap)
+		initMap(*r, &gameMap)
 		cityList = createCityList(&gameMap)
 		var remainingTurns = maxTurns
 		for ; remainingTurns > 0; remainingTurns-- {
