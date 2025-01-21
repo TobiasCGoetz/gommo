@@ -74,6 +74,15 @@ func (c Card) MarshalJSON() ([]byte, error) {
 	return json.Marshal(c.toString())
 }
 
+var cards = map[string]Card{
+	"food":     Food,
+	"wood":     Wood,
+	"weapon":   Weapon,
+	"dice":     Dice,
+	"research": Research,
+	"none":     None,
+}
+
 type Tile struct {
 	Terrain Terrain
 	Zombies int
