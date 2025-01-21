@@ -180,12 +180,42 @@ func TestGetFirstEmptyHandSlot(t *testing.T) {
 	}
 }
 
-func TestHandleCombat(t *testing.T) {
-	//TODO
+func TestFight(t *testing.T)  {
+	var loc1 = IntTuple{10, 10}
+	var loc2 = IntTuple{13, 13}
+	var gameMap [mapWidth][mapHeight]*Tile
+	fakeInitMap(&gameMap, Forest, 3)
+	gameMap[loc2.X][loc2.Y].Zombies = zombieCutoff
+	var combatGroups = make(map[IntTuple][]*Player)
+	var testPlayer = Player{
+		ID:        "test",
+		X:         10,
+		Y:         10,
+		Direction: North,
+		Play:      Dice,
+		Consume:   Wood,
+		Discard:   Wood,
+		Cards:     [5]Card{None, None, None, None, None},
+		Alive:     true,
+		IsBot:	   true,
+	}
+	combatGroups[loc1] = append(combatGroups[loc1], &testPlayer, &testPlayer, &testPlayer, &testPlayer)
+	fight(&gameMap, combatGroups[loc1])
+	if gameMap[loc1.X][loc1.Y].Zombies > 0 {
+		t.Errorf("%d/%d has %d Z instead of 0", loc1.X, loc1.Y, gameMap[loc1.X][loc1.Y].Zombies)
+	}
+	combatGroups[loc2] = append(combatGroups[loc2], &testPlayer)
+	fight(&gameMap, combatGroups[loc2])
+	if !testPlayer.Alive {
+		t.Errorf("Player didn't die correctly")
+	}
 }
 
-func TestFight(t *testing.T)  {
+func TestHandleCombat(t *testing.T) {
 	//TODO
+	//Create test map
+	//Create player cluster
+	//Check validity
 }
 
 func TestSpread(t *testing.T) {
