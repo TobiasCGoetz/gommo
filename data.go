@@ -10,7 +10,7 @@ type IntTuple struct {
 	Y int
 }
 
-//Terrain
+// Terrain
 type Terrain int
 
 const (
@@ -21,7 +21,7 @@ const (
 	Edge
 )
 
-var terrainTypes = [5]Terrain{ Forest, Farm, City, Laboratory, Edge }
+var terrainTypes = [5]Terrain{Forest, Farm, City, Laboratory, Edge}
 
 func (t Terrain) toString() string {
 	return []string{"Forest", "Farm", "City", "Laboratory", "Edge"}[t]
@@ -43,7 +43,7 @@ func (d Direction) toString() string {
 	return []string{"North", "East", "South", "West", "Stay"}[d]
 }
 
-//Cards
+// Cards
 type Card int
 
 const (
@@ -55,7 +55,7 @@ const (
 	None
 )
 
-var cardTypes = [6]Card{ Food, Wood, Weapon, Dice, Research, None }
+var cardTypes = [6]Card{Food, Wood, Weapon, Dice, Research, None}
 
 func (c Card) toString() string {
 	return []string{"Food", "Wood", "Weapon", "Dice", "Research", "None"}[c]
@@ -79,18 +79,18 @@ type Surroundings struct {
 	SE Tile
 }
 
-//Player
+// Player
 type Player struct {
-	ID string
-	Name string
-	X, Y int
+	ID        string
+	Name      string
+	X, Y      int
 	Direction Direction
-	Play Card
-	Consume Card
-	Discard Card
-	Cards [5]Card
-	Alive bool
-	IsBot bool
+	Play      Card
+	Consume   Card
+	Discard   Card
+	Cards     [5]Card
+	Alive     bool
+	IsBot     bool
 }
 
 func printPlayersList(s []Player) {
