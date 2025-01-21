@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,6 +36,7 @@ func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTi
 //
 // Returns: *Player or nil
 func getPlayerOrNil(playerList *[]*Player, id string) *Player {
+	//TODO: Refactor playerList to be a map!!
 	for pNr, player := range *playerList {
 		if player.ID == id {
 			return (*playerList)[pNr]
