@@ -226,8 +226,6 @@ func setDirectionHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 func getPlayerHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
-		//passwd := c.Param("passwd")
-		//TODO: USE A MAP HERE
 		playerPtr := getPlayerOrNil(playerList, id)
 		if playerPtr != nil {
 			c.JSON(http.StatusOK, (*playerPtr))
