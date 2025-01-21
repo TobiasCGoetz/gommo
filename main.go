@@ -154,13 +154,13 @@ func consume(pList *[]*Player) {
 			if hasCard {
 				(*pList)[a].Consume = Food
 			} else {
-				(*pList)[a].Consume = Wood
+				(*pList)[a].Consume = Wood //TODO: Add Wood consume zombie attraction
 			}
 			(*pList)[a].Alive = false
 		}
 		b, hasCard := playerHasCard(player, player.Consume)
 		if hasCard {
-			player.Cards[b] = None
+			(*pList)[a].Cards[b] = None
 		} else {
 			player.Alive = false
 		}
