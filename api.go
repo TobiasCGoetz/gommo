@@ -118,7 +118,6 @@ func getSurroundingsHandlerFunc(playerList *[]*Player, gameMap *[mapWidth][mapHe
 		} else {
 			player := *playerPtr
 
-			//Construct empty minimap
 			var NW = tileToMapPiece(*gameMap[player.X-1][player.Y-1])
 			var NN = tileToMapPiece(*gameMap[player.X][player.Y-1])
 			var NE = tileToMapPiece(*gameMap[player.X+1][player.Y-1])
