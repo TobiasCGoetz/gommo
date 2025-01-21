@@ -36,8 +36,8 @@ func createCityList(gMap *[mapWidth][mapHeight]*Tile) []IntTuple {
 
 func getMapTile(x int, y int, gMap *[mapWidth][mapHeight]*Tile) *Tile {
 	if x < 0 || x >= mapWidth || y < 0 || y >= mapHeight {
-		return &Tile{Edge, -1, []Player{}}
 		fmt.Printf("Prevented tile access at %d/%d", x, y)
+		return &Tile{Edge, -1, []Player{}}
 	}
 	var truncX = x % 100
 	var truncY = y % 100
@@ -60,7 +60,7 @@ func move(pList *[]*Player) {
 		case West:
 			(*pList)[a].X -= 1
 		case Stay:
-			break
+			return
 		}
 		if mapWidth <= (*pList)[a].X {
 			(*pList)[a].X = mapWidth - 1
@@ -298,7 +298,7 @@ func updatePlayerPositions(pList *[]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 	//Reposition all players
 	for _, player := range *pList {
 		var tilePList = gMap[player.X][player.Y].Players
-		tilePList = append(tilePList, *player)
+		gMap[player.X][player.Y].Players = append(tilePList, *player)
 	}
 }
 
@@ -322,26 +322,26 @@ func playerHasCard(player *Player, card Card) (int, bool) {
 	return -1, false
 }
 
-func randomizeBot(players []*Player) {
-	for _, player := range players {
+func randomizeBot(bots []*Player) {
+	for _, bot := range bots {
 		//Randomize movement
-		player.Direction = Directions[r.Intn(len(Directions))]
+		bot.Direction = Directions[r.Intn(len(Directions))]
 		//Randomize card played
-		player.Play = Dice
+		bot.Play = Dice
 		//Randomize consume
-		a, found := playerHasCard(player, Food)
-		player.Consume = Food
-		if !found {
-			a, found = playerHasCard(player, Wood)
-			player.Consume = Wood
-			if a == -1 {
-				player.Consume = None
-			}
+
+		if _, foodFound := playerHasCard(bot, Food); foodFound {
+			bot.Consume = Food
+		} else if _, woodFound := playerHasCard(bot, Wood); woodFound {
+			bot.Consume = Wood
+		} else {
+			bot.Consume = None
 		}
+
 		//Randomize discard
-		_, found = playerHasCard(player, None)
+		_, found := playerHasCard(bot, None)
 		if !found {
-			player.Discard = player.Cards[0]
+			bot.Discard = bot.Cards[0]
 		}
 	}
 }
@@ -423,7 +423,7 @@ func main() {
 	var turnTimer = int8(turnLength)
 	hasWon = false
 	go setupAPI(&playerList, &gameMap, &turnTimer, &hasWon)
-	for true {
+	for {
 		r = rand.New(rand.NewSource(time.Now().Unix()))
 		initMap(*r, &gameMap)
 		cityList = createCityList(&gameMap)
