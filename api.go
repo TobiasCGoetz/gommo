@@ -16,10 +16,10 @@ func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTi
 	router.PUT("/player/:id/play/:card", setPlayHandlerFunc(playerList))
 	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(playerList, gameMap))
 	router.GET("/turnTimer", getRemainingTimerHandlerFunc(turnTime))
-	router.Run("localhost:8080")
+	router.Run("0.0.0.0:8080")
 }
 
-func addPlayerHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
+func addPlayerHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		var pName = filterPlayerName(c.Param("name"))
 		var pID = addPlayer(playerList, pName)
@@ -28,15 +28,15 @@ func addPlayerHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
 	return fn
 }
 
-func getRemainingTimerHandlerFunc (turnTimer *uint8) gin.HandlerFunc {
+func getRemainingTimerHandlerFunc(turnTimer *uint8) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, *turnTimer)
 	}
 	return fn
 }
 
-//TODO: Add surrounding players info
-func getSurroundingsHandlerFunc (playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile) gin.HandlerFunc {
+// TODO: Add surrounding players info
+func getSurroundingsHandlerFunc(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		for _, player := range *playerList {
@@ -89,12 +89,12 @@ func getSurroundingsHandlerFunc (playerList *[]*Player, gameMap *[mapWidth][mapH
 	return fn
 }
 
-func setDiscardHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
+func setDiscardHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		cardStr := c.Param("card")
 		var card, err = strconv.Atoi(cardStr)
-		if err != nil || card >= len(cardTypes)  {
+		if err != nil || card >= len(cardTypes) {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "No number recognized"})
 		}
 		for pNr, player := range *playerList {
@@ -109,12 +109,12 @@ func setDiscardHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
 	}
 	return fn
 }
-func setPlayHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
+func setPlayHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		cardStr := c.Param("card")
 		var card, err = strconv.Atoi(cardStr)
-		if err != nil || card >= len(cardTypes)  {
+		if err != nil || card >= len(cardTypes) {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "No number recognized"})
 		}
 		for pNr, player := range *playerList {
@@ -130,12 +130,12 @@ func setPlayHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
 	return fn
 }
 
-func setConsumeHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
+func setConsumeHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		cardStr := c.Param("card")
 		var card, err = strconv.Atoi(cardStr)
-		if err != nil || card >= len(cardTypes)  {
+		if err != nil || card >= len(cardTypes) {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "No number recognized"})
 		}
 		for pNr, player := range *playerList {
@@ -151,12 +151,12 @@ func setConsumeHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
 	return fn
 }
 
-func setDirectionHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
+func setDirectionHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		dirStr := c.Param("dir")
 		var dir, err = strconv.Atoi(dirStr)
-		if err != nil || dir >= len(Directions)  {
+		if err != nil || dir >= len(Directions) {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "No number recognized"})
 		}
 		for pNr, player := range *playerList {
@@ -172,7 +172,7 @@ func setDirectionHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
 	return fn
 }
 
-func getPlayerHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
+func getPlayerHandlerFunc(playerList *[]*Player) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		//passwd := c.Param("passwd")
@@ -189,7 +189,7 @@ func getPlayerHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
 	return fn
 }
 
-func sanitizeSurroundingsInfo (surroundings *Surroundings) {
+func sanitizeSurroundingsInfo(surroundings *Surroundings) {
 	maskPlayerInfo(&surroundings.NW)
 	maskPlayerInfo(&surroundings.NN)
 	maskPlayerInfo(&surroundings.NE)
@@ -201,7 +201,7 @@ func sanitizeSurroundingsInfo (surroundings *Surroundings) {
 	maskPlayerInfo(&surroundings.SE)
 }
 
-func filterPlayerName (name string) string {
+func filterPlayerName(name string) string {
 	if len(name) > playerNameMaxLength {
 		return name[0:playerNameMaxLength]
 	}
@@ -209,7 +209,7 @@ func filterPlayerName (name string) string {
 	return name
 }
 
-func maskPlayerInfo (tile *Tile) {
+func maskPlayerInfo(tile *Tile) {
 	for playerNr, player := range tile.Players {
 		//Filter the dead
 		if player.Alive {
