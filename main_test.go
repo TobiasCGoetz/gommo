@@ -180,6 +180,19 @@ func TestGetFirstEmptyHandSlot(t *testing.T) {
 	}
 }
 
+func TestHandleCombat(t *testing.T) {
+	//TODO
+}
+
+func TestFight(t *testing.T)  {
+	//TODO
+}
+
+func TestSpread(t *testing.T) {
+	//TODO
+}
+
+//TODO: Test player starves
 func TestConsumeWoodAttracts(t *testing.T) {
 	var gameMap [mapWidth][mapHeight]*Tile
 	fakeInitMap(&gameMap, Forest, 1)
@@ -205,6 +218,7 @@ func TestConsumeWoodAttracts(t *testing.T) {
 	}
 }
 
+//TODO: Test other tiles but Farm
 func TestResources(t *testing.T) {
 	var gameMap [mapWidth][mapHeight]*Tile
 	fakeInitMap(&gameMap, Farm, 0)
@@ -350,6 +364,7 @@ func TestLimitCards (t *testing.T) {
 	}
 	var testArray = []*Player{&testPlayer}
 	//TODO: Add check if right card was removed
+	//TODO: Fix player.Discard != none path
 	for testNumber, cards := range testCases {
 		testPlayer.Cards = cards
 		//var pDiscard = testPlayer.discard
