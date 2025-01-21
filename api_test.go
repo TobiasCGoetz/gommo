@@ -17,13 +17,14 @@ func TestGetPlayerOrNil(t *testing.T) {
 		Alive:     true,
 		IsBot:     true,
 	}
-	var testArray = []*Player{&testPlayer}
+	var testMap = make(map[string]Player)
+	testMap[testPlayer.ID] = testPlayer
 
-	playerFound := getPlayerOrNil(&testArray, testPlayer.ID)
+	playerFound := getPlayerOrNil(testMap, testPlayer.ID)
 	if playerFound == nil {
 		t.Errorf("Player in list not found")
 	}
-	playerNotFound := getPlayerOrNil(&testArray, "ThisPlayerDoesntExist")
+	playerNotFound := getPlayerOrNil(testMap, "ThisPlayerDoesntExist")
 	if playerNotFound != nil {
 		t.Errorf("Non-existant player found")
 	}

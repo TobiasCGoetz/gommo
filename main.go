@@ -378,7 +378,7 @@ func addBot(playerMap *map[string]Player, bots *[]*Player, bID int) {
 		Alive:     true,
 		IsBot:     true,
 	}
-	(*playerMap)[string(bID)] = bot
+	(*playerMap)[strconv.Itoa(bID)] = bot
 	*bots = append(*bots, &bot)
 }
 
