@@ -1,6 +1,6 @@
 module gommo
 
-go 1.21.9
+go 1.19.8
 
 require github.com/gin-gonic/gin v1.7.4
 
