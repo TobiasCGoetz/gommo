@@ -359,6 +359,7 @@ func addPlayer(players *[]*Player, playerName string) string {
 	playerID = base64.StdEncoding.EncodeToString([]byte(playerID))
 	var player = Player{
 		ID:        playerID,
+		Name:      playerName,
 		X:         rX,
 		Y:         rY,
 		Direction: Stay,
