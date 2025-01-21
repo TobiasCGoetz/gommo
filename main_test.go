@@ -560,6 +560,7 @@ func TestPlayerConsumeFallback(t *testing.T) {
 }
 
 func TestRestockBots(t *testing.T) {
+	r = rand.New(rand.NewSource(10))
 	var testPlayerMap map[string]Player
 	var testBotList []*Player
 	var testCases = [5]int{0, 30, 49, 50, 51}
