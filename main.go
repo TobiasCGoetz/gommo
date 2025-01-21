@@ -12,12 +12,22 @@ import (
 
 var r *rand.Rand
 
+func setTileInMap(x int, y int, tile Tile, gameMap *[mapWidth][mapHeight]*Tile) {
+	newTile := Tile{tile.Terrain, tile.Zombies, tile.Players}
+	gameMap[x][y] = &newTile
+}
+
 func initMap(r rand.Rand, gMap *[mapWidth][mapHeight]*Tile) {
+	fmt.Println("Initializing game map...")
 	for a, column := range gMap {
 		for b := range column {
 			choice := r.Intn(len(terrainTypes) - 1)
 			var tile = Tile{terrainTypes[choice], 0, []Player{}}
-			gMap[a][b] = &tile
+			//gMap[a][b] = &tile
+			setTileInMap(a, b, tile, gMap)
+			if gMap[a][b] == nil {
+				fmt.Println("Map tile assigned nil")
+			}
 		}
 	}
 }
@@ -211,7 +221,6 @@ func limitCards(playerMap *map[string]*Player) {
 	}
 }
 
-// TODO: THIS REQUIRES playerMap to hold *Player instead!
 func handleCombat(gMap *[mapWidth][mapHeight]*Tile, playerMap *map[string]*Player) {
 	//Create groups from position
 	var combatGroups = make(map[IntTuple][]*Player)
@@ -281,6 +290,7 @@ func spread(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple) {
 	}
 }
 
+// TODO: Look for gameMap[x][y] nil cause here
 func updatePlayerPositions(playerMap *map[string]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 	//Clear all player info in tiles
 	for _, tileRow := range *gMap {
@@ -292,17 +302,28 @@ func updatePlayerPositions(playerMap *map[string]*Player, gMap *[mapWidth][mapHe
 	for _, player := range *playerMap {
 		var tilePList = gMap[player.X][player.Y].Players
 		gMap[player.X][player.Y].Players = append(tilePList, *player)
+		if gMap[player.X][player.Y] == nil {
+			fmt.Println("Panic - gMap has nil pointer")
+		}
 	}
 }
 
 // TODO: Unify order of attributes across functions
 func tick(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple, playerMap *map[string]*Player) {
+	fmt.Println("Next tick is happening...")
+	fmt.Println("Moving players...")
 	move(playerMap)
+	fmt.Println("Distributing ressources...")
 	resources(playerMap, *gMap)
+	fmt.Println("Combat is upon us...")
 	handleCombat(gMap, playerMap)
+	fmt.Println("The infection is spreading...")
 	spread(gMap, cities)
+	fmt.Println("Players feeding themselves...")
 	consume(playerMap, gMap)
+	fmt.Println("Limiting player inventory")
 	limitCards(playerMap)
+	fmt.Println("Updating player info on game map...")
 	updatePlayerPositions(playerMap, gMap)
 }
 
@@ -315,7 +336,8 @@ func playerHasCard(player *Player, card Card) (int, bool) {
 	return -1, false
 }
 
-func randomizeBot(bots []*Player) {
+func randomizeBots(bots []*Player) {
+	fmt.Println("Randomizing bot turns...")
 	for _, bot := range bots {
 		//Randomize movement
 		bot.Direction = Directions[r.Intn(len(Directions))]
@@ -340,7 +362,6 @@ func randomizeBot(bots []*Player) {
 }
 
 // TODO: Somehow remove inactive players
-// TODO: Make sure ID has no /
 func addPlayer(playerMap *map[string]*Player, playerName string) string {
 	var rX = r.Intn(mapWidth - 1)
 	var rY = r.Intn(mapHeight - 1)
@@ -417,32 +438,32 @@ func main() {
 	var botID = 0
 	var turnTimer = int8(turnLength)
 	hasWon = false
+	r = rand.New(rand.NewSource(time.Now().Unix()))
+	initMap(*r, &gameMap)
+	time.Sleep(time.Second)
+
 	go setupAPI(&playerMap, &gameMap, &turnTimer, &hasWon)
-	for {
-		r = rand.New(rand.NewSource(time.Now().Unix()))
-		initMap(*r, &gameMap)
-		cityList = createCityList(&gameMap)
-		var remainingTurns = maxTurns
-		for ; remainingTurns > 0; remainingTurns-- {
-			fmt.Println("Remaining turns: ", remainingTurns)
-			for turnTimer = int8(turnLength); turnTimer >= 0; turnTimer-- {
-				if turnTimer == 0 {
-					randomizeBot(botList)
-					tick(&gameMap, &cityList, &playerMap)
-					hasWon = havePlayersWon(playerMap)
-					restockBots(&playerMap, &botList, &botID)
-					if hasWon {
-						fmt.Println("Game over due to win")
-						remainingTurns = 0
-						turnTimer = -1
-						break
-					}
-				} else {
-					time.Sleep(time.Second)
+
+	cityList = createCityList(&gameMap)
+	var remainingTurns = maxTurns
+	for ; remainingTurns > 0; remainingTurns-- {
+		fmt.Println("Remaining turns: ", remainingTurns)
+		for turnTimer = int8(turnLength); turnTimer >= 0; turnTimer-- {
+			if turnTimer == 0 {
+				randomizeBots(botList)
+				tick(&gameMap, &cityList, &playerMap)
+				hasWon = havePlayersWon(playerMap)
+				restockBots(&playerMap, &botList, &botID)
+				if hasWon {
+					fmt.Println("Game over due to win")
+					remainingTurns = 0
+					turnTimer = -1
+					break
 				}
+			} else {
+				time.Sleep(time.Second)
 			}
 		}
-		fmt.Println("Restarting game.")
-		time.Sleep(120 * time.Second)
 	}
+	time.Sleep(120 * time.Second)
 }
