@@ -83,7 +83,7 @@ func getRemainingTimerHandlerFunc(turnTimer int8) gin.HandlerFunc {
 	return fn
 }
 
-func tileToMapPiece(tile Tile) MapPiece {
+func tileToMapPiece(tile *Tile) MapPiece {
 	var planNorth, planEast, planSouth, planWest = 0, 0, 0, 0
 	for _, player := range tile.Players {
 		switch player.Direction {
@@ -111,22 +111,20 @@ func tileToMapPiece(tile Tile) MapPiece {
 func getSurroundingsHandlerFunc(playerMap map[string]*Player, gameMap [mapWidth][mapHeight]*Tile) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
-		playerPtr := getPlayerOrNil(playerMap, id)
-		if playerPtr == nil { //TODO: If nil else function or invert? Make them all identical!
+		player := getPlayerOrNil(playerMap, id)
+		if player == nil { //TODO: If nil else function or invert? Make them all identical!
 			c.AbortWithStatus(http.StatusForbidden)
 			return
 		} else {
-			player := *playerPtr
-
-			var NW = tileToMapPiece(*gameMap[player.X-1][player.Y-1])
-			var NN = tileToMapPiece(*gameMap[player.X][player.Y-1])
-			var NE = tileToMapPiece(*gameMap[player.X+1][player.Y-1])
-			var WW = tileToMapPiece(*gameMap[player.X-1][player.Y])
-			var CE = tileToMapPiece(*gameMap[player.X][player.Y])
-			var EE = tileToMapPiece(*gameMap[player.X+1][player.Y])
-			var SW = tileToMapPiece(*gameMap[player.X-1][player.Y+1])
-			var SS = tileToMapPiece(*gameMap[player.X][player.Y+1])
-			var SE = tileToMapPiece(*gameMap[player.X+1][player.Y+1])
+			var NW = tileToMapPiece(gameMap[player.X-1][player.Y-1])
+			var NN = tileToMapPiece(gameMap[player.X][player.Y-1])
+			var NE = tileToMapPiece(gameMap[player.X+1][player.Y-1])
+			var WW = tileToMapPiece(gameMap[player.X-1][player.Y])
+			var CE = tileToMapPiece(gameMap[player.X][player.Y])
+			var EE = tileToMapPiece(gameMap[player.X+1][player.Y])
+			var SW = tileToMapPiece(gameMap[player.X-1][player.Y+1])
+			var SS = tileToMapPiece(gameMap[player.X][player.Y+1])
+			var SE = tileToMapPiece(gameMap[player.X+1][player.Y+1])
 
 			var miniMap = Surroundings{
 				NW: NW,
