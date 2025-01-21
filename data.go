@@ -1,8 +1,8 @@
 package main
 
 import (
-	"strings"
 	"fmt"
+	"strings"
 )
 
 type IntTuple struct {
@@ -76,6 +76,7 @@ type Player struct {
 	discard Card
 	cards [5]Card
 	alive bool
+	isBot bool
 }
 
 func printPlayersList(s []Player) {
