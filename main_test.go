@@ -69,6 +69,7 @@ func TestMove(t *testing.T) {
 		IsBot:	   true,
 	}
 	var testArray = []*Player{&testPlayer}
+	//Test directions
 	move(&testArray)
 	if testPlayer.Y != playerY+1 {
 		t.Errorf("Move north failed.")
@@ -95,6 +96,31 @@ func TestMove(t *testing.T) {
 	if testPlayer.X != playerX || testPlayer.Y != playerY {
 		t.Errorf("Staying in place failed.")
 	}
+	//Test edge behaviour
+	testPlayer.X = 2 * mapWidth
+	testPlayer.Direction = East
+	move(&testArray)
+	if testPlayer.X != mapWidth - 1 {
+		t.Errorf("Player (%d / %d) is %d out of bounds east", testPlayer.X, testPlayer.Y, testPlayer.X - mapWidth - 1)
+	}
+	testPlayer.X = -10
+	testPlayer.Direction = Stay
+	move(&testArray)
+	if testPlayer.X != 0 {
+		t.Errorf("Player is %d out of bounds west", testPlayer.X)
+	}
+	testPlayer.X = 10
+	testPlayer.Y = 2 * mapHeight
+	move(&testArray)
+	if testPlayer.Y != mapHeight - 1 {
+		t.Errorf("Player is %d out of bounds north", testPlayer.Y - mapHeight - 1)
+	}
+	testPlayer.Y = -10
+	move(&testArray)
+	if testPlayer.Y != 0 {
+		t.Errorf("Player is %d out of bounds south", testPlayer.Y)
+	}
+	//Test dead player
 	var deadPlayer = Player{
 		ID:        "test",
 		X:         playerX,
@@ -374,7 +400,7 @@ func TestPlayerConsumeFallback (t *testing.T) {
 	testPlayerList = append(testPlayerList, &testPlayer)
 	consume(&testPlayerList, &gameMap)
 	_, hasCard = playerHasCard(testPlayerList[0], Wood)
-	if (hasCard) {
+	if hasCard {
 		t.Errorf("Consume fallback to Wood failed")
 	}
 
@@ -383,7 +409,7 @@ func TestPlayerConsumeFallback (t *testing.T) {
 func TestRestockBots (t *testing.T) {
 	var testPlayerList []*Player
 	var testBotList []*Player
-	var testCases [5]int = [5]int{0, 30, 49, 50, 51}
+	var testCases = [5]int{0, 30, 49, 50, 51}
 	var botID = 0
 	var testBot = Player{
 		ID:        "test",
