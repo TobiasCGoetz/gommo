@@ -9,3 +9,7 @@ init:
 
 test:
 	go test -cover
+
+testReport:
+	go test -coverprofile=coverage.out
+	go tool cover -html=coverage.out
