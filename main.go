@@ -108,7 +108,7 @@ func getFirstEmptyHandSlot(hand [5]Card) int {
 	var firstEmpty = -1
 	for f, card := range hand {
 		if card == None {
-			firstEmpty = f
+			return f
 		}
 	}
 	return firstEmpty
