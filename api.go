@@ -40,15 +40,15 @@ func getSurroundingsHandlerFunc (playerList *[]*Player, gameMap *[mapWidth][mapH
 		id := c.Param("id")
 		for _, player := range *playerList {
 			if player.ID == id {
-				var NW = Tile{Edge, -1}
-				var NN = Tile{Edge, -1}
-				var NE = Tile{Edge, -1}
-				var WW = Tile{Edge, -1}
+				var NW = Tile{Edge, -1, []Player{}}
+				var NN = Tile{Edge, -1, []Player{}}
+				var NE = Tile{Edge, -1, []Player{}}
+				var WW = Tile{Edge, -1, []Player{}}
 				var CE = *gameMap[player.X][player.Y]
-				var EE = Tile{Edge, -1}
-				var SW = Tile{Edge, -1}
-				var SS = Tile{Edge, -1}
-				var SE = Tile{Edge, -1}
+				var EE = Tile{Edge, -1, []Player{}}
+				var SW = Tile{Edge, -1, []Player{}}
+				var SS = Tile{Edge, -1, []Player{}}
+				var SE = Tile{Edge, -1, []Player{}}
 
 				if player.X > 0 && player.Y < mapWidth-1 {
 					NW = *gameMap[player.X-1][player.Y+1]
