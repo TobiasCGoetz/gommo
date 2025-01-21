@@ -1,13 +1,13 @@
 package main
 
 import (
-	"encoding/base64"
 	"fmt"
 	"math/rand"
 	"os"
 	"strconv"
-	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 var r *rand.Rand
@@ -365,16 +365,10 @@ func randomizeBots(bots []*Player) {
 func addPlayer(playerMap *map[string]*Player, playerName string) string {
 	var rX = r.Intn(mapWidth - 1)
 	var rY = r.Intn(mapHeight - 1)
-	var nowString = strconv.Itoa(int(time.Now().UnixNano() << 2))
-	var playerID = ""
-	for i := 0; i < len(nowString); i++ {
-		playerID += string(nowString[i] ^ idSalt[i])
-	}
-	playerID = base64.StdEncoding.EncodeToString([]byte(playerID))
-	//Replace character /
-	playerID = strings.Replace(playerID, "/", "=", -1)
+	playerID, _ := uuid.NewV7()
+	idString := playerID.String()
 	var player = Player{
-		ID:        playerID,
+		ID:        idString,
 		Name:      playerName,
 		X:         rX,
 		Y:         rY,
@@ -386,8 +380,8 @@ func addPlayer(playerMap *map[string]*Player, playerName string) string {
 		Alive:     true,
 		IsBot:     false,
 	}
-	(*playerMap)[playerID] = &player
-	return playerID
+	(*playerMap)[idString] = &player
+	return idString
 }
 
 func addBot(playerMap *map[string]*Player, bots *[]*Player, bID int) {
