@@ -300,7 +300,7 @@ func randomizeBot(players []*Player) {
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	initMap(&gameMap)
-	setupAPI()
+	go setupAPI()
 	for i:=0; i< 1; i++ {
 		playerList = append(playerList, &Player{string(i), 5, 5, North, Dice, Wood, None, [5]Card{Food, Wood, Wood, None, None}, true})
 	}
