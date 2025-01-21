@@ -101,6 +101,7 @@ func move() {
 	}
 }
 
+//TODO: Decide on global var vs func arguments
 func resources() {
 	for _, player := range playerList {
 		//TODO: Function to find first empty card space (reuse below)
@@ -112,7 +113,7 @@ func resources() {
 		}
 		//Add card from tile
 		if firstEmpty > -1 {
-					printHandCards(*playerList[0])
+					//printHandCards(*playerList[0])
 			switch gameMap[player.x][player.y].terrain {
 				case Forest:
 					player.cards[firstEmpty] = Wood
@@ -129,7 +130,7 @@ func resources() {
 				case Laboratory:
 					player.cards[firstEmpty] = Research
 			}
-			printHandCards(*playerList[0])
+			//printHandCards(*playerList[0])
 		}
 	}
 }
@@ -151,6 +152,7 @@ func limitCards() {
 				fmt.Println("Cheater:")
 				fmt.Println(player.cards)
 				fmt.Println(player.id)
+				player.cards[4] = None
 			}
 		}
 		for f, card := range player.cards {
@@ -268,15 +270,12 @@ func randomizeBot(players []*Player) {
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
+	initMap(&gameMap)
 	for i:=0; i< 10; i++ {
 		playerList = append(playerList, &Player{string(i), 5, 5, North, Dice, Wood, None, [5]Card{Food, Wood, Wood, None, None}, true})
 	}
-	initMap(&gameMap)
-	printMap(&gameMap)
 	createCityList()
 	for i := 0; i < 30; i++ {
-		fmt.Print("\033[H\033[2J")
-		printPlayers(&playerList)
 		randomizeBot(playerList)
 		tick()
 		time.Sleep(time.Second*2)
