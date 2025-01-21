@@ -70,6 +70,12 @@ func createCityList (gMap *[mapWidth][mapHeight]*Tile) []IntTuple  {
 	return cities
 }
 
+func getMapTile(x int, y int, gMap *[mapWidth][mapHeight]*Tile) *Tile {
+	var truncX = x % 100
+	var truncY = y % 100
+	return (*gMap)[truncX][truncY]
+}
+
 func move(pList *[]*Player) {
 	//Set new coordinates per player from move
 	for a, player := range *pList {
@@ -143,7 +149,7 @@ func resources(pList *[]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 	}
 }
 
-func consume(pList *[]*Player) {
+func consume(pList *[]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 	for a, player := range *pList {
 		var playerCards = getHandSize(*player)
 		if !player.Alive {
@@ -154,12 +160,57 @@ func consume(pList *[]*Player) {
 			if hasCard {
 				(*pList)[a].Consume = Food
 			} else {
-				(*pList)[a].Consume = Wood //TODO: Add Wood consume zombie attraction
+				(*pList)[a].Consume = Wood
 			}
 			(*pList)[a].Alive = false
 		}
 		b, hasCard := playerHasCard(player, player.Consume)
 		if hasCard {
+			if player.Consume == Wood {
+				var zombiesAttracted = 0
+				var tileNN = getMapTile(player.X, player.Y+1, gMap)
+				var tileNE = getMapTile(player.X+1, player.Y+1, gMap)
+				var tileEE = getMapTile(player.X+1, player.Y, gMap)
+				var tileSE = getMapTile(player.X+1, player.Y-1, gMap)
+				var tileSS = getMapTile(player.X, player.Y-1, gMap)
+				var tileSW = getMapTile(player.X-1, player.Y-1, gMap)
+				var tileWW = getMapTile(player.X-1, player.Y, gMap)
+				var tileNW = getMapTile(player.X-1, player.Y+1, gMap)
+
+				if tileNN.Zombies > 0 {
+					zombiesAttracted++
+					tileNN.Zombies -= 1
+				}
+				if tileNE.Zombies > 0 {
+					zombiesAttracted++
+					tileNE.Zombies -= 1
+				}
+				if tileEE.Zombies > 0 {
+					zombiesAttracted++
+					tileEE.Zombies -= 1
+				}
+				if tileSE.Zombies > 0 {
+					zombiesAttracted++
+					tileSE.Zombies -= 1
+				}
+				if tileSS.Zombies > 0 {
+					zombiesAttracted++
+					tileSS.Zombies -= 1
+				}
+				if tileSW.Zombies > 0 {
+					zombiesAttracted++
+					tileSW.Zombies -= 1
+				}
+				if tileWW.Zombies > 0 {
+					zombiesAttracted++
+					tileWW.Zombies -= 1
+				}
+				if tileNW.Zombies > 0 {
+					zombiesAttracted++
+					tileNW.Zombies -= 1
+				}
+				getMapTile(player.X, player.Y, gMap).Zombies += zombiesAttracted
+			}
 			(*pList)[a].Cards[b] = None
 		} else {
 			player.Alive = false
@@ -270,7 +321,7 @@ func tick(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple, pList *[]*Player
 	resources(pList, gMap)
 	handleCombat(gMap, pList)
 	spread(gMap, cities)
-	consume(pList)
+	consume(pList, gMap)
 	limitCards(pList)
 }
 
