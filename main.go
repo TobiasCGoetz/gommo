@@ -362,7 +362,7 @@ func randomizeBots(bots []*Player) {
 }
 
 // TODO: Somehow remove inactive players
-func addPlayer(playerMap *map[string]*Player, playerName string) string {
+func addPlayer(playerMap *map[string]*Player, gameMap *[mapWidth][mapHeight]*Tile, playerName string) string {
 	var rX = r.Intn(mapWidth - 1)
 	var rY = r.Intn(mapHeight - 1)
 	playerID, _ := uuid.NewV7()
@@ -381,6 +381,7 @@ func addPlayer(playerMap *map[string]*Player, playerName string) string {
 		IsBot:     false,
 	}
 	(*playerMap)[idString] = &player
+	gameMap[rX][rY].Players = append(gameMap[rX][rY].Players, player)
 	return idString
 }
 

@@ -13,7 +13,7 @@ func setupAPI(playerMap *map[string]*Player, gameMap *[mapWidth][mapHeight]*Tile
 	//GET endpoints only receive call-by-value arguments
 	//POST/PUT endpoints receive a pointer to enable writes
 	//Player endpoints
-	router.POST("/player/:name", addPlayerHandlerFunc(playerMap))
+	router.POST("/player/:name", addPlayerHandlerFunc(playerMap, gameMap))
 	router.GET("/player/:id", getPlayerHandlerFunc(*playerMap))
 	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(*playerMap, *gameMap))
 	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc(playerMap))
@@ -63,10 +63,10 @@ func getConfigMapSizeHandlerFunc() gin.HandlerFunc {
 	return fn
 }
 
-func addPlayerHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
+func addPlayerHandlerFunc(playerMap *map[string]*Player, gameMap *[mapWidth][mapHeight]*Tile) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		var pName = filterPlayerName(c.Param("name"))
-		var pID = addPlayer(playerMap, pName)
+		var pID = addPlayer(playerMap, gameMap, pName)
 		c.JSON(http.StatusOK, pID)
 	}
 	return fn
