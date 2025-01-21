@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -349,6 +350,8 @@ func addPlayer(playerMap *map[string]*Player, playerName string) string {
 		playerID += string(nowString[i] ^ idSalt[i])
 	}
 	playerID = base64.StdEncoding.EncodeToString([]byte(playerID))
+	//Replace character /
+	playerID = strings.Replace(playerID, "/", "=", -1)
 	var player = Player{
 		ID:        playerID,
 		Name:      playerName,
