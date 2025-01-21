@@ -304,24 +304,49 @@ func randomizeBot(players []*Player) {
 	}
 }
 
+func addBot(players *[]*Player, bots *[]*Player, bID int) {
+	var rX = rand.Intn(mapWidth)
+	var rY = rand.Intn(mapHeight)
+	var bot = Player{
+		id:        strconv.Itoa(bID),
+		x:         rX,
+		y:         rY,
+		direction: Stay,
+		play:      None,
+		consume:   None,
+		discard:   None,
+		cards:     [5]Card{ Food, Wood, Wood, None, None },
+		alive:     true,
+		isBot:     true,
+	}
+	*players = append(*players, &bot)
+	*bots = append(*bots, &bot)
+}
+
+func restockBots(players *[]*Player, bots *[]*Player, bID *int) {
+	var botDelta = botNumber - len(*bots)
+	for i := 0; i < botDelta; i++ {
+		addBot(players, bots, *bID)
+		*bID++
+	}
+}
+
+//TODO: Restock dead bots
+//TODO: Handle dead players correctly
 func main() {
 	var gameMap [mapWidth][mapHeight]*Tile
 	var cityList []IntTuple
 	var playerList []*Player
+	var botList []*Player
+	var botID = 0
+	var isRunning = true
 	rand.Seed(time.Now().UnixNano())
 	initMap(&gameMap)
 	go setupAPI()
-	for i:=0; i< 1; i++ {
-		playerList = append(playerList, &Player{strconv.Itoa(i), 5, 5, North, Dice, Wood, None, [5]Card{Food, Wood, Wood, None, None}, true, true})
-	}
 	cityList = createCityList(&gameMap)
-	for i := 0; i < 5; i++ {
-		printHandCards(*playerList[0])
-		randomizeBot(playerList)
-		fmt.Println("Bot at", playerList[0].x, "/", playerList[0].y, "with direction", playerList[0].direction.toString())
+	for isRunning {
+		restockBots(&playerList, &botList, &botID)
+		randomizeBot(botList)
 		tick(&gameMap, &cityList, &playerList)
-		//time.Sleep(time.Second*2)
-		fmt.Println("#########################")
-		//TODO: Handle dead players correctly
 	}
 }
