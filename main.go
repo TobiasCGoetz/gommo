@@ -119,7 +119,6 @@ func resources(pList *[]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 		if !player.alive {
 			continue
 		}
-		//TODO: Function to find first empty card space (reuse below)
 		var firstEmpty = getFirstEmptyHandSlot(player.cards)
 		//Add card from tile
 		if firstEmpty > -1 {
@@ -150,19 +149,22 @@ func consume(pList *[]*Player) {
 			continue
 		}
 		if (*pList)[a].consume == None {
+			//TODO: Instead pick Food/Wood if available
 			(*pList)[a].alive = false
 		} else {
 			b, hasCard := playerHasCard(player, player.consume)
 			if hasCard {
-				(*pList)[a].cards[b] = None
+				player.cards[b] = None
 			} else {
-				(*pList)[a].alive = false
+				player.alive = false
 			}
 		}
 		var playerCards2 = getHandSize(*player)
-		if playerCards == playerCards2 {
+		if playerCards == playerCards2 && playerCards != 0 && player.alive {
 			fmt.Println("ERROR: Consumed cards should've been:", player.consume.toString())
-			fmt.Println("ERROR: No card has been removed.")
+			fmt.Println("ERROR: No card has been removed from the", playerCards2, "in hand.")
+			fmt.Println("ERROR: PLAYER:")
+			fmt.Println(player)
 		}
 	}
 }
@@ -216,16 +218,17 @@ func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
 	var y = group[0].y
 	for a, player := range group {
 		if player.play == Weapon {
-			attackValue += 6
-			removeLoop:for b, _ := range player.cards {
-				if group[a].cards[b] == Weapon {
-					group[a].cards[b] = None
-					break removeLoop
-				}
+			cardIndex, hasCard := playerHasCard(player, Weapon)
+			if hasCard {
+				attackValue += 6
+				group[a].cards[cardIndex] = None
+			} else {
+				attackValue += rand.Intn(6)
 			}
 		} else {
 			attackValue += rand.Intn(6)
 		}
+		group[a].play = Dice
 	}
 	if attackValue < gMap[x][y].zombies {
 		for a, _ := range group {
@@ -241,23 +244,22 @@ func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
 func spread(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple) {
 	for _, city := range *cities {
 		//North
-		if city.y < mapHeight-1 {
+		if city.y < mapHeight-1 && gMap[city.x][city.y+1].zombies < zombieCutoff  {
 			gMap[city.x][city.y+1].zombies++
 		}
 		//East
-		if city.x < mapWidth-1 {
+		if city.x < mapWidth-1 && gMap[city.x+1][city.y].zombies < zombieCutoff  {
 			gMap[city.x+1][city.y].zombies++
 		}
 		//South
-		if city.y > 0 {
+		if city.y > 0  && gMap[city.x][city.y-1].zombies < zombieCutoff {
 			gMap[city.x][city.y-1].zombies++
 		}
 		//West
-		if city.x > 0 {
+		if city.x > 0  && gMap[city.x-1][city.y].zombies < zombieCutoff {
 			gMap[city.x-1][city.y].zombies++
 		}
 	}
-	//Maybe cutoff?
 }
 
 func tick(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple, pList *[]*Player) {
@@ -336,12 +338,13 @@ func main() {
 	var playerList []*Player
 	var botList []*Player
 	var botID = 0
-	var isRunning = true
+	//var isRunning = true
 	rand.Seed(time.Now().UnixNano())
 	initMap(&gameMap)
 	go setupAPI()
 	cityList = createCityList(&gameMap)
-	for isRunning {
+	//for isRunning {
+	for testRun :=0; testRun < 50; testRun++ {
 		restockBots(&playerList, &botList, &botID)
 		randomizeBot(botList)
 		tick(&gameMap, &cityList, &playerList)
