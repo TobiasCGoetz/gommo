@@ -341,7 +341,7 @@ func main() {
 	//var isRunning = true
 	rand.Seed(time.Now().UnixNano())
 	initMap(&gameMap)
-	go setupAPI()
+	go setupAPI(&playerList)
 	cityList = createCityList(&gameMap)
 	//for isRunning {
 	for testRun :=0; testRun < 50; testRun++ {
