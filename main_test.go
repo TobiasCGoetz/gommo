@@ -32,7 +32,7 @@ func TestCreateCityList(t *testing.T) {
 	var count = 0
 	for x := 0; x < mapWidth; x++ {
 		for y := 0; y < mapHeight; y++ {
-			if cityList[count].x != x || cityList[count].y != y {
+			if cityList[count].X != x || cityList[count].Y != y {
 				t.Errorf("We're missing [%d][%d] in the city list", x, y)
 			}
 			count++
