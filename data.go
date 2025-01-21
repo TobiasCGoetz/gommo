@@ -36,7 +36,7 @@ const (
 	Stay
 )
 
-var directions = [4]Direction{ North, East, South, West }
+var Directions = [4]Direction{North, East, South, West }
 
 func (d Direction) toString() string {
 	return []string{"North", "East", "South", "West", "Stay"}[d]
