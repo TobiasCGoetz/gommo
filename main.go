@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -302,6 +303,32 @@ func randomizeBot(players []*Player) {
 			player.Discard = player.Cards[0]
 		}
 	}
+}
+
+//TODO: Somehow remove inactive players
+func addPlayer(players *[]*Player) string {
+	var rX = rand.Intn(mapWidth-1)
+	var rY = rand.Intn(mapHeight-1)
+	var nowString = strconv.Itoa(int(time.Now().UnixNano() << 2))
+	var playerID = ""
+	for i := 0; i < len(nowString); i++ {
+		playerID += string(nowString[i] ^ idSalt[i])
+	}
+	playerID = base64.StdEncoding.EncodeToString([]byte(playerID))
+	var player = Player{
+		ID:        playerID,
+		X:         rX,
+		Y:         rY,
+		Direction: Stay,
+		Play:      None,
+		Consume:   None,
+		Discard:   None,
+		Cards:     [5]Card{ Food, Wood, Wood, None, None },
+		Alive:     true,
+		IsBot:     false,
+	}
+	*players = append(*players, &player)
+	return playerID
 }
 
 func addBot(players *[]*Player, bots *[]*Player, bID int) {

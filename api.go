@@ -9,6 +9,7 @@ import (
 func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTime *uint8) {
 	router := gin.Default()
 	router.GET("/player/:id", getPlayerHandlerFunc(playerList))
+	router.PUT("/player", addPlayerHandlerFunc(playerList))
 	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc(playerList))
 	router.PUT("/player/:id/consume/:card", setConsumeHandlerFunc(playerList))
 	router.PUT("/player/:id/discard/:card", setDiscardHandlerFunc(playerList))
@@ -16,6 +17,14 @@ func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTi
 	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(playerList, gameMap))
 	router.GET("/turnTimer", getRemainingTimerHandlerFunc(turnTime))
 	router.Run("localhost:8080")
+}
+
+func addPlayerHandlerFunc (playerList *[]*Player) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		var pID = addPlayer(playerList)
+		c.IndentedJSON(http.StatusOK, pID)
+	}
+	return fn
 }
 
 func getRemainingTimerHandlerFunc (turnTimer *uint8) gin.HandlerFunc {
