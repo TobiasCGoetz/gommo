@@ -3,29 +3,25 @@ image: golang:bookworm
 cache:
   paths:
     - /apt-cache
-    - /go/src/github.com
-    - /go/src/golang.org
-    - /go/src/google.golang.org
-    - /go/src/gopkg.in
+    - .cache
 
 stages:
   - test
-  - build
+  - buildARM
 
 before_script:
-  - mkdir -p /go/src/gitlab.com/pantomath-io /go/src/_/builds
-  - cp -r $CI_PROJECT_DIR /go/src/gitlab.com/pantomath-io/pantomath
-  - ln -s /go/src/gitlab.com/pantomath-io /go/src/_/builds/pantomath-io
+  - mkdir -p .cache
+  - export GOPATH="$CI_PROJECT_DIR/.cache"
   - go get gommo
 
 test:
   stage: test
   script:
     - make test
-  only:
-  - master
 
-build:
+buildARM:
   stage: build
   script:
-    - make build
+    - make buildarm
+  only:
+  - master
