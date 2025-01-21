@@ -66,6 +66,18 @@ type Tile struct {
 	Zombies int
 }
 
+type Surroundings struct {
+	NW Tile
+	NN Tile
+	NE Tile
+	WW Tile
+	CE Tile
+	EE Tile
+	SW Tile
+	SS Tile
+	SE Tile
+}
+
 //Player
 type Player struct {
 	ID string
