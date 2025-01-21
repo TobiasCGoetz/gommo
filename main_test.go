@@ -373,7 +373,7 @@ func TestResources(t *testing.T) {
 	var testPlayerMap = make(map[string]Player)
 	testPlayerMap[testPlayer.ID] = testPlayer
 	resources(&testPlayerMap, gameMap)
-	if testPlayer.Cards[0] != Food {
+	if testPlayerMap[testPlayer.ID].Cards[0] != Food {
 		t.Log(testPlayer.Cards)
 		t.Errorf("TestPlayer received the wrong card - expected Food but got %s", testPlayer.Cards[0].toString())
 	}
@@ -393,7 +393,7 @@ func TestResources(t *testing.T) {
 	testPlayerMap = make(map[string]Player)
 	testPlayerMap[deadPlayer.ID] = deadPlayer
 	resources(&testPlayerMap, gameMap)
-	if deadPlayer.Cards[0] != None {
+	if testPlayerMap[deadPlayer.ID].Cards[0] != None {
 		t.Errorf("Dead player did not have to sit out when distributing resources.")
 	}
 }
@@ -415,7 +415,7 @@ func TestConsume(t *testing.T) {
 	var testPlayerMap = make(map[string]Player)
 	testPlayerMap[testPlayer.ID] = testPlayer
 	consume(&testPlayerMap, &gameMap)
-	if testPlayer.Cards[4] != None {
+	if testPlayerMap[testPlayer.ID].Cards[4] != None {
 		t.Errorf("Player was not supposed to have resources remaining.")
 	}
 	var deadPlayer = Player{
