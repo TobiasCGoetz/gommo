@@ -25,7 +25,7 @@ func setupAPI(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTi
 // Parameters:
 //
 //	playerList: PlayerList to be searched
-//	id: PlayerID that will be searche for
+//	id: PlayerID that will be searched for
 //
 // Returns: *Player or nil
 func getPlayerOrNil(playerList *[]*Player, id string) *Player {
@@ -57,51 +57,57 @@ func getRemainingTimerHandlerFunc(turnTimer *uint8) gin.HandlerFunc {
 func getSurroundingsHandlerFunc(playerList *[]*Player, gameMap *[mapWidth][mapHeight]*Tile) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
-		for _, player := range *playerList {
-			if player.ID == id {
-				var NW = Tile{Edge, -1, []Player{}}
-				var NN = Tile{Edge, -1, []Player{}}
-				var NE = Tile{Edge, -1, []Player{}}
-				var WW = Tile{Edge, -1, []Player{}}
-				var CE = *gameMap[player.X][player.Y]
-				var EE = Tile{Edge, -1, []Player{}}
-				var SW = Tile{Edge, -1, []Player{}}
-				var SS = Tile{Edge, -1, []Player{}}
-				var SE = Tile{Edge, -1, []Player{}}
+		playerPtr := getPlayerOrNil(playerList, id)
+		if playerPtr == nil { //TODO: If nil else function or invert? Make them all identical!
+			c.AbortWithStatus(http.StatusForbidden)
+			return
+		} else {
+			player := *playerPtr
 
-				if player.X > 0 && player.Y < mapWidth-1 {
-					NW = *gameMap[player.X-1][player.Y+1]
-				}
-				if player.X < mapWidth-1 && player.Y < mapHeight-1 {
-					NN = *gameMap[player.X][player.Y+1]
-					NE = *gameMap[player.X+1][player.Y+1]
-					EE = *gameMap[player.X+1][player.Y]
-				}
-				if player.X < mapWidth-1 && player.Y > 0 {
-					SE = *gameMap[player.X+1][player.Y-1]
-				}
-				if player.X > 0 && player.Y > 0 {
-					WW = *gameMap[player.X-1][player.Y]
-					SW = *gameMap[player.X-1][player.Y-1]
-					SS = *gameMap[player.X][player.Y-1]
-				}
+			//Construct empty minimap
+			var NW = Tile{Edge, -1, []Player{}}
+			var NN = Tile{Edge, -1, []Player{}}
+			var NE = Tile{Edge, -1, []Player{}}
+			var WW = Tile{Edge, -1, []Player{}}
+			var CE = *gameMap[player.X][player.Y]
+			var EE = Tile{Edge, -1, []Player{}}
+			var SW = Tile{Edge, -1, []Player{}}
+			var SS = Tile{Edge, -1, []Player{}}
+			var SE = Tile{Edge, -1, []Player{}}
 
-				var miniMap = Surroundings{
-					NW: NW,
-					NN: NN,
-					NE: NE,
-					WW: WW,
-					CE: CE,
-					EE: EE,
-					SW: SW,
-					SS: SS,
-					SE: SE,
-				}
-				c.IndentedJSON(http.StatusOK, miniMap)
-				return
+			//Fill minimap
+			if player.X > 0 && player.Y < mapWidth-1 {
+				NW = *gameMap[player.X-1][player.Y+1]
 			}
+			if player.X < mapWidth-1 && player.Y < mapHeight-1 {
+				NN = *gameMap[player.X][player.Y+1]
+				NE = *gameMap[player.X+1][player.Y+1]
+				EE = *gameMap[player.X+1][player.Y]
+			}
+			if player.X < mapWidth-1 && player.Y > 0 {
+				SE = *gameMap[player.X+1][player.Y-1]
+			}
+			if player.X > 0 && player.Y > 0 {
+				WW = *gameMap[player.X-1][player.Y]
+				SW = *gameMap[player.X-1][player.Y-1]
+				SS = *gameMap[player.X][player.Y-1]
+			}
+
+			var miniMap = Surroundings{
+				NW: NW,
+				NN: NN,
+				NE: NE,
+				WW: WW,
+				CE: CE,
+				EE: EE,
+				SW: SW,
+				SS: SS,
+				SE: SE,
+			}
+			sanitizeSurroundingsInfo(&miniMap)
+			c.IndentedJSON(http.StatusOK, miniMap)
+			return
 		}
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Player not found."})
 	}
 	return fn
 }
