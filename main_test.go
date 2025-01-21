@@ -501,19 +501,16 @@ func TestLimitCards(t *testing.T) {
 		Alive:     false,
 		IsBot:     true,
 	}
-	var testPlayerMap = make(map[string]Player)
-	testPlayerMap[testPlayer.ID] = testPlayer
 	//TODO: Add check if right card was removed
 	for testNumber, cards := range testCases {
+		var testPlayerMap = make(map[string]Player)
 		testPlayer.Cards = cards
 		testPlayer.Discard = Wood
+		testPlayerMap[testPlayer.ID] = testPlayer
 		limitCards(&testPlayerMap)
-		if (getHandSize(testPlayer)) != testResults[testNumber] {
+		if (getHandSize(testPlayerMap[testPlayer.ID])) != testResults[testNumber] {
 			t.Errorf("[%v] is not %d cards", testPlayer.Cards, testResults[testNumber])
 		}
-	}
-	if testPlayer.Cards[4] != Food {
-		t.Errorf("Wrong card removed by LimitCards")
 	}
 }
 
