@@ -10,6 +10,9 @@ init:
 test:
 	go test -cover
 
+build:
+	CGO_ENABLED=0 GOOS=linux go build -a -o gommo
+
 testReport:
 	go test -coverprofile=coverage.out
 	go tool cover -html=coverage.out
