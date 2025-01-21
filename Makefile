@@ -13,6 +13,9 @@ test:
 build:
 	CGO_ENABLED=0 GOOS=linux go build -a -o gommo
 
+buildarm:
+	CGO_ENABLED=1 GOOD=linux GOARCH=arm64 go build -a -o ./bin/arm64/gommo
+
 docker:
 	sudo docker build . -t tskal.dev/gommo:latest
 
