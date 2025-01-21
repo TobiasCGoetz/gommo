@@ -8,4 +8,4 @@ init:
 	go get .
 
 test:
-	go test
+	go test -cover
