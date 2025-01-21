@@ -156,7 +156,7 @@ func setDiscardHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 		playerPtr := getPlayerOrNil(*playerMap, id)
 		if playerPtr != nil {
 			(playerPtr).Discard = cardTypes[card]
-			c.Status(http.StatusOK)
+			c.Status(http.StatusNoContent)
 			return
 		} else {
 			c.AbortWithStatus(http.StatusForbidden)
@@ -178,7 +178,7 @@ func setPlayHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 		playerPtr := getPlayerOrNil(*playerMap, id)
 		if playerPtr != nil {
 			(*playerPtr).Play = cardTypes[card]
-			c.Status(http.StatusOK)
+			c.Status(http.StatusNoContent)
 			return
 		} else {
 			c.AbortWithStatus(http.StatusForbidden)
@@ -196,7 +196,7 @@ func setConsumeHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 		playerPtr := getPlayerOrNil(*playerMap, id)
 		if playerPtr != nil {
 			(*playerPtr).Consume = card
-			c.Status(http.StatusOK)
+			c.Status(http.StatusNoContent)
 			return
 		} else {
 			c.AbortWithStatus(http.StatusForbidden)
@@ -213,7 +213,8 @@ func setDirectionHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 		playerPtr := getPlayerOrNil(*playerMap, id)
 		if playerPtr != nil {
 			(*playerPtr).Direction = dir
-			c.Status(http.StatusOK)
+			c.Status(http.StatusNoContent)
+			return
 		} else {
 			c.AbortWithStatus(http.StatusForbidden)
 		}
