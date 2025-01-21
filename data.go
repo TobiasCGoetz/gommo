@@ -70,7 +70,7 @@ type Tile struct {
 type Player struct {
 	id string
 	x, y int
-	dir Direction
+	direction Direction
 	play Card
 	consume Card
 	discard Card
