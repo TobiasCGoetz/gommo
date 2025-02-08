@@ -17,8 +17,8 @@ func setupAPI(playerMap *map[string]*Player, gameMap *[mapWidth][mapHeight]*Tile
 	//GET endpoints only receive call-by-value arguments
 	//POST/PUT endpoints receive a pointer to enable writes
 	//Player endpoints
-	router.POST("/player/:name", addPlayerHandlerFunc(playerMap))
-	router.GET("/player/:id", getPlayerHandlerFunc(*playerMap))
+	router.POST("/player/:name", addPlayerHandlerFunc())
+	router.GET("/player/:id", getPlayerHandlerFunc())
 	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(*playerMap, *gameMap))
 	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc(playerMap))
 	router.PUT("/player/:id/consume/:card", setConsumeHandlerFunc(playerMap))
@@ -31,11 +31,6 @@ func setupAPI(playerMap *map[string]*Player, gameMap *[mapWidth][mapHeight]*Tile
 	router.GET("/config/hasWon", getConfigGameStateHandlerFunc(*hasWon))
 	router.GET("/config", getAllConfigHandlerFunc(*turnTime, *hasWon))
 	router.Run("0.0.0.0:8080")
-}
-
-func getPlayerOrNil(playerMap map[string]*Player, id string) *Player {
-	var player = playerMap[id]
-	return player
 }
 
 func getAllConfigHandlerFunc(turnTimer int8, hasWon bool) gin.HandlerFunc {
@@ -67,10 +62,10 @@ func getConfigMapSizeHandlerFunc() gin.HandlerFunc {
 	return fn
 }
 
-func addPlayerHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
+func addPlayerHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		var pName = filterPlayerName(c.Param("name"))
-		var pID = addPlayer(playerMap, pName)
+		var pID = addPlayer(pName)
 		c.JSON(http.StatusOK, pID)
 	}
 	return fn
@@ -83,51 +78,23 @@ func getRemainingTimerHandlerFunc(turnTimer int8) gin.HandlerFunc {
 	return fn
 }
 
-func tileToMapPiece(tile *Tile) MapPiece {
-	if tile == nil {
-		return MapPiece{Edge.toString(), 0, 0, 0, 0, 0, 0}
-	}
-	var planNorth, planEast, planSouth, planWest = 0, 0, 0, 0
-	for _, player := range tile.Players {
-		switch player.Direction {
-		case North:
-			planNorth++
-		case East:
-			planEast++
-		case South:
-			planSouth++
-		case West:
-			planWest++
-		}
-	}
-	return MapPiece{
-		tile.Terrain.toString(),
-		tile.Zombies,
-		len(tile.Players),
-		planNorth,
-		planEast,
-		planSouth,
-		planWest,
-	}
-}
-
 func getSurroundingsHandlerFunc(playerMap map[string]*Player, gameMap [mapWidth][mapHeight]*Tile) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
-		player := getPlayerOrNil(playerMap, id)
+		player := getPlayerOrNil(id)
 		if player == nil { //TODO: If nil else function or invert? Make them all identical!
 			c.AbortWithStatus(http.StatusForbidden)
 			return
 		} else {
-			var NW = tileToMapPiece(gameMap[player.X-1][player.Y-1])
-			var NN = tileToMapPiece(gameMap[player.X][player.Y-1])
-			var NE = tileToMapPiece(gameMap[player.X+1][player.Y-1])
-			var WW = tileToMapPiece(gameMap[player.X-1][player.Y])
-			var CE = tileToMapPiece(gameMap[player.X][player.Y])
-			var EE = tileToMapPiece(gameMap[player.X+1][player.Y])
-			var SW = tileToMapPiece(gameMap[player.X-1][player.Y+1])
-			var SS = tileToMapPiece(gameMap[player.X][player.Y+1])
-			var SE = tileToMapPiece(gameMap[player.X+1][player.Y+1])
+			var NW = gameMap[player.X-1][player.Y-1].getMapPiece()
+			var NN = gameMap[player.X][player.Y-1].getMapPiece()
+			var NE = gameMap[player.X+1][player.Y-1].getMapPiece()
+			var WW = gameMap[player.X-1][player.Y].getMapPiece()
+			var CE = gameMap[player.X][player.Y].getMapPiece()
+			var EE = gameMap[player.X+1][player.Y].getMapPiece()
+			var SW = gameMap[player.X-1][player.Y+1].getMapPiece()
+			var SS = gameMap[player.X][player.Y+1].getMapPiece()
+			var SE = gameMap[player.X+1][player.Y+1].getMapPiece()
 
 			var miniMap = Surroundings{
 				NW: NW,
@@ -156,7 +123,7 @@ func setDiscardHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
-		playerPtr := getPlayerOrNil(*playerMap, id)
+		playerPtr := getPlayerOrNil(id)
 		if playerPtr != nil {
 			(playerPtr).Discard = cardTypes[card]
 			c.Status(http.StatusOK)
@@ -178,7 +145,7 @@ func setPlayHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
-		playerPtr := getPlayerOrNil(*playerMap, id)
+		playerPtr := getPlayerOrNil(id)
 		if playerPtr != nil {
 			(*playerPtr).Play = cardTypes[card]
 			c.Status(http.StatusOK)
@@ -196,7 +163,7 @@ func setConsumeHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 		id := c.Param("id")
 		cardStr := c.Param("card")
 		var card = cards[strings.ToLower(cardStr)]
-		playerPtr := getPlayerOrNil(*playerMap, id)
+		playerPtr := getPlayerOrNil(id)
 		if playerPtr != nil {
 			(*playerPtr).Consume = card
 			c.Status(http.StatusOK)
@@ -213,7 +180,7 @@ func setDirectionHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 		id := c.Param("id")
 		dirStr := c.Param("dir")
 		var dir = directions[strings.ToLower(dirStr)]
-		playerPtr := getPlayerOrNil(*playerMap, id)
+		playerPtr := getPlayerOrNil(id)
 		if playerPtr != nil {
 			(*playerPtr).Direction = dir
 			c.Status(http.StatusOK)
@@ -224,10 +191,10 @@ func setDirectionHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 	return fn
 }
 
-func getPlayerHandlerFunc(playerMap map[string]*Player) gin.HandlerFunc {
+func getPlayerHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
-		playerPtr := getPlayerOrNil(playerMap, id)
+		playerPtr := getPlayerOrNil(id)
 		if playerPtr != nil {
 			c.JSON(http.StatusOK, (*playerPtr))
 			return
@@ -244,20 +211,4 @@ func filterPlayerName(name string) string {
 	}
 	//TODO: Filter bad words
 	return name
-}
-
-func maskPlayerInfo(tile *Tile) {
-	for playerNr, player := range tile.Players {
-		//Filter the dead
-		if player.Alive {
-			tile.Players = append(tile.Players[:playerNr], tile.Players[playerNr+1:]...)
-			continue
-		}
-		tile.Players[playerNr].ID = ""
-		//Blank out hidden info
-		tile.Players[playerNr].Cards = [5]Card{}
-		tile.Players[playerNr].Consume = None
-		tile.Players[playerNr].Play = None
-		tile.Players[playerNr].IsBot = true
-	}
 }

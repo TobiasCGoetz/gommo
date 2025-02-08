@@ -43,6 +43,31 @@ func (t Tile) findPlayerIdIndex(playerId string) (int, bool) {
 	return -1, false
 }
 
+func (t Tile) getMapPiece() MapPiece {
+	var planNorth, planEast, planSouth, planWest = 0, 0, 0, 0
+	for _, pId := range t.playerIds {
+		switch getPlayerOrNil(pId).Direction {
+		case North:
+			planNorth++
+		case East:
+			planEast++
+		case South:
+			planSouth++
+		case West:
+			planWest++
+		}
+	}
+	return MapPiece{
+		t.Terrain.toString(),
+		t.Zombies,
+		len(t.playerIds),
+		planNorth,
+		planEast,
+		planSouth,
+		planWest,
+	}
+}
+
 type MapPiece struct {
 	TileType             string
 	ZombieCount          int

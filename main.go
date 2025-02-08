@@ -10,6 +10,10 @@ import (
 	"github.com/google/uuid"
 )
 
+var gameMap [mapWidth][mapHeight]*Tile
+var cityList []IntTuple
+var playerMap = make(map[string]*Player)
+var botList []*Player
 var r *rand.Rand
 
 func setTileInMap(x int, y int, tile Tile, gameMap *[mapWidth][mapHeight]*Tile) {
@@ -338,7 +342,7 @@ func randomizeBots(bots []*Player) {
 }
 
 // TODO: Somehow remove inactive players
-func addPlayer(playerMap *map[string]*Player, playerName string) string {
+func addPlayer(playerName string) string {
 	var rX = r.Intn(mapWidth - 1)
 	var rY = r.Intn(mapHeight - 1)
 	playerID, _ := uuid.NewV7()
@@ -356,7 +360,7 @@ func addPlayer(playerMap *map[string]*Player, playerName string) string {
 		Alive:     true,
 		IsBot:     false,
 	}
-	(*playerMap)[idString] = &player
+	playerMap[idString] = &player
 	return idString
 }
 
@@ -396,15 +400,15 @@ func havePlayersWon(playerMap map[string]*Player) bool {
 	return false
 }
 
+func getPlayerOrNil(id string) *Player {
+	return playerMap[id]
+}
+
 func main() {
 	if len(os.Args) == 2 {
 		idSalt = os.Args[1]
 		fmt.Println(idSalt)
 	}
-	var gameMap [mapWidth][mapHeight]*Tile
-	var cityList []IntTuple
-	var playerMap = make(map[string]*Player)
-	var botList []*Player
 	var botID = 0
 	var turnTimer = int8(turnLength)
 	hasWon = false
