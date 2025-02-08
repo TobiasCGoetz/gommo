@@ -56,7 +56,6 @@ func TestGetMapTile(t *testing.T) {
 	}
 }
 
-// TODO: Figure out if positive Y == North is stupid
 func TestMove(t *testing.T) {
 	var playerX = 5
 	var playerY = 5
