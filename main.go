@@ -13,8 +13,9 @@ import (
 var r *rand.Rand
 
 func setTileInMap(x int, y int, tile Tile, gameMap *[mapWidth][mapHeight]*Tile) {
-	newTile := Tile{tile.Terrain, tile.Zombies, tile.Players}
-	gameMap[x][y] = &newTile
+	gameMap[x][y].Terrain = tile.Terrain
+	gameMap[x][y].Zombies = tile.Zombies
+	gameMap[x][y].playerIds = tile.playerIds
 }
 
 func initMap(r rand.Rand, gMap *[mapWidth][mapHeight]*Tile) {
@@ -22,12 +23,7 @@ func initMap(r rand.Rand, gMap *[mapWidth][mapHeight]*Tile) {
 	for a, column := range gMap {
 		for b := range column {
 			choice := r.Intn(len(terrainTypes) - 1)
-			var tile = Tile{terrainTypes[choice], 0, []Player{}}
-			//gMap[a][b] = &tile
-			setTileInMap(a, b, tile, gMap)
-			if gMap[a][b] == nil {
-				fmt.Println("Map tile assigned nil")
-			}
+			setTileInMap(a, b, Tile{terrainTypes[choice], 0, []string{}}, gMap)
 		}
 	}
 }
@@ -48,7 +44,7 @@ func createCityList(gMap *[mapWidth][mapHeight]*Tile) []IntTuple {
 func getMapTile(x int, y int, gMap *[mapWidth][mapHeight]*Tile) *Tile {
 	if x < 0 || x >= mapWidth || y < 0 || y >= mapHeight {
 		fmt.Printf("Prevented tile access at %d/%d", x, y)
-		return &Tile{Edge, -1, []Player{}}
+		return &Tile{Edge, -1, []string{}}
 	}
 	var truncX = x % 100
 	var truncY = y % 100
@@ -290,24 +286,6 @@ func spread(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple) {
 	}
 }
 
-// TODO: Look for gameMap[x][y] nil cause here
-func updatePlayerPositions(playerMap *map[string]*Player, gMap *[mapWidth][mapHeight]*Tile) {
-	//Clear all player info in tiles
-	for _, tileRow := range *gMap {
-		for _, tile := range tileRow {
-			(*tile).Players = []Player{}
-		}
-	}
-	//Reposition all players
-	for _, player := range *playerMap {
-		var tilePList = gMap[player.X][player.Y].Players
-		gMap[player.X][player.Y].Players = append(tilePList, *player)
-		if gMap[player.X][player.Y] == nil {
-			fmt.Println("Panic - gMap has nil pointer")
-		}
-	}
-}
-
 // TODO: Unify order of attributes across functions
 func tick(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple, playerMap *map[string]*Player) {
 	fmt.Println("Next tick is happening...")
@@ -323,8 +301,6 @@ func tick(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple, playerMap *map[s
 	consume(playerMap, gMap)
 	fmt.Println("Limiting player inventory")
 	limitCards(playerMap)
-	fmt.Println("Updating player info on game map...")
-	updatePlayerPositions(playerMap, gMap)
 }
 
 func playerHasCard(player *Player, card Card) (int, bool) {

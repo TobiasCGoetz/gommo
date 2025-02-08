@@ -1,13 +1,28 @@
 package main
 
 type Tile struct {
-	Terrain Terrain
-	Zombies int
-	Players []Player
-	//playerIds []string
+	Terrain   Terrain
+	Zombies   int
+	playerIds []string
 }
 
-/*
+func (t Tile) isCity() bool {
+	if t.Terrain == City {
+		return true
+	}
+	return false
+}
+
+func (t *Tile) spreadTo() {
+	if t.Zombies < zombieCutoff {
+		t.Zombies++
+	}
+}
+
+func (t *Tile) spreadToUnbound() {
+	t.Zombies++
+}
+
 func (t *Tile) addPlayer(incomingPlayer string) {
 	t.playerIds = append(t.playerIds, incomingPlayer)
 }
@@ -27,8 +42,6 @@ func (t Tile) findPlayerIdIndex(playerId string) (int, bool) {
 	}
 	return -1, false
 }
-
-*/
 
 type MapPiece struct {
 	TileType             string
