@@ -20,11 +20,11 @@ func TestGetPlayerOrNil(t *testing.T) {
 	var testMap = make(map[string]*Player)
 	testMap[testPlayer.ID] = &testPlayer
 
-	playerFound := getPlayerOrNil(testMap, testPlayer.ID)
+	playerFound := getPlayerOrNil(testPlayer.ID)
 	if playerFound == nil {
 		t.Errorf("Player in list not found")
 	}
-	playerNotFound := getPlayerOrNil(testMap, "ThisPlayerDoesntExist")
+	playerNotFound := getPlayerOrNil("ThisPlayerDoesntExist")
 	if playerNotFound != nil {
 		t.Errorf("Non-existant player found")
 	}

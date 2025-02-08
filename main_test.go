@@ -22,7 +22,7 @@ func fakeInitMap(terrain Terrain, zombieNr int) [mapWidth][mapHeight]*Tile {
 	fakeMap := [mapWidth][mapHeight]*Tile{}
 	for a, column := range fakeMap {
 		for b := range column {
-			var tile = Tile{terrain, zombieNr, []Player{}}
+			var tile = Tile{terrain, zombieNr, []string{}}
 			fakeMap[a][b] = &tile
 		}
 	}
@@ -47,7 +47,7 @@ func TestGetMapTile(t *testing.T) {
 	var testMap [mapWidth][mapHeight]*Tile
 	r = rand.New(rand.NewSource(10))
 	initMap(*r, &testMap)
-	testMap[13][42] = &Tile{City, 99, []Player{}}
+	testMap[13][42] = &Tile{City, 99, []string{}}
 	var testTile = getMapTile(13, 42, &testMap)
 	if testTile.Terrain == City && testTile.Zombies == 99 {
 		return
@@ -272,7 +272,7 @@ func TestHandleCombat(t *testing.T) {
 	r = rand.New(rand.NewSource(1))
 	var loc = IntTuple{10, 10}
 	gameMap := fakeInitMap(Forest, 0)
-	gameMap[loc.X][loc.Y] = &Tile{City, 99, []Player{}}
+	gameMap[loc.X][loc.Y] = &Tile{City, 99, []string{}}
 	var testPlayer1 = Player{
 		ID:        "test1",
 		X:         loc.X,
@@ -321,9 +321,9 @@ func TestHandleCombat(t *testing.T) {
 
 func TestSpread(t *testing.T) {
 	gameMap := fakeInitMap(Forest, 1)
-	gameMap[10][10] = &Tile{City, zombieCutoff, []Player{}}
-	gameMap[12][10] = &Tile{City, zombieCutoff, []Player{}}
-	gameMap[99][99] = &Tile{City, 4, []Player{}}
+	gameMap[10][10] = &Tile{City, zombieCutoff, []string{}}
+	gameMap[12][10] = &Tile{City, zombieCutoff, []string{}}
+	gameMap[99][99] = &Tile{City, 4, []string{}}
 	var cityList = createCityList(&gameMap)
 	spread(&gameMap, &cityList)
 	var testCases = []IntTuple{
