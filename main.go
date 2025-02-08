@@ -77,7 +77,7 @@ func move(playerMap *map[string]*Player) {
 		case Stay:
 			return
 		}
-		
+
 		//Write new coordinates
 		(*playerMap)[player.ID] = player
 
@@ -112,7 +112,7 @@ func getFirstEmptyHandSlot(hand [5]Card) int {
 }
 
 func resources(playerMap *map[string]*Player, gMap [mapWidth][mapHeight]*Tile) {
-	for playerID, _ := range *playerMap {
+	for playerID := range *playerMap {
 		var player = (*playerMap)[playerID]
 		if !player.Alive {
 			continue
@@ -140,7 +140,7 @@ func resources(playerMap *map[string]*Player, gMap [mapWidth][mapHeight]*Tile) {
 }
 
 func consume(playerMap *map[string]*Player, gMap *[mapWidth][mapHeight]*Tile) {
-	for playerID, _ := range *playerMap {
+	for playerID := range *playerMap {
 		//Fetch current player state
 		var player = (*playerMap)[playerID]
 		if !player.Alive {
