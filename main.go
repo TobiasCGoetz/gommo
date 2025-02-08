@@ -16,18 +16,12 @@ var playerMap = make(map[string]*Player)
 var botList []*Player
 var r *rand.Rand
 
-func setTileInMap(x int, y int, tile Tile, gameMap *[mapWidth][mapHeight]*Tile) {
-	gameMap[x][y].Terrain = tile.Terrain
-	gameMap[x][y].Zombies = tile.Zombies
-	gameMap[x][y].playerIds = tile.playerIds
-}
-
 func initMap(r rand.Rand, gMap *[mapWidth][mapHeight]*Tile) {
 	fmt.Println("Initializing game map...")
 	for a, column := range gMap {
 		for b := range column {
 			choice := r.Intn(len(terrainTypes) - 1)
-			setTileInMap(a, b, Tile{terrainTypes[choice], 0, []string{}}, gMap)
+			gMap[a][b] = &Tile{terrainTypes[choice], 0, []string{}}
 		}
 	}
 }
