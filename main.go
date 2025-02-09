@@ -243,7 +243,7 @@ func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
 	}
 }
 
-func spreadToNeighbors(gMap *[mapWidth][mapHeight]*Tile, xCoord int, yCoord int) {
+func spreadFromSpreader(gMap *[mapWidth][mapHeight]*Tile, xCoord int, yCoord int) {
 	// TODO: decide if spread is 4 or 8 directions
 	var xOffsets = []int{0, -1, 0, 1, 0}
 	var yOffsets = []int{-1, 0, 0, 0, 1} //TODO: Check y-axis direction again!
@@ -261,7 +261,7 @@ func spread(gMap *[mapWidth][mapHeight]*Tile) {
 	for x, _ := range gMap {
 		for y, tile := range gMap[x] {
 			if tile.isSpreader() {
-				spreadToNeighbors(gMap, x, y)
+				spreadFromSpreader(gMap, x, y)
 			}
 		}
 	}

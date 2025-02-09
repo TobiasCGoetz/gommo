@@ -15,3 +15,7 @@ var terrainTypes = [5]Terrain{Forest, Farm, City, Laboratory, Edge}
 func (t Terrain) toString() string {
 	return []string{"Forest", "Farm", "City", "Laboratory", "Edge"}[t]
 }
+
+func (t Terrain) isCity() bool {
+	return t == City
+}

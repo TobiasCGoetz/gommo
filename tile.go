@@ -7,14 +7,7 @@ type Tile struct {
 }
 
 func (t Tile) isSpreader() bool {
-	return t.isCity() || t.Zombies >= zombieCutoff
-}
-
-func (t Tile) isCity() bool {
-	if t.Terrain == City {
-		return true
-	}
-	return false
+	return t.Terrain.isCity() || t.Zombies >= zombieCutoff
 }
 
 func (t *Tile) spreadTo() {
