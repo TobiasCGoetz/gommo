@@ -11,7 +11,6 @@ import (
 )
 
 var gameMap [mapWidth][mapHeight]*Tile
-var cityList []IntTuple
 var playerMap = make(map[string]*Player)
 var botList []*Player
 var r *rand.Rand
@@ -24,19 +23,6 @@ func initMap(r rand.Rand, gMap *[mapWidth][mapHeight]*Tile) {
 			gMap[a][b] = &Tile{terrainTypes[choice], 0, []string{}}
 		}
 	}
-}
-
-func createCityList(gMap *[mapWidth][mapHeight]*Tile) []IntTuple {
-	var cities []IntTuple
-	for a, column := range gMap {
-		for b, tile := range column {
-			if tile.Terrain == City {
-				var coordinates = IntTuple{a, b}
-				cities = append(cities, coordinates)
-			}
-		}
-	}
-	return cities
 }
 
 func getMapTile(x int, y int, gMap *[mapWidth][mapHeight]*Tile) *Tile {
@@ -271,15 +257,18 @@ func spreadToNeighbors(gMap *[mapWidth][mapHeight]*Tile, xCoord int, yCoord int)
 	}
 }
 
-// TODO: citiesList can be value instead of reference
-func spread(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple) {
-	for _, city := range *cities {
-		spreadToNeighbors(gMap, city.X, city.Y)
+func spread(gMap *[mapWidth][mapHeight]*Tile) {
+	for x, _ := range gMap {
+		for y, tile := range gMap[x] {
+			if tile.isSpreader() {
+				spreadToNeighbors(gMap, x, y)
+			}
+		}
 	}
 }
 
 // TODO: Unify order of attributes across functions
-func tick(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple, playerMap *map[string]*Player) {
+func tick(gMap *[mapWidth][mapHeight]*Tile, playerMap *map[string]*Player) {
 	fmt.Println("Next tick is happening...")
 	fmt.Println("Moving players...")
 	move(playerMap)
@@ -288,7 +277,7 @@ func tick(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple, playerMap *map[s
 	fmt.Println("Combat is upon us...")
 	handleCombat(gMap, playerMap)
 	fmt.Println("The infection is spreading...")
-	spread(gMap, cities)
+	spread(gMap)
 	fmt.Println("Players feeding themselves...")
 	consume(playerMap, gMap)
 	fmt.Println("Limiting player inventory")
@@ -406,14 +395,13 @@ func main() {
 
 	go setupAPI(&gameMap, &turnTimer, &hasWon)
 
-	cityList = createCityList(&gameMap)
 	var remainingTurns = maxTurns
 	for ; remainingTurns > 0; remainingTurns-- {
 		fmt.Println("Remaining turns: ", remainingTurns)
 		for turnTimer = int8(turnLength); turnTimer >= 0; turnTimer-- {
 			if turnTimer == 0 {
 				randomizeBots(botList)
-				tick(&gameMap, &cityList, &playerMap)
+				tick(&gameMap, &playerMap)
 				hasWon = havePlayersWon(playerMap)
 				restockBots(&playerMap, &botList, &botID)
 				if hasWon {

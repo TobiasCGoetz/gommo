@@ -29,20 +29,6 @@ func fakeInitMap(terrain Terrain, zombieNr int) [mapWidth][mapHeight]*Tile {
 	return fakeMap
 }
 
-func TestCreateCityList(t *testing.T) {
-	gameMap := fakeInitMap(City, 0)
-	var cityList = createCityList(&gameMap)
-	var count = 0
-	for x := 0; x < mapWidth; x++ {
-		for y := 0; y < mapHeight; y++ {
-			if cityList[count].X != x || cityList[count].Y != y {
-				t.Errorf("We're missing [%d][%d] in the city list", x, y)
-			}
-			count++
-		}
-	}
-}
-
 func TestGetMapTile(t *testing.T) {
 	var testMap [mapWidth][mapHeight]*Tile
 	r = rand.New(rand.NewSource(10))
@@ -323,8 +309,7 @@ func TestSpread(t *testing.T) {
 	gameMap[10][10] = &Tile{City, zombieCutoff, []string{}}
 	gameMap[12][10] = &Tile{City, zombieCutoff, []string{}}
 	gameMap[99][99] = &Tile{City, 4, []string{}}
-	var cityList = createCityList(&gameMap)
-	spread(&gameMap, &cityList)
+	spread(&gameMap)
 	var testCases = []IntTuple{
 		//{9, 11},
 		{10, 11},
