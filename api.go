@@ -11,25 +11,23 @@ import (
 
 // TODO: Move functionality&complexity outside of this api file, call suitable functions instead
 // Ideally, we wouldn't rely on the data here at all
-func setupAPI(playerMap *map[string]*Player, gameMap *[mapWidth][mapHeight]*Tile, turnTime *int8, hasWon *bool) {
+func setupAPI(gameMap *[mapWidth][mapHeight]*Tile, turnTime *int8, hasWon *bool) {
 	router := gin.Default()
 	router.Use(cors.Default())
-	//GET endpoints only receive call-by-value arguments
-	//POST/PUT endpoints receive a pointer to enable writes
 	//Player endpoints
 	router.POST("/player/:name", addPlayerHandlerFunc())
 	router.GET("/player/:id", getPlayerHandlerFunc())
-	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(*playerMap, *gameMap))
-	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc(playerMap))
-	router.PUT("/player/:id/consume/:card", setConsumeHandlerFunc(playerMap))
-	router.PUT("/player/:id/discard/:card", setDiscardHandlerFunc(playerMap))
-	router.PUT("/player/:id/play/:card", setPlayHandlerFunc(playerMap))
+	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(*gameMap)) //TODO: Call function instead of relying on argument
+	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc())
+	router.PUT("/player/:id/consume/:card", setConsumeHandlerFunc())
+	router.PUT("/player/:id/discard/:card", setDiscardHandlerFunc())
+	router.PUT("/player/:id/play/:card", setPlayHandlerFunc())
 	//Config endpoints
-	router.GET("/config/turnTimer", getRemainingTimerHandlerFunc(*turnTime))
+	router.GET("/config/turnTimer", getRemainingTimerHandlerFunc(*turnTime)) //TODO: Call function instead of relying on argument
 	router.GET("/config/turnLength", getConfigTurnTimerHandlerFunc())
 	router.GET("/config/mapSize", getConfigMapSizeHandlerFunc())
-	router.GET("/config/hasWon", getConfigGameStateHandlerFunc(*hasWon))
-	router.GET("/config", getAllConfigHandlerFunc(*turnTime, *hasWon))
+	router.GET("/config/hasWon", getConfigGameStateHandlerFunc(*hasWon)) //TODO: Call function instead of relying on argument
+	router.GET("/config", getAllConfigHandlerFunc(*turnTime, *hasWon))   //TODO: Call function instead of relying on argument
 	router.Run("0.0.0.0:8080")
 }
 
@@ -78,7 +76,7 @@ func getRemainingTimerHandlerFunc(turnTimer int8) gin.HandlerFunc {
 	return fn
 }
 
-func getSurroundingsHandlerFunc(playerMap map[string]*Player, gameMap [mapWidth][mapHeight]*Tile) gin.HandlerFunc {
+func getSurroundingsHandlerFunc(gameMap [mapWidth][mapHeight]*Tile) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		player := getPlayerOrNil(id)
@@ -114,7 +112,7 @@ func getSurroundingsHandlerFunc(playerMap map[string]*Player, gameMap [mapWidth]
 	return fn
 }
 
-func setDiscardHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
+func setDiscardHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		cardStr := c.Param("card")
@@ -136,7 +134,7 @@ func setDiscardHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 	return fn
 }
 
-func setPlayHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
+func setPlayHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		cardStr := c.Param("card")
@@ -158,7 +156,7 @@ func setPlayHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 	return fn
 }
 
-func setConsumeHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
+func setConsumeHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		cardStr := c.Param("card")
@@ -175,7 +173,7 @@ func setConsumeHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
 	return fn
 }
 
-func setDirectionHandlerFunc(playerMap *map[string]*Player) gin.HandlerFunc {
+func setDirectionHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		dirStr := c.Param("dir")

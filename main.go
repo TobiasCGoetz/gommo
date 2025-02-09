@@ -404,7 +404,7 @@ func main() {
 	initMap(*r, &gameMap)
 	//Data set up, now we can start the API
 
-	go setupAPI(&playerMap, &gameMap, &turnTimer, &hasWon)
+	go setupAPI(&gameMap, &turnTimer, &hasWon)
 
 	cityList = createCityList(&gameMap)
 	var remainingTurns = maxTurns
