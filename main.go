@@ -383,11 +383,14 @@ func getPlayerOrNil(id string) *Player {
 
 func printMap() {
 	for x, _ := range gameMap {
-		for y, tile := range gameMap[x] {
-			fmt.Print(fmt.Sprintf("|%c |", tile.Terrain.toChar()))
+		for _, tile := range gameMap[x] {
+			fmt.Print(fmt.Sprintf("|%s |", tile.Terrain.toChar()))
 		}
-		for y, tile := range gameMap[x] {
+		fmt.Print("\n")
+		for _, tile := range gameMap[x] {
 			fmt.Print(fmt.Sprintf("|%d%d|", len(tile.playerIds), tile.Zombies))
+		}
+		fmt.Print("\n")
 	}
 }
 
@@ -408,6 +411,7 @@ func main() {
 	var remainingTurns = maxTurns
 	for ; remainingTurns > 0; remainingTurns-- {
 		fmt.Println("Remaining turns: ", remainingTurns)
+		printMap()
 		for turnTimer = int8(turnLength); turnTimer >= 0; turnTimer-- {
 			if turnTimer == 0 {
 				randomizeBots(botList)
