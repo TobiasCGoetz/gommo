@@ -384,11 +384,10 @@ func getPlayerOrNil(id string) *Player {
 func printMap() {
 	for x, _ := range gameMap {
 		for _, tile := range gameMap[x] {
-			fmt.Print(fmt.Sprintf("|%s |", tile.Terrain.toChar()))
+			fmt.Print(fmt.Sprintf("%s ", tile.Terrain.toChar()))
 		}
 		fmt.Print("\n")
 		for _, tile := range gameMap[x] {
-			fmt.Print("|")
 			if len(tile.playerIds) > 0 {
 				fmt.Print(fmt.Sprintf("%d", len(tile.playerIds)))
 			} else {
@@ -399,7 +398,6 @@ func printMap() {
 			} else {
 				fmt.Print(" ")
 			}
-			fmt.Print("|")
 		}
 		fmt.Print("\n")
 	}
