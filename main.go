@@ -388,7 +388,18 @@ func printMap() {
 		}
 		fmt.Print("\n")
 		for _, tile := range gameMap[x] {
-			fmt.Print(fmt.Sprintf("|%d%d|", len(tile.playerIds), tile.Zombies))
+			fmt.Print("|")
+			if len(tile.playerIds) > 0 {
+				fmt.Print(fmt.Sprintf("%d%", len(tile.playerIds)))
+			} else {
+				fmt.Print(" ")
+			}
+			if tile.Zombies > 0 {
+				fmt.Print(fmt.Sprintf("%d%", tile.Zombies))
+			} else {
+				fmt.Print(" ")
+			}
+			fmt.Print("|")
 		}
 		fmt.Print("\n")
 	}
