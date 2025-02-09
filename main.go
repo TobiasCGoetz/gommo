@@ -381,6 +381,16 @@ func getPlayerOrNil(id string) *Player {
 	return playerMap[id]
 }
 
+func printMap() {
+	for x, _ := range gameMap {
+		for y, tile := range gameMap[x] {
+			fmt.Print(fmt.Sprintf("|%c |", tile.Terrain.toChar()))
+		}
+		for y, tile := range gameMap[x] {
+			fmt.Print(fmt.Sprintf("|%d%d|", len(tile.playerIds), tile.Zombies))
+	}
+}
+
 func main() {
 	if len(os.Args) == 2 {
 		idSalt = os.Args[1]
