@@ -257,30 +257,24 @@ func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
 	}
 }
 
-// TODO: citiesList can be value instead of reference
-// TODO: decide if spread is 4 or 8 directions
-func spread(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple) {
-	for _, city := range *cities {
-		if gMap[city.X][city.Y].Zombies < zombieCutoff {
-			gMap[city.X][city.Y].Zombies++
+func spreadToNeighbors(gMap *[mapWidth][mapHeight]*Tile, xCoord int, yCoord int) {
+	// TODO: decide if spread is 4 or 8 directions
+	var xOffsets = []int{0, -1, 0, 1, 0}
+	var yOffsets = []int{-1, 0, 0, 0, 1} //TODO: Check y-axis direction again!
+	for neighbor := 0; neighbor < len(xOffsets); neighbor++ {
+		var xTarget = xCoord + xOffsets[neighbor]
+		var yTarget = yCoord + yOffsets[neighbor]
+		if xTarget < 0 || xTarget >= mapWidth || yTarget < 0 || yTarget >= mapHeight {
 			continue
 		}
-		//North
-		if city.Y < mapHeight-1 && gMap[city.X][city.Y+1].Zombies < zombieCutoff {
-			gMap[city.X][city.Y+1].Zombies++
-		}
-		//East
-		if city.X < mapWidth-1 && gMap[city.X+1][city.Y].Zombies < zombieCutoff {
-			gMap[city.X+1][city.Y].Zombies++
-		}
-		//South
-		if city.Y > 0 && gMap[city.X][city.Y-1].Zombies < zombieCutoff {
-			gMap[city.X][city.Y-1].Zombies++
-		}
-		//West
-		if city.X > 0 && gMap[city.X-1][city.Y].Zombies < zombieCutoff {
-			gMap[city.X-1][city.Y].Zombies++
-		}
+		gMap[xTarget][yTarget].spreadTo()
+	}
+}
+
+// TODO: citiesList can be value instead of reference
+func spread(gMap *[mapWidth][mapHeight]*Tile, cities *[]IntTuple) {
+	for _, city := range *cities {
+		spreadToNeighbors(gMap, city.X, city.Y)
 	}
 }
 
