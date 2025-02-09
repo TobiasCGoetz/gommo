@@ -17,7 +17,7 @@ func setupAPI(gameMap *[mapWidth][mapHeight]*Tile, turnTime *int8, hasWon *bool)
 	//Player endpoints
 	router.POST("/player/:name", addPlayerHandlerFunc())
 	router.GET("/player/:id", getPlayerHandlerFunc())
-	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(*gameMap)) //TODO: Call function instead of relying on argument
+	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc())
 	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc())
 	router.PUT("/player/:id/consume/:card", setConsumeHandlerFunc())
 	router.PUT("/player/:id/discard/:card", setDiscardHandlerFunc())
@@ -76,38 +76,15 @@ func getRemainingTimerHandlerFunc(turnTimer int8) gin.HandlerFunc {
 	return fn
 }
 
-func getSurroundingsHandlerFunc(gameMap [mapWidth][mapHeight]*Tile) gin.HandlerFunc {
+func getSurroundingsHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
-		player := getPlayerOrNil(id)
-		if player == nil { //TODO: If nil else function or invert? Make them all identical!
-			c.AbortWithStatus(http.StatusForbidden)
-			return
-		} else {
-			var NW = gameMap[player.X-1][player.Y-1].getMapPiece()
-			var NN = gameMap[player.X][player.Y-1].getMapPiece()
-			var NE = gameMap[player.X+1][player.Y-1].getMapPiece()
-			var WW = gameMap[player.X-1][player.Y].getMapPiece()
-			var CE = gameMap[player.X][player.Y].getMapPiece()
-			var EE = gameMap[player.X+1][player.Y].getMapPiece()
-			var SW = gameMap[player.X-1][player.Y+1].getMapPiece()
-			var SS = gameMap[player.X][player.Y+1].getMapPiece()
-			var SE = gameMap[player.X+1][player.Y+1].getMapPiece()
-
-			var miniMap = Surroundings{
-				NW: NW,
-				NN: NN,
-				NE: NE,
-				WW: WW,
-				CE: CE,
-				EE: EE,
-				SW: SW,
-				SS: SS,
-				SE: SE,
-			}
-			c.JSON(http.StatusOK, miniMap)
-			return
+		miniMap, success := getSurroundingsOfPlayer(id)
+		if !success {
+			c.AbortWithStatus(http.StatusBadRequest)
 		}
+		c.JSON(http.StatusOK, miniMap)
+		return
 	}
 	return fn
 }

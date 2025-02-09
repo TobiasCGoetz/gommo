@@ -381,6 +381,36 @@ func getPlayerOrNil(id string) *Player {
 	return playerMap[id]
 }
 
+func getSurroundingsOfPlayer(id string) (Surroundings, bool) {
+	player := getPlayerOrNil(id)
+	if player == nil { //TODO: If nil else function or invert? Make them all identical!
+		return Surroundings{}, false
+	} else {
+		var NW = gameMap[player.X-1][player.Y-1].getMapPiece()
+		var NN = gameMap[player.X][player.Y-1].getMapPiece()
+		var NE = gameMap[player.X+1][player.Y-1].getMapPiece()
+		var WW = gameMap[player.X-1][player.Y].getMapPiece()
+		var CE = gameMap[player.X][player.Y].getMapPiece()
+		var EE = gameMap[player.X+1][player.Y].getMapPiece()
+		var SW = gameMap[player.X-1][player.Y+1].getMapPiece()
+		var SS = gameMap[player.X][player.Y+1].getMapPiece()
+		var SE = gameMap[player.X+1][player.Y+1].getMapPiece()
+
+		var miniMap = Surroundings{
+			NW: NW,
+			NN: NN,
+			NE: NE,
+			WW: WW,
+			CE: CE,
+			EE: EE,
+			SW: SW,
+			SS: SS,
+			SE: SE,
+		}
+		return miniMap, true
+	}
+}
+
 func printMap() {
 	for x, _ := range gameMap {
 		for _, tile := range gameMap[x] {
