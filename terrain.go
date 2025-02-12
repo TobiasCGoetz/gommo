@@ -17,7 +17,7 @@ func (t Terrain) toString() string {
 }
 
 func (t Terrain) toChar() string {
-	return []string{"♤", "☀", "⌘", "⚡", "#"}[t]
+	return []string{"🌲", "🌱", "🏠", "🧬", "⌘"}[t]
 }
 
 func (t Terrain) isCity() bool {
