@@ -1,9 +1,51 @@
 package main
 
+import "math/rand"
+
 type Tile struct {
 	Terrain   Terrain
 	Zombies   int
 	playerIds []string
+}
+
+func (t *Tile) resolveCombat() {
+	totalPlayerStrength := 0
+	// Iterate through the players on this tile
+	for _, id := range t.playerIds {
+		var player = getPlayerOrNil(id)
+		if player == nil || !player.Alive {
+			continue
+		}
+		var strength = 0
+		if player.Play == Weapon { // Check if the played card is a weapon
+			strength = weaponStrength
+		} else {
+			strength = rollDice() // Alternatively, roll a dice
+		}
+		totalPlayerStrength += strength
+	}
+
+	if totalPlayerStrength > t.Zombies {
+		t.Zombies = 0
+	} else {
+		// Kill all players on the tile
+		numDeadPlayers := 0
+		for _, id := range t.playerIds {
+			var player = getPlayerOrNil(id)
+			if player == nil {
+				continue
+			}
+			if player.Alive {
+				player.Alive = false
+				numDeadPlayers++
+			}
+		}
+		t.Zombies += numDeadPlayers // Add killed player count to zombies
+	}
+}
+
+func rollDice() int {
+	return rand.Intn(6) + 1 // rand.Intn(6) generates 0-5, so we add 1
 }
 
 func (t Tile) isSpreader() bool {
