@@ -4,12 +4,19 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
+	"sync"
 )
 
 type Tile struct {
 	Terrain   Terrain
 	Zombies   int
 	playerIds []string
+}
+
+func tileWorker(t *Tile, wg *sync.WaitGroup) {
+	defer wg.Done()
+	t.resolveCombat()
+	fmt.Println("Worker started with ", t.toString())
 }
 
 func (t *Tile) resolveCombat() {
