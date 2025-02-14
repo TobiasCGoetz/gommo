@@ -1,6 +1,10 @@
 package main
 
-import "math/rand"
+import (
+	"fmt"
+	"math/rand"
+	"strings"
+)
 
 type Tile struct {
 	Terrain   Terrain
@@ -105,4 +109,9 @@ func (t Tile) getMapPiece() MapPiece {
 		planSouth,
 		planWest,
 	}
+}
+
+func (t Tile) toString() string {
+	var r = fmt.Sprintf("%s %d %s", t.Terrain.toString(), t.Zombies, strings.Join(t.playerIds, ","))
+	return r
 }
