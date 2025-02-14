@@ -21,8 +21,10 @@ func (t *Tile) resolveCombat() {
 			continue
 		}
 		var strength = 0
-		if player.Play == Weapon { // Check if the played card is a weapon
+		var weaponIndex = player.firstIndexOfCardType(Weapon)
+		if player.Play == Weapon && weaponIndex >= 0 { // Check if the played card is a weapon
 			strength = weaponStrength
+			player.Cards[weaponIndex] = None
 		} else {
 			strength = rollDice() // Alternatively, roll a dice
 		}
@@ -49,7 +51,7 @@ func (t *Tile) resolveCombat() {
 }
 
 func rollDice() int {
-	return rand.Intn(6) + 1 // rand.Intn(6) generates 0-5, so we add 1
+	return rand.Intn(playerMaxAttack) + playerMinAttack
 }
 
 func (t Tile) isSpreader() bool {

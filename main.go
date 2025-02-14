@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -201,46 +202,15 @@ func limitCards(playerMap *map[string]*Player) {
 	}
 }
 
-func handleCombat(gMap *[mapWidth][mapHeight]*Tile, playerMap *map[string]*Player) {
-	//Create groups from position
-	var combatGroups = make(map[IntTuple][]*Player)
-	for mapKey := range *playerMap {
-		var player = (*playerMap)[mapKey]
-		var pos = IntTuple{player.X, player.Y}
-		combatGroups[pos] = append(combatGroups[pos], player)
-	}
-	for _, group := range combatGroups {
-		fight(gMap, group)
-	}
-}
-
-func fight(gMap *[mapWidth][mapHeight]*Tile, group []*Player) {
-	//Calculate dice + weapon VS Zombies per group
-	var attackValue = 0
-	var x = group[0].X
-	var y = group[0].Y
-	for a, player := range group {
-		if player.Play == Weapon {
-			cardIndex, hasCard := playerHasCard(player, Weapon)
-			if hasCard {
-				attackValue += weaponStrength
-				group[a].Cards[cardIndex] = None
-			} else {
-				attackValue += r.Intn(playerMaxAttack-1) + playerMinAttack
-			}
-		} else {
-			attackValue += r.Intn(playerMaxAttack-1) + playerMinAttack
+func handleCombat() {
+	var wg = sync.WaitGroup{}
+	for x, _ := range gameMap {
+		for y, _ := range gameMap[x] {
+			wg.Add(1)
+			go tileWorker(gameMap[x][y], &wg)
 		}
-		group[a].Play = Dice
 	}
-	if attackValue < gMap[x][y].Zombies {
-		for a := range group {
-			group[a].Alive = false
-		}
-		gMap[x][y].Zombies += len(group)
-	} else {
-		gMap[x][y].Zombies = 0
-	}
+	wg.Wait()
 }
 
 func spreadFromSpreader(gMap *[mapWidth][mapHeight]*Tile, xCoord int, yCoord int) {
@@ -275,7 +245,7 @@ func tick(gMap *[mapWidth][mapHeight]*Tile, playerMap *map[string]*Player) {
 	fmt.Println("Distributing ressources...")
 	resources(playerMap, *gMap)
 	fmt.Println("Combat is upon us...")
-	handleCombat(gMap, playerMap)
+	handleCombat()
 	fmt.Println("The infection is spreading...")
 	spread(gMap)
 	fmt.Println("Players feeding themselves...")

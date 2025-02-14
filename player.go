@@ -34,6 +34,15 @@ func (p Player) hasWinCondition() bool {
 	}
 }
 
+func (p Player) firstIndexOfCardType(target Card) int {
+	for i, card := range p.Cards {
+		if card == target {
+			return i
+		}
+	}
+	return -1
+}
+
 func (p Player) toString() string {
 	var r strings.Builder
 	r.WriteString(p.ID)
