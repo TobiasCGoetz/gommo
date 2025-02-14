@@ -420,7 +420,7 @@ func main() {
 	var remainingTurns = maxTurns
 	for ; remainingTurns > 0; remainingTurns-- {
 		fmt.Println("Remaining turns: ", remainingTurns)
-		printMap()
+		//printMap()
 		for turnTimer = int8(turnLength); turnTimer >= 0; turnTimer-- {
 			if turnTimer == 0 {
 				randomizeBots(botList)
