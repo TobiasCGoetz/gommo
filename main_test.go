@@ -5,19 +5,6 @@ import (
 	"testing"
 )
 
-func TestInitMap(t *testing.T) {
-	var testMap [mapWidth][mapHeight]*Tile
-	r = rand.New(rand.NewSource(10))
-	initMap(*r, &testMap)
-	for _, column := range testMap {
-		for _, tile := range column {
-			if tile == nil {
-				t.Errorf("Map tile missing.")
-			}
-		}
-	}
-}
-
 func fakeInitMap(terrain Terrain, zombieNr int) [mapWidth][mapHeight]*Tile {
 	fakeMap := [mapWidth][mapHeight]*Tile{}
 	for a, column := range fakeMap {

@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"testing"
 	"math/rand"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 )
 
-// --- terrain_test.go ---
+// terrain
 func TestTerrain_toString(t *testing.T) {
 	tests := []struct {
 		terrain Terrain
@@ -99,7 +100,7 @@ func TestTerrain_offersResource(t *testing.T) {
 	}
 }
 
-// --- card_test.go ---
+// card
 func TestCard_toString(t *testing.T) {
 	tests := []struct {
 		card Card
@@ -158,7 +159,7 @@ func TestCardsMap(t *testing.T) {
 	assert.Equal(t, expectedCards, cards, "Cards map should be initialized correctly")
 }
 
-// --- direction_test.go ---
+// direction
 func TestDirection_toString(t *testing.T) {
 	tests := []struct {
 		direction Direction
@@ -214,7 +215,7 @@ func TestDirectionsMap(t *testing.T) {
 	assert.Equal(t, expectedDirections, directions, "Directions map should be initialized correctly")
 }
 
-// --- tile_test.go ---
+// tile
 
 func TestTile_resolveCombat_PlayerWinsWeapon(t *testing.T) {
 	playerID := "player1"
@@ -222,7 +223,7 @@ func TestTile_resolveCombat_PlayerWinsWeapon(t *testing.T) {
 	tile := &Tile{Terrain: City, Zombies: 5, playerIds: []string{playerID}}
 
 	originalRollDice := rollDice
-	rollDice = func() int { return 1 } // Mock rollDice to always return a low value, weapon should override
+	rollDice = func() int { return 1 }             // Mock rollDice to always return a low value, weapon should override
 	defer func() { rollDice = originalRollDice }() // Restore original rollDice
 
 	tile.resolveCombat()
@@ -379,7 +380,7 @@ func TestTile_toStringTile(t *testing.T) {
 	assert.Equal(t, expectedString, tile.toString(), "toString should return the correct format")
 }
 
-// --- player_test.go ---
+// player
 func TestPlayer_hasWinCondition_Wins(t *testing.T) {
 	player := Player{Cards: [5]Card{Research, Research, Research, None, None}} // Victory number is 2, player has 3
 	assert.True(t, player.hasWinCondition(), "Player should win with enough research cards")
@@ -411,15 +412,17 @@ func TestPlayer_hasCardWhere_MultipleCards(t *testing.T) {
 	assert.Equal(t, 1, index, "Index of first occurrence should be returned")
 }
 
-func TestPlayer_firstIndexOfCardType_Present(t *testing.T) {
+func TestPlayer_hasCardWhere_Present(t *testing.T) {
 	player := Player{Cards: [5]Card{None, Wood, Food, Wood, None}}
-	index := player.firstIndexOfCardType(Wood)
+	index, success := hasCardWhere(player.Cards[:], Wood)
+	assert.True(t, success)
 	assert.Equal(t, 1, index, "Should return index of first Wood card")
 }
 
-func TestPlayer_firstIndexOfCardType_Absent(t *testing.T) {
+func TestPlayer_hasCardWhere_Absent(t *testing.T) {
 	player := Player{Cards: [5]Card{None, Food, None, None, None}}
-	index := player.firstIndexOfCardType(Wood)
+	index, success := hasCardWhere(player.Cards[:], Wood)
+	assert.False(t, success)
 	assert.Equal(t, -1, index, "Should return -1 if Wood card is absent")
 }
 
@@ -429,11 +432,11 @@ func TestPlayer_toStringPlayer(t *testing.T) {
 	assert.Equal(t, expectedString, player.toString(), "toString should return the correct format")
 }
 
-// --- game_test.go ---
+// game
 func TestInitMap(t *testing.T) {
 	r := newRandSource(1) // Deterministic random source for testing
 	var testGameMap [mapWidth][mapHeight]*Tile
-	initMap(r, &testGameMap)
+	initMap(*r, &testGameMap)
 
 	for x := 0; x < mapWidth; x++ {
 		for y := 0; y < mapHeight; y++ {
@@ -448,7 +451,7 @@ func TestInitMap(t *testing.T) {
 func TestGetMapTile_WithinBounds(t *testing.T) {
 	var testGameMap [mapWidth][mapHeight]*Tile
 	testGameMap[50][50] = &Tile{Terrain: City, Zombies: 0, playerIds: []string{}} // Set a known tile
-	gameMap = testGameMap // Set global gameMap for this test
+	gameMap = testGameMap                                                         // Set global gameMap for this test
 
 	tile := getMapTile(50, 50, &gameMap)
 	assert.Equal(t, City, tile.Terrain, "Should return the correct tile within bounds")
@@ -485,9 +488,9 @@ func TestResources_FarmAndCity(t *testing.T) {
 		playerID1: {ID: playerID1, X: 50, Y: 50, Alive: true, Cards: [5]Card{None, None, None, None, None}},
 		playerID2: {ID: playerID2, X: 60, Y: 60, Alive: true, Cards: [5]Card{None, None, None, None, None}},
 	}
-	gameMap = [mapWidth][mapHeight]*Tile{} // Reset gameMap
-	gameMap[50][50] = &Tile{Terrain: Farm, Zombies: 0, playerIds: []string{playerID1}}   // Player1 on Farm
-	gameMap[60][60] = &Tile{Terrain: City, Zombies: 0, playerIds: []string{playerID2}}   // Player2 on City
+	gameMap = [mapWidth][mapHeight]*Tile{}                                             // Reset gameMap
+	gameMap[50][50] = &Tile{Terrain: Farm, Zombies: 0, playerIds: []string{playerID1}} // Player1 on Farm
+	gameMap[60][60] = &Tile{Terrain: City, Zombies: 0, playerIds: []string{playerID2}} // Player2 on City
 	resources()
 
 	foodCardIndex, _ := hasCardWhere(playerMap[playerID1].Cards[:], Food)
@@ -510,7 +513,7 @@ func TestConsume_FoodCard(t *testing.T) {
 func TestConsume_NoFoodCardDies(t *testing.T) {
 	playerID := "player1"
 	playerMap = map[string]*Player{playerID: {ID: playerID, Alive: true, Cards: [5]Card{None, None, None, None, None}, Consume: Food}} // No food
-	gameMap = [mapWidth][mapHeight]*Tile{}                                                                         // Reset gameMap
+	gameMap = [mapWidth][mapHeight]*Tile{}                                                                                             // Reset gameMap
 	consume(&playerMap, &gameMap)
 
 	assert.False(t, playerMap[playerID].Alive, "Player should die without food")
@@ -519,7 +522,7 @@ func TestConsume_NoFoodCardDies(t *testing.T) {
 func TestConsume_WoodCardAttractsZombies(t *testing.T) {
 	playerID := "player1"
 	playerMap = map[string]*Player{playerID: {ID: playerID, Alive: true, Cards: [5]Card{Wood, None, None, None, None}, Consume: Wood, X: 50, Y: 50}}
-	gameMap = [mapWidth][mapHeight]*Tile{} // Reset gameMap
+	gameMap = [mapWidth][mapHeight]*Tile{}                                            // Reset gameMap
 	gameMap[50][50] = &Tile{Terrain: Farm, Zombies: 0, playerIds: []string{playerID}} // Player's tile
 	gameMap[49][51] = &Tile{Terrain: Farm, Zombies: 2, playerIds: []string{}}         // SW tile with zombies
 	gameMap[51][49] = &Tile{Terrain: Farm, Zombies: 3, playerIds: []string{}}         // NE tile with zombies
@@ -529,8 +532,8 @@ func TestConsume_WoodCardAttractsZombies(t *testing.T) {
 	woodCardIndex, _ := hasCardWhere(playerMap[playerID].Cards[:], Wood)
 	assert.Equal(t, -1, woodCardIndex, "Wood card should be consumed")
 	assert.Equal(t, 2, gameMap[50][50].Zombies, "Player's tile should gain attracted zombies") // 2 from SW, 0 from NN, 0 from NE, 0 from WW, 0 from EE, 3 from NE, 0 from SS, 0 from SE. Total 2, reduced by 1 each.
-	assert.Equal(t, 1, gameMap[49][51].Zombies, "SW tile zombies should reduce by 1")       // 2-1 = 1
-	assert.Equal(t, 2, gameMap[51][49].Zombies, "NE tile zombies should reduce by 1")       // 3-1 = 2
+	assert.Equal(t, 1, gameMap[49][51].Zombies, "SW tile zombies should reduce by 1")          // 2-1 = 1
+	assert.Equal(t, 2, gameMap[51][49].Zombies, "NE tile zombies should reduce by 1")          // 3-1 = 2
 
 }
 
@@ -573,7 +576,7 @@ func TestHandleCombat_Integration(t *testing.T) {
 		playerID1: {ID: playerID1, X: 50, Y: 50, Alive: true, Cards: [5]Card{Weapon, None, None, None, None}, Play: Weapon}, // Player1 wins
 		playerID2: {ID: playerID2, X: 50, Y: 50, Alive: true, Cards: [5]Card{None, None, None, None, None}, Play: Dice},     // Player2 loses
 	}
-	gameMap = [mapWidth][mapHeight]*Tile{} // Reset gameMap
+	gameMap = [mapWidth][mapHeight]*Tile{}                                                         // Reset gameMap
 	gameMap[50][50] = &Tile{Terrain: City, Zombies: 15, playerIds: []string{playerID1, playerID2}} // Tile with players and zombies
 
 	originalRollDice := rollDice
@@ -588,12 +591,12 @@ func TestHandleCombat_Integration(t *testing.T) {
 }
 
 func TestSpreadFromSpreader_City(t *testing.T) {
-	gameMap = [mapWidth][mapHeight]*Tile{} // Reset gameMap
-	gameMap[50][50] = &Tile{Terrain: City, Zombies: 5}      // Spreader tile (City)
-	gameMap[50][49] = &Tile{Terrain: Farm, Zombies: 2}      // North
-	gameMap[51][50] = &Tile{Terrain: Farm, Zombies: 3}      // East
-	gameMap[50][51] = &Tile{Terrain: Farm, Zombies: 4}      // South
-	gameMap[49][50] = &Tile{Terrain: Farm, Zombies: 5}      // West
+	gameMap = [mapWidth][mapHeight]*Tile{}             // Reset gameMap
+	gameMap[50][50] = &Tile{Terrain: City, Zombies: 5} // Spreader tile (City)
+	gameMap[50][49] = &Tile{Terrain: Farm, Zombies: 2} // North
+	gameMap[51][50] = &Tile{Terrain: Farm, Zombies: 3} // East
+	gameMap[50][51] = &Tile{Terrain: Farm, Zombies: 4} // South
+	gameMap[49][50] = &Tile{Terrain: Farm, Zombies: 5} // West
 
 	spreadFromSpreader(&gameMap, 50, 50)
 
@@ -604,9 +607,9 @@ func TestSpreadFromSpreader_City(t *testing.T) {
 }
 
 func TestSpreadFromSpreader_ZombieCutoff(t *testing.T) {
-	gameMap = [mapWidth][mapHeight]*Tile{} // Reset gameMap
+	gameMap = [mapWidth][mapHeight]*Tile{}                        // Reset gameMap
 	gameMap[50][50] = &Tile{Terrain: Farm, Zombies: zombieCutoff} // Spreader tile (ZombieCutoff)
-	gameMap[50][49] = &Tile{Terrain: Forest, Zombies: 2}    // North
+	gameMap[50][49] = &Tile{Terrain: Forest, Zombies: 2}          // North
 
 	spreadFromSpreader(&gameMap, 50, 50)
 
@@ -614,22 +617,22 @@ func TestSpreadFromSpreader_ZombieCutoff(t *testing.T) {
 }
 
 func TestSpread_Integration(t *testing.T) {
-	gameMap = [mapWidth][mapHeight]*Tile{} // Reset gameMap
-	gameMap[50][50] = &Tile{Terrain: City, Zombies: 5}      // Spreader 1
+	gameMap = [mapWidth][mapHeight]*Tile{}                        // Reset gameMap
+	gameMap[50][50] = &Tile{Terrain: City, Zombies: 5}            // Spreader 1
 	gameMap[70][70] = &Tile{Terrain: Farm, Zombies: zombieCutoff} // Spreader 2
-	gameMap[50][49] = &Tile{Terrain: Farm, Zombies: 2}      // Neighbor of Spreader 1
-	gameMap[70][69] = &Tile{Terrain: Farm, Zombies: 2}      // Neighbor of Spreader 2
+	gameMap[50][49] = &Tile{Terrain: Farm, Zombies: 2}            // Neighbor of Spreader 1
+	gameMap[70][69] = &Tile{Terrain: Farm, Zombies: 2}            // Neighbor of Spreader 2
 
 	spread(&gameMap)
 
-	assert.GreaterOrEqual(t, gameMap[50][49].Zombies, 3, "Neighbor of City should have increased zombies")   // 2+1 = 3 or more if spread more than once
+	assert.GreaterOrEqual(t, gameMap[50][49].Zombies, 3, "Neighbor of City should have increased zombies")         // 2+1 = 3 or more if spread more than once
 	assert.GreaterOrEqual(t, gameMap[70][69].Zombies, 3, "Neighbor of ZombieCutoff should have increased zombies") // 2+1 = 3 or more if spread more than once
 }
 
 func TestTick_Integration(t *testing.T) {
 	playerID := "player1"
 	playerMap = map[string]*Player{playerID: {ID: playerID, X: 50, Y: 50, Alive: true, Direction: North, Cards: [5]Card{Food, None, None, None, None}, Consume: Food}}
-	gameMap = [mapWidth][mapHeight]*Tile{} // Reset gameMap
+	gameMap = [mapWidth][mapHeight]*Tile{}                                            // Reset gameMap
 	gameMap[50][50] = &Tile{Terrain: Farm, Zombies: 2, playerIds: []string{playerID}} // Player on Farm
 	initialFoodCardCount := getHandSize(playerMap[playerID])
 
@@ -640,7 +643,7 @@ func TestTick_Integration(t *testing.T) {
 	tick(&gameMap, &playerMap)
 
 	assert.Equal(t, 0, gameMap[50][50].Zombies, "Zombies should be cleared after combat (player wins)") // Player wins combat due to mock dice
-	assert.Equal(t, 50, playerMap[playerID].X, "Player X should not change within tick")               // X coordinate move tested separately
+	assert.Equal(t, 50, playerMap[playerID].X, "Player X should not change within tick")                // X coordinate move tested separately
 	assert.Equal(t, 51, playerMap[playerID].Y, "Player Y should have moved North within tick")          // Y coordinate move tested separately
 	foodCardIndex, _ := hasCardWhere(playerMap[playerID].Cards[:], Food)
 	assert.Equal(t, -1, foodCardIndex, "Food card should be consumed within tick") // Consume tested within tick
@@ -659,15 +662,15 @@ func TestRandomizeBots_MovementAndConsume(t *testing.T) {
 	randomizeBots(botList)
 
 	assert.Equal(t, North, botList[0].Direction, "Bot direction should be randomized") // Mocked to North (index 0)
-	assert.Equal(t, Dice, botList[0].Play, "Bot Play should be Dice")           // Bot Play is always Dice as per code
+	assert.Equal(t, Dice, botList[0].Play, "Bot Play should be Dice")                  // Bot Play is always Dice as per code
 	assert.Equal(t, Food, botList[0].Consume, "Bot should consume Food if available")
 }
 
 func TestRandomizeBots_Discard(t *testing.T) {
 	botList = []*Player{{ID: "bot1", IsBot: true, Cards: [5]Card{Food, Wood, Weapon, Dice, Research}}} // Full hand, needs discard
-	originalHasCardWhere := hasCardWhereF // Capture original global function for reset
-	hasCardWhereF = func(ar []Card, card Card) (int, bool) { return -1, false }   // Mock hasCardWhereF to always return false for "None" card not found
-	defer func() { hasCardWhereF = originalHasCardWhere }()                           // Restore original global function
+	originalHasCardWhere := hasCardWhereF                                                              // Capture original global function for reset
+	hasCardWhereF = func(ar []Card, card Card) (int, bool) { return -1, false }                        // Mock hasCardWhereF to always return false for "None" card not found
+	defer func() { hasCardWhereF = originalHasCardWhere }()                                            // Restore original global function
 
 	randomizeBots(botList)
 
@@ -694,7 +697,7 @@ func TestAddPlayer(t *testing.T) {
 
 func TestAddBot(t *testing.T) {
 	playerMap = make(map[string]*Player) // Reset playerMap
-	botList = []*Player{}              // Reset botList
+	botList = []*Player{}                // Reset botList
 	bID := 1
 	addBot(&playerMap, &botList, &bID)
 
@@ -715,8 +718,8 @@ func TestAddBot(t *testing.T) {
 
 func TestRestockBots_AddsBots(t *testing.T) {
 	playerMap = make(map[string]*Player) // Reset playerMap
-	botList = []*Player{}              // Reset botList
-	botNumber = 3                       // Target bot number
+	botList = []*Player{}                // Reset botList
+	botNumber = 3                        // Target bot number
 	bID := 0
 
 	restockBots(&playerMap, &botList, &bID)
@@ -727,11 +730,11 @@ func TestRestockBots_AddsBots(t *testing.T) {
 }
 
 func TestRestockBots_NoBotsNeeded(t *testing.T) {
-	playerMap = make(map[string]*Player)          // Reset playerMap
-	botList = []*Player{{}, {}, {}}               // Already at botNumber count
-	initialBotListLen := len(botList)              // Store initial length
-	botNumber = 3                                   // Target bot number is same as current
-	bID := 3                                       // Start botID beyond existing bots
+	playerMap = make(map[string]*Player) // Reset playerMap
+	botList = []*Player{{}, {}, {}}      // Already at botNumber count
+	initialBotListLen := len(botList)    // Store initial length
+	botNumber = 3                        // Target bot number is same as current
+	bID := 3                             // Start botID beyond existing bots
 
 	restockBots(&playerMap, &botList, &bID)
 
@@ -744,7 +747,7 @@ func TestRestockBots_NoBotsNeeded(t *testing.T) {
 func TestHavePlayersWon_WinConditionMet(t *testing.T) {
 	playerMap = map[string]*Player{
 		"player1": {Cards: [5]Card{Research, Research, None, None, None}}, // Player 1 wins
-		"player2": {Cards: [5]Card{Research, None, None, None, None}},        // Player 2 does not win
+		"player2": {Cards: [5]Card{Research, None, None, None, None}},     // Player 2 does not win
 	}
 
 	won := havePlayersWon(playerMap)
