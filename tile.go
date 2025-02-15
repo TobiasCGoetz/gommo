@@ -45,13 +45,11 @@ func (t *Tile) resolveCombat() {
 		numDeadPlayers := 0
 		for _, id := range t.playerIds {
 			var player = getPlayerOrNil(id)
-			if player == nil {
+			if player == nil || !player.Alive {
 				continue
 			}
-			if player.Alive {
-				player.Alive = false
-				numDeadPlayers++
-			}
+			player.Alive = false
+			numDeadPlayers++
 		}
 		t.Zombies += numDeadPlayers // Add killed player count to zombies
 	}
@@ -59,6 +57,23 @@ func (t *Tile) resolveCombat() {
 
 func rollDice() int {
 	return rand.Intn(playerMaxAttack) + playerMinAttack
+}
+
+func (t Tile) giveResources() {
+	for _, id := range t.playerIds {
+		var player = getPlayerOrNil(id)
+		if player == nil || !player.Alive {
+			continue
+		}
+		cards, amount := t.Terrain.offersResource()
+		for i := 0; i < amount; i++ {
+			emptyIndex, hasSpace := hasCardWhere(player.Cards[:], None)
+			if !hasSpace {
+				continue
+			}
+			player.Cards[emptyIndex] = cards
+		}
+	}
 }
 
 func (t Tile) isSpreader() bool {

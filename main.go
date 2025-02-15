@@ -82,41 +82,11 @@ func move(playerMap *map[string]*Player) {
 	}
 }
 
-func getFirstEmptyHandSlot(hand [5]Card) int {
-	var firstEmpty = -1
-	for f, card := range hand {
-		if card == None {
-			return f
+func resources() {
+	for x, _ := range gameMap {
+		for _, tile := range gameMap[x] {
+			tile.giveResources()
 		}
-	}
-	return firstEmpty
-}
-
-func resources(playerMap *map[string]*Player, gMap [mapWidth][mapHeight]*Tile) {
-	for playerID := range *playerMap {
-		var player = (*playerMap)[playerID]
-		if !player.Alive {
-			continue
-		}
-		var firstEmpty = getFirstEmptyHandSlot(player.Cards)
-		//Add card from tile
-		if firstEmpty > -1 {
-			switch gMap[player.X][player.Y].Terrain {
-			case Forest: //Special case, rewards 2 cards
-				player.Cards[firstEmpty] = Wood
-				firstEmpty = getFirstEmptyHandSlot(player.Cards)
-				if firstEmpty > -1 {
-					player.Cards[firstEmpty] = Wood
-				}
-			case City:
-				player.Cards[firstEmpty] = Weapon
-			case Farm:
-				player.Cards[firstEmpty] = Food
-			case Laboratory:
-				player.Cards[firstEmpty] = Research
-			}
-		}
-		(*playerMap)[playerID] = player
 	}
 }
 
@@ -243,7 +213,7 @@ func tick(gMap *[mapWidth][mapHeight]*Tile, playerMap *map[string]*Player) {
 	fmt.Println("Moving players...")
 	move(playerMap)
 	fmt.Println("Distributing ressources...")
-	resources(playerMap, *gMap)
+	resources()
 	fmt.Println("Combat is upon us...")
 	handleCombat()
 	fmt.Println("The infection is spreading...")

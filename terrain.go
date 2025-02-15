@@ -23,3 +23,7 @@ func (t Terrain) toChar() string {
 func (t Terrain) isCity() bool {
 	return t == City
 }
+
+func (t Terrain) offersResource() (Card, int) {
+	return terrainResources[t].givesCard, terrainResources[t].amount
+}
