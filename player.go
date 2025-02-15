@@ -34,6 +34,15 @@ func (p Player) hasWinCondition() bool {
 	}
 }
 
+func hasCardWhere(ar []Card, card Card) (int, bool) {
+	for a, c := range ar {
+		if c == card {
+			return a, true
+		}
+	}
+	return -1, false
+}
+
 func (p Player) firstIndexOfCardType(target Card) int {
 	for i, card := range p.Cards {
 		if card == target {

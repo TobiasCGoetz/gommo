@@ -130,7 +130,7 @@ func consume(playerMap *map[string]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 
 		//We don't allow death by indecision
 		if player.Consume == None {
-			_, hasCard := playerHasCard(player, Food)
+			_, hasCard := hasCardWhere(player.Cards[:], Food)
 			if hasCard {
 				player.Consume = Food
 			} else {
@@ -139,7 +139,7 @@ func consume(playerMap *map[string]*Player, gMap *[mapWidth][mapHeight]*Tile) {
 		}
 
 		//Now remove that card or kill the player
-		cardPos, hasCard := playerHasCard(player, player.Consume)
+		cardPos, hasCard := hasCardWhere(player.Cards[:], player.Consume)
 		if hasCard {
 			if player.Consume == Wood {
 
@@ -190,7 +190,7 @@ func limitCards(playerMap *map[string]*Player) {
 	for mapKey := range *playerMap {
 		var player = (*playerMap)[mapKey]
 		if getHandSize(player) > 4 {
-			var cardPos, hasCard = playerHasCard(player, player.Discard)
+			var cardPos, hasCard = hasCardWhere(player.Cards[:], player.Discard)
 			if hasCard && player.Discard != None && cardPos > -1 { //Better safe...
 				player.Cards[cardPos] = None
 			} else {
@@ -254,15 +254,6 @@ func tick(gMap *[mapWidth][mapHeight]*Tile, playerMap *map[string]*Player) {
 	limitCards(playerMap)
 }
 
-func playerHasCard(player *Player, card Card) (int, bool) {
-	for a, c := range player.Cards {
-		if c == card {
-			return a, true
-		}
-	}
-	return -1, false
-}
-
 func randomizeBots(bots []*Player) {
 	fmt.Println("Randomizing bot turns...")
 	for _, bot := range bots {
@@ -272,16 +263,16 @@ func randomizeBots(bots []*Player) {
 		bot.Play = Dice
 		//Randomize consume
 
-		if _, foodFound := playerHasCard(bot, Food); foodFound {
+		if _, foodFound := hasCardWhere(bot.Cards[:], Food); foodFound {
 			bot.Consume = Food
-		} else if _, woodFound := playerHasCard(bot, Wood); woodFound {
+		} else if _, woodFound := hasCardWhere(bot.Cards[:], Wood); woodFound {
 			bot.Consume = Wood
 		} else {
 			bot.Consume = None
 		}
 
 		//Randomize discard
-		_, found := playerHasCard(bot, None)
+		_, found := hasCardWhere(bot.Cards[:], None)
 		if !found {
 			bot.Discard = bot.Cards[0]
 		}
