@@ -28,8 +28,8 @@ func (t *Tile) resolveCombat() {
 			continue
 		}
 		var strength = 0
-		var weaponIndex = player.firstIndexOfCardType(Weapon)
-		if player.Play == Weapon && weaponIndex >= 0 { // Check if the played card is a weapon
+		weaponIndex, hasCard := hasCardWhere(player.Cards[:], Weapon)
+		if player.Play == Weapon && hasCard { // Check if the played card is a weapon
 			strength = weaponStrength
 			player.Cards[weaponIndex] = None
 		} else {
