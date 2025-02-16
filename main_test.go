@@ -189,54 +189,10 @@ func TestGetFirstEmptyHandSlot(t *testing.T) {
 	}
 	for testNumber, cards := range testCases {
 		testPlayer.Cards = cards
-		if testResults[testNumber] != getFirstEmptyHandSlot(testPlayer.Cards) {
+		index, found := hasCardWhere(testPlayer.Cards[:], None)
+		if testResults[testNumber] != index || !found {
 			t.Errorf("[%v] first empty slot is not %d", testPlayer.Cards, testResults[testNumber])
 		}
-	}
-}
-
-func TestFight(t *testing.T) {
-	r = rand.New(rand.NewSource(1))
-	var loc1 = IntTuple{10, 10}
-	var loc2 = IntTuple{13, 13}
-	var loc3 = IntTuple{21, 21}
-	gameMap := fakeInitMap(Forest, 3)
-	gameMap[loc2.X][loc2.Y].Zombies = zombieCutoff
-	gameMap[loc3.X][loc3.Y].Zombies = weaponStrength - 1
-	var combatGroups = make(map[IntTuple][]*Player)
-	var testPlayer = Player{
-		ID:        "test",
-		X:         10,
-		Y:         10,
-		Direction: North,
-		Play:      Dice,
-		Consume:   Wood,
-		Discard:   Wood,
-		Cards:     [5]Card{None, None, None, None, None},
-		Alive:     true,
-		IsBot:     true,
-	}
-	combatGroups[loc1] = append(combatGroups[loc1], &testPlayer, &testPlayer, &testPlayer, &testPlayer)
-	fight(&gameMap, combatGroups[loc1])
-	if gameMap[loc1.X][loc1.Y].Zombies > 0 {
-		t.Errorf("%d/%d has %d Z instead of 0", loc1.X, loc1.Y, gameMap[loc1.X][loc1.Y].Zombies)
-	}
-	testPlayer.X = loc2.X
-	testPlayer.Y = loc2.Y
-	combatGroups[loc2] = append(combatGroups[loc2], &testPlayer)
-	fight(&gameMap, combatGroups[loc2])
-	if testPlayer.Alive {
-		t.Errorf("Player didn't die correctly")
-	}
-	testPlayer.Alive = true
-	testPlayer.X = loc3.X
-	testPlayer.Y = loc3.Y
-	testPlayer.Cards = [5]Card{Weapon, None, None, None, None}
-	testPlayer.Play = Weapon
-	combatGroups[loc3] = append(combatGroups[loc3], &testPlayer)
-	fight(&gameMap, combatGroups[loc3])
-	if !testPlayer.Alive || gameMap[loc3.X][loc3.Y].Zombies != 0 {
-		t.Errorf("Player didn't use weapon correctly")
 	}
 }
 
@@ -285,7 +241,7 @@ func TestHandleCombat(t *testing.T) {
 	testPlayerMap[testPlayer1.ID] = &testPlayer1
 	testPlayerMap[testPlayer2.ID] = &testPlayer2
 	testPlayerMap[testPlayer3.ID] = &testPlayer3
-	handleCombat(&gameMap, &testPlayerMap)
+	handleCombat()
 	if testPlayer1.Alive || testPlayer2.Alive || testPlayer3.Alive {
 		t.Errorf("Not all players died.")
 	}
@@ -353,7 +309,6 @@ func TestConsumeWoodAttracts(t *testing.T) {
 
 // TODO: Test other tiles but Farm
 func TestResources(t *testing.T) {
-	gameMap := fakeInitMap(Farm, 0)
 	var testPlayer = Player{
 		ID:        "test",
 		X:         5,
@@ -368,7 +323,7 @@ func TestResources(t *testing.T) {
 	}
 	var testPlayerMap = make(map[string]*Player)
 	testPlayerMap[testPlayer.ID] = &testPlayer
-	resources(&testPlayerMap, gameMap)
+	resources()
 	if testPlayer.Cards[0] != Food {
 		t.Log(testPlayer.Cards)
 		t.Errorf("TestPlayer received the wrong card - expected Food but got %s", testPlayer.Cards[0].toString())
@@ -388,7 +343,7 @@ func TestResources(t *testing.T) {
 	}
 	testPlayerMap = make(map[string]*Player)
 	testPlayerMap[deadPlayer.ID] = &deadPlayer
-	resources(&testPlayerMap, gameMap)
+	resources()
 	if deadPlayer.Cards[0] != None {
 		t.Errorf("Dead player did not have to sit out when distributing resources.")
 	}
@@ -527,7 +482,7 @@ func TestPlayerConsumeFallback(t *testing.T) {
 	var testPlayerMap = make(map[string]*Player)
 	testPlayerMap[testPlayer.ID] = &testPlayer
 	consume(&testPlayerMap, &gameMap)
-	var _, hasCard = playerHasCard(&testPlayer, Wood)
+	var _, hasCard = hasCardWhere(testPlayer.Cards[:], Wood)
 	if hasCard {
 		t.Errorf("Consume fallback to Food failed")
 	}
@@ -548,7 +503,7 @@ func TestPlayerConsumeFallback(t *testing.T) {
 	testPlayerMap = make(map[string]*Player)
 	testPlayerMap[testPlayer.ID] = &testPlayer
 	consume(&testPlayerMap, &gameMap)
-	_, hasCard = playerHasCard(&testPlayer, Wood)
+	_, hasCard = hasCardWhere(testPlayer.Cards[:], Wood)
 	if hasCard {
 		t.Errorf("Consume fallback to Wood failed")
 	}

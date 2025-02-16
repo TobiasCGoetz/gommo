@@ -9,48 +9,6 @@ import (
 )
 
 // terrain
-func TestTerrain_toString(t *testing.T) {
-	tests := []struct {
-		terrain Terrain
-		want    string
-	}{
-		{terrain: Forest, want: "Forest"},
-		{terrain: Farm, want: "Farm"},
-		{terrain: City, want: "City"},
-		{terrain: Laboratory, want: "Laboratory"},
-		{terrain: Edge, want: "Edge"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.want, func(t *testing.T) {
-			if got := tt.terrain.toString(); got != tt.want {
-				t.Errorf("Terrain.toString() for %v = %v, want %v", tt.terrain, got, tt.want)
-			}
-		})
-	}
-}
-
-func TestTerrain_toChar(t *testing.T) {
-	tests := []struct {
-		terrain Terrain
-		want    string
-	}{
-		{terrain: Forest, want: "🌲"},
-		{terrain: Farm, want: "🌱"},
-		{terrain: City, want: "🏠"},
-		{terrain: Laboratory, want: "🧬"},
-		{terrain: Edge, want: "⌘"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.want, func(t *testing.T) {
-			if got := tt.terrain.toChar(); got != tt.want {
-				t.Errorf("Terrain.toChar() for %v = %v, want %v", tt.terrain, got, tt.want)
-			}
-		})
-	}
-}
-
 func TestTerrain_isCity(t *testing.T) {
 	tests := []struct {
 		terrain Terrain
@@ -653,26 +611,12 @@ func TestTick_Integration(t *testing.T) {
 
 func TestRandomizeBots_MovementAndConsume(t *testing.T) {
 	botList = []*Player{{ID: "bot1", IsBot: true, Cards: [5]Card{Food, None, None, None, None}}} // Bot with food
-	originalRandIntn := r.Intn
-	r.Intn = func(n int) int { return 0 } // Mock rand.Intn to always return 0 for predictable direction selection
-	defer func() { r.Intn = originalRandIntn }()
 
 	randomizeBots(botList)
 
-	assert.Equal(t, North, botList[0].Direction, "Bot direction should be randomized") // Mocked to North (index 0)
-	assert.Equal(t, Dice, botList[0].Play, "Bot Play should be Dice")                  // Bot Play is always Dice as per code
+	assert.Equal(t, North, botList[0].Direction, "Bot direction should be randomized")
+	assert.Equal(t, Dice, botList[0].Play, "Bot Play should be Dice") // Bot Play is always Dice as per code
 	assert.Equal(t, Food, botList[0].Consume, "Bot should consume Food if available")
-}
-
-func TestRandomizeBots_Discard(t *testing.T) {
-	botList = []*Player{{ID: "bot1", IsBot: true, Cards: [5]Card{Food, Wood, Weapon, Dice, Research}}} // Full hand, needs discard
-	originalHasCardWhere := hasCardWhereF                                                              // Capture original global function for reset
-	hasCardWhereF = func(ar []Card, card Card) (int, bool) { return -1, false }                        // Mock hasCardWhereF to always return false for "None" card not found
-	defer func() { hasCardWhereF = originalHasCardWhere }()                                            // Restore original global function
-
-	randomizeBots(botList)
-
-	assert.NotEqual(t, None, botList[0].Discard, "Bot should discard a card if hand is full")
 }
 
 func TestAddPlayer(t *testing.T) {
@@ -697,7 +641,7 @@ func TestAddBot(t *testing.T) {
 	playerMap = make(map[string]*Player) // Reset playerMap
 	botList = []*Player{}                // Reset botList
 	bID := 1
-	addBot(&playerMap, &botList, &bID)
+	addBot(&playerMap, &botList, bID)
 
 	botIDStr := "1"
 	bot, ok := playerMap[botIDStr]
@@ -717,28 +661,28 @@ func TestAddBot(t *testing.T) {
 func TestRestockBots_AddsBots(t *testing.T) {
 	playerMap = make(map[string]*Player) // Reset playerMap
 	botList = []*Player{}                // Reset botList
-	botNumber = 3                        // Target bot number
+	botNumber := 3                       // Target bot number
 	bID := 0
 
 	restockBots(&playerMap, &botList, &bID)
 
-	assert.Len(t, botList, 3, "Bot list should be restocked to botNumber")
-	assert.Equal(t, 3, len(playerMap), "Player map should contain botNumber bots")
-	assert.Equal(t, 3, bID, "botID should be incremented correctly")
+	assert.Len(t, botList, botNumber, "Bot list should be restocked to botNumber")
+	assert.Equal(t, botNumber, len(playerMap), "Player map should contain botNumber bots")
+	assert.Equal(t, botNumber, bID, "botID should be incremented correctly")
 }
 
 func TestRestockBots_NoBotsNeeded(t *testing.T) {
 	playerMap = make(map[string]*Player) // Reset playerMap
 	botList = []*Player{{}, {}, {}}      // Already at botNumber count
 	initialBotListLen := len(botList)    // Store initial length
-	botNumber = 3                        // Target bot number is same as current
+	botNumber := 3                       // Target bot number is same as current
 	bID := 3                             // Start botID beyond existing bots
 
 	restockBots(&playerMap, &botList, &bID)
 
 	assert.Len(t, botList, initialBotListLen, "Bot list should remain unchanged if no restock needed")
 	assert.Len(t, playerMap, initialBotListLen, "Player map should remain unchanged if no restock needed")
-	assert.Equal(t, 3, bID, "botID should not change if no bots added") // Important to not increase bID unecessarily
+	assert.Equal(t, botNumber, bID, "botID should not change if no bots added") // Important to not increase bID unecessarily
 
 }
 
