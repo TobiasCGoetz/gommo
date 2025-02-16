@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"strings"
 	"sync"
 )
@@ -53,10 +52,6 @@ func (t *Tile) resolveCombat() {
 		}
 		t.Zombies += numDeadPlayers // Add killed player count to zombies
 	}
-}
-
-func rollDice() int {
-	return rand.Intn(playerMaxAttack) + playerMinAttack
 }
 
 func (t Tile) giveResources() {

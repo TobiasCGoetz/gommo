@@ -26,6 +26,10 @@ func initMap(r rand.Rand, gMap *[mapWidth][mapHeight]*Tile) {
 	}
 }
 
+func rollDice() int {
+	return rand.Intn(playerMaxAttack) + playerMinAttack
+}
+
 func getMapTile(x int, y int, gMap *[mapWidth][mapHeight]*Tile) *Tile {
 	if x < 0 || x >= mapWidth || y < 0 || y >= mapHeight {
 		fmt.Printf("Prevented tile access at %d/%d", x, y)

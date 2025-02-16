@@ -6,8 +6,10 @@ const botNumber int = 0
 const zombieCutoff int = 13
 const weaponStrength int = 6
 const playerNameMaxLength int = 20
-const playerMinAttack int = 1
-const playerMaxAttack int = 6
+
+var playerMinAttack int = 1
+var playerMaxAttack int = 6
+
 const turnLength int = 15
 const maxTurns int = 500
 const victoryNumber int = 2

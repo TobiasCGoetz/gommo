@@ -222,9 +222,7 @@ func TestTile_resolveCombat_PlayerWinsWeapon(t *testing.T) {
 	playerMap = map[string]*Player{playerID: {ID: playerID, Alive: true, Cards: [5]Card{Weapon, None, None, None, None}, Play: Weapon}}
 	tile := &Tile{Terrain: City, Zombies: 5, playerIds: []string{playerID}}
 
-	originalRollDice := rollDice
-	rollDice = func() int { return 1 }             // Mock rollDice to always return a low value, weapon should override
-	defer func() { rollDice = originalRollDice }() // Restore original rollDice
+	playerMinAttack, playerMaxAttack = 1, 1
 
 	tile.resolveCombat()
 
@@ -236,14 +234,20 @@ func TestTile_resolveCombat_PlayerWinsWeapon(t *testing.T) {
 	assert.NotEqual(t, -1, noneCardIndex, "Should have a None card after weapon used")
 }
 
+func makeDiceRollOne() {
+	playerMinAttack, playerMaxAttack = 1, 1
+}
+
+func makeDiceRollSix() {
+	playerMinAttack, playerMaxAttack = 6, 6
+}
+
 func TestTile_resolveCombat_PlayerWinsDice(t *testing.T) {
 	playerID := "player1"
 	playerMap = map[string]*Player{playerID: {ID: playerID, Alive: true, Cards: [5]Card{Dice, None, None, None, None}, Play: Dice}}
 	tile := &Tile{Terrain: City, Zombies: 5, playerIds: []string{playerID}}
 
-	originalRollDice := rollDice
-	rollDice = func() int { return 10 } // Mock rollDice to always return a high value
-	defer func() { rollDice = originalRollDice }()
+	makeDiceRollOne()
 
 	tile.resolveCombat()
 
@@ -256,9 +260,7 @@ func TestTile_resolveCombat_PlayerLoses(t *testing.T) {
 	playerMap = map[string]*Player{playerID: {ID: playerID, Alive: true, Cards: [5]Card{None, None, None, None, None}, Play: Dice}} // No weapon
 	tile := &Tile{Terrain: City, Zombies: 10, playerIds: []string{playerID}}
 
-	originalRollDice := rollDice
-	rollDice = func() int { return 1 } // Mock rollDice to always return a low value
-	defer func() { rollDice = originalRollDice }()
+	makeDiceRollOne()
 
 	tile.resolveCombat()
 
@@ -579,9 +581,7 @@ func TestHandleCombat_Integration(t *testing.T) {
 	gameMap = [mapWidth][mapHeight]*Tile{}                                                         // Reset gameMap
 	gameMap[50][50] = &Tile{Terrain: City, Zombies: 15, playerIds: []string{playerID1, playerID2}} // Tile with players and zombies
 
-	originalRollDice := rollDice
-	rollDice = func() int { return 1 } // Mock dice to low value, Player2 will lose anyway
-	defer func() { rollDice = originalRollDice }()
+	makeDiceRollOne()
 
 	handleCombat()
 
@@ -636,9 +636,7 @@ func TestTick_Integration(t *testing.T) {
 	gameMap[50][50] = &Tile{Terrain: Farm, Zombies: 2, playerIds: []string{playerID}} // Player on Farm
 	initialFoodCardCount := getHandSize(playerMap[playerID])
 
-	originalRollDice := rollDice
-	rollDice = func() int { return 10 } // Mock dice to high value for combat - no player death
-	defer func() { rollDice = originalRollDice }()
+	makeDiceRollSix()
 
 	tick(&gameMap, &playerMap)
 
