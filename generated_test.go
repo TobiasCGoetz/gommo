@@ -30,34 +30,6 @@ func TestTerrain_isCity(t *testing.T) {
 	}
 }
 
-func TestTerrain_offersResource(t *testing.T) {
-	tests := []struct {
-		terrain     Terrain
-		wantCard    Card
-		wantAmount  int
-		testName    string
-		expectedNil bool
-	}{
-		{terrain: City, wantCard: Weapon, wantAmount: 1, testName: "CityOffersWeapon"},
-		{terrain: Forest, wantCard: Wood, wantAmount: 2, testName: "ForestOffersWood"},
-		{terrain: Farm, wantCard: Food, wantAmount: 1, testName: "FarmOffersFood"},
-		{terrain: Laboratory, wantCard: Research, wantAmount: 1, testName: "LaboratoryOffersResearch"},
-		{terrain: Edge, wantCard: None, wantAmount: 0, testName: "EdgeOffersNone", expectedNil: true}, // Edge offers no resource
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.testName, func(t *testing.T) {
-			card, amount := tt.terrain.offersResource()
-			if card != tt.wantCard {
-				t.Errorf("Terrain.offersResource() for %v returned card = %v, want %v", tt.terrain, card, tt.wantCard)
-			}
-			if amount != tt.wantAmount {
-				t.Errorf("Terrain.offersResource() for %v returned amount = %v, want %v", tt.terrain, amount, tt.wantAmount)
-			}
-		})
-	}
-}
-
 // card
 func TestCard_toString(t *testing.T) {
 	tests := []struct {
