@@ -1,4 +1,4 @@
-source_files = config.go api.go main.go data.go card.go direction.go gameMap.go player.go terrain.go tile.go
+source_files = config.go api.go main.go data.go card.go direction.go gameMap.go player.go terrain.go tile.go event.go handler.go
 
 run:
 	go run ${source_files}
