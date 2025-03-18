@@ -1,37 +1,30 @@
 package main
 
-// Generic Event Handler
-type EventHandler[T Event] interface {
-	Handle(event T) error
+import (
+	"fmt"
+	"time"
+)
+
+type handlerRegistry struct {
+	handlers map[string]func(event BaseEvent)
 }
 
-// Generic Event Handler Function
-type EventHandlerFunc[T Event] func(event T) error
-
-// Handle calls the underlying function.
-func (f EventHandlerFunc[T]) Handle(event T) error {
-	return f(event)
+func newHandlerRegistry() *handlerRegistry {
+	return &handlerRegistry{make(map[string]func(event BaseEvent))}
 }
 
-// Example UserCreated Event Handler.
-type UserCreatedHandler struct {
-	// Dependencies (e.g., database connection)
+func (registry handlerRegistry) AddHandler(typeName string, handler func())
+
+func (registry handlerRegistry) Handle(event BaseEvent) {
+	registry.handlers[event.EventType](event)
 }
 
-// NewUserCreatedHandler creates a new UserCreatedHandler.
-func NewUserCreatedHandler() *UserCreatedHandler {
-	return &UserCreatedHandler{}
+func ReadUserHandler(event ReadUser) {
+	fmt.Println("Handling ReadUser event")
 }
 
-// Handle handles the UserCreated event.
-func (h *UserCreatedHandler) Handle(event UserCreated) error {
-	// Process the event (e.g., store user in database)
-	// ...
-	return nil
-}
-
-// Example of how to use the generic event handler function.
-func HandleUserCreatedFunc(event UserCreated) error {
-	//process the event
-	return nil
+func main() {
+	registry := newHandlerRegistry()
+	registry.addHandler("ReadUser", ReadUserHandler)
+	registry.Handle(ReadUser{"ReadUser0", time.Now(), "ReadUser", false})
 }

@@ -3,10 +3,10 @@ package main
 import "time"
 
 type BaseEvent struct {
-	id        string
-	timestamp time.Time
-	eventType string
-	success   bool
+	Id        string
+	Timestamp time.Time
+	EventType string
+	Success   bool
 }
 
 type WriteUser struct {
