@@ -16,23 +16,22 @@ type BaseEvent struct {
 }
 
 func (event BaseEvent) OfPlayer() string {
-	return event.playerId
+	return "BaseEvent"
 }
 
 func (event BaseEvent) Type() string {
-	return event.eventType
+	return "BaseEvent"
 }
 
 func (event BaseEvent) Timestamp() time.Time {
 	return event.timestamp
 }
 
-type WriteUser struct {
+type CreateUserEvent struct {
 	BaseEvent
 	Username string
 }
 
-type ReadUser struct {
-	BaseEvent
-	Player Player
+func (event CreateUserEvent) Type() string {
+	return "CreateUserEvent"
 }

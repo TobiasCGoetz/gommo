@@ -6,25 +6,34 @@ import (
 )
 
 type handlerRegistry struct {
-	handlers map[string]func(event BaseEvent)
+	handlers map[string]func(event Event)
 }
 
 func newHandlerRegistry() *handlerRegistry {
-	return &handlerRegistry{make(map[string]func(event BaseEvent))}
+	return &handlerRegistry{make(map[string]func(event Event))}
 }
 
-func (registry handlerRegistry) AddHandler(typeName string, handler func())
-
-func (registry handlerRegistry) Handle(event BaseEvent) {
-	registry.handlers[event.EventType](event)
+func (registry handlerRegistry) AddHandler(typeName string, handler func(event Event)) {
+	registry.handlers[typeName] = handler
 }
 
-func ReadUserHandler(event ReadUser) {
-	fmt.Println("Handling ReadUser event")
+func (registry handlerRegistry) Handle(event Event) {
+	registry.handlers[event.Type()](event)
+}
+
+func CreateUserHandler(event Event) {
+	createUserEvent, ok := event.(CreateUserEvent)
+	if !ok {
+		return
+	}
+	fmt.Println("Successfully handled ", createUserEvent.Type())
 }
 
 func main() {
 	registry := newHandlerRegistry()
-	registry.addHandler("ReadUser", ReadUserHandler)
-	registry.Handle(ReadUser{"ReadUser0", time.Now(), "ReadUser", false})
+	registry.AddHandler(CreateUserEvent{}.Type(), CreateUserHandler)
+	baseEvent := BaseEvent{"playerId", time.Now(), BaseEvent{}.Type(), false}
+	createUserEvent := CreateUserEvent{baseEvent, "username"}
+	fmt.Println(baseEvent.Type(), createUserEvent.Type())
+	registry.Handle(createUserEvent)
 }
