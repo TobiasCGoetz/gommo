@@ -10,13 +10,22 @@ type Event interface {
 	Timestamp() time.Time
 	OfPlayer() string
 	ToJson() []byte
+	Success() bool
 }
 
 type BaseEvent struct {
 	playerId  string
 	timestamp time.Time
 	eventType string
-	Success   bool
+	success   bool
+}
+
+func (event *BaseEvent) setSuccess(s bool) {
+	event.success = s
+}
+
+func (event BaseEvent) Success() bool {
+	return event.success
 }
 
 func (event BaseEvent) OfPlayer() string {
