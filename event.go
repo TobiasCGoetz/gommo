@@ -1,11 +1,15 @@
 package main
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 type Event interface {
 	Type() string
 	Timestamp() time.Time
 	OfPlayer() string
+	ToJson() []byte
 }
 
 type BaseEvent struct {
@@ -25,6 +29,15 @@ func (event BaseEvent) Type() string {
 
 func (event BaseEvent) Timestamp() time.Time {
 	return event.timestamp
+}
+
+func (event BaseEvent) ToJson() []byte {
+	jsonData, err := json.Marshal(event)
+	if err != nil {
+		r, _ := json.Marshal("")
+		return r
+	}
+	return jsonData
 }
 
 type CreateUserEvent struct {
