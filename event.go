@@ -11,6 +11,7 @@ type Event interface {
 	OfPlayer() string
 	ToJson() []byte
 	Success() bool
+	SetSuccess(bool)
 }
 
 type BaseEvent struct {
@@ -20,7 +21,7 @@ type BaseEvent struct {
 	success   bool
 }
 
-func (event *BaseEvent) setSuccess(s bool) {
+func (event *BaseEvent) SetSuccess(s bool) {
 	event.success = s
 }
 
@@ -56,4 +57,8 @@ type CreateUserEvent struct {
 
 func (event CreateUserEvent) Type() string {
 	return "CreateUserEvent"
+}
+
+func (event *CreateUserEvent) SetSuccess(s bool) {
+	event.success = s
 }

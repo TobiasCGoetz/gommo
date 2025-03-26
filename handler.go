@@ -20,12 +20,15 @@ func (registry handlerRegistry) Handle(event Event) Event {
 	return registry.handlers[event.Type()](event)
 }
 
-func CreateUserHandler(event Event) {
-	createUserEvent, ok := event.(CreateUserEvent)
+func CreateUserHandler(event Event) Event {
+	createUserEvent, ok := event.(*CreateUserEvent)
 	if !ok {
-		return
+		event.SetSuccess(false)
+		return event
 	}
+	event.SetSuccess(true)
 	fmt.Println("Successfully handled ", createUserEvent.Type())
+	return event
 }
 
 /*
