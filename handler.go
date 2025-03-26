@@ -5,19 +5,19 @@ import (
 )
 
 type handlerRegistry struct {
-	handlers map[string]func(event Event)
+	handlers map[string]func(event Event) Event
 }
 
 func newHandlerRegistry() *handlerRegistry {
-	return &handlerRegistry{make(map[string]func(event Event))}
+	return &handlerRegistry{make(map[string]func(event Event) Event)}
 }
 
-func (registry handlerRegistry) AddHandler(typeName string, handler func(event Event)) {
+func (registry handlerRegistry) AddHandler(typeName string, handler func(event Event) Event) {
 	registry.handlers[typeName] = handler
 }
 
-func (registry handlerRegistry) Handle(event Event) {
-	registry.handlers[event.Type()](event)
+func (registry handlerRegistry) Handle(event Event) Event {
+	return registry.handlers[event.Type()](event)
 }
 
 func CreateUserHandler(event Event) {
