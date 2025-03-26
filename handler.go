@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 )
 
 type handlerRegistry struct {
@@ -29,6 +28,7 @@ func CreateUserHandler(event Event) {
 	fmt.Println("Successfully handled ", createUserEvent.Type())
 }
 
+/*
 func main() {
 	registry := newHandlerRegistry()
 	registry.AddHandler(CreateUserEvent{}.Type(), CreateUserHandler)
@@ -36,4 +36,4 @@ func main() {
 	createUserEvent := CreateUserEvent{baseEvent, "username"}
 	fmt.Println(baseEvent.Type(), createUserEvent.Type())
 	registry.Handle(createUserEvent)
-}
+	} */
