@@ -380,7 +380,7 @@ func main() {
 	initMap(*r, &gameMap)
 	//Data set up, now we can start the API
 
-	go setupAPI(&gameMap, &turnTimer, &hasWon)
+	go setupAPI(&turnTimer, &hasWon)
 
 	var remainingTurns = maxTurns
 	for ; remainingTurns > 0; remainingTurns-- {

@@ -11,7 +11,7 @@ import (
 
 // TODO: Move functionality&complexity outside of this api file, call suitable functions instead
 // Ideally, we wouldn't rely on the data here at all
-func setupAPI(gameMap *[mapWidth][mapHeight]*Tile, turnTime *int8, hasWon *bool) {
+func setupAPI(turnTime *int8, hasWon *bool) {
 	router := gin.Default()
 	router.Use(cors.Default())
 	//Player endpoints
