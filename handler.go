@@ -30,13 +30,3 @@ func CreateUserHandler(event Event) Event {
 	fmt.Println("Successfully handled ", createUserEvent.Type())
 	return event
 }
-
-/*
-func main() {
-	registry := newHandlerRegistry()
-	registry.AddHandler(CreateUserEvent{}.Type(), CreateUserHandler)
-	baseEvent := BaseEvent{"playerId", time.Now(), BaseEvent{}.Type(), false}
-	createUserEvent := CreateUserEvent{baseEvent, "username"}
-	fmt.Println(baseEvent.Type(), createUserEvent.Type())
-	registry.Handle(createUserEvent)
-	} */

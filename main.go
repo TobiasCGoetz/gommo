@@ -378,6 +378,12 @@ func main() {
 	hasWon = false
 	r = rand.New(rand.NewSource(time.Now().Unix()))
 	initMap(*r, &gameMap)
+	//registry := newHandlerRegistry()
+	//registry.AddHandler(CreateUserEvent{}.Type(), CreateUserHandler)
+	//baseEvent := BaseEvent{"playerId", time.Now(), BaseEvent{}.Type(), false}
+	//createUserEvent := CreateUserEvent{baseEvent, "username"}
+	//fmt.Println(baseEvent.Type(), createUserEvent.Type())
+	//registry.Handle(createUserEvent)
 	//Data set up, now we can start the API
 
 	go setupAPI(&turnTimer, &hasWon)
