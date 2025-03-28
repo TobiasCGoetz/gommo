@@ -18,7 +18,11 @@ func (registry handlerRegistry) AddHandler(typeName string, handler func(event E
 }
 
 func (registry handlerRegistry) Handle(event Event) Event {
-	return registry.handlers[event.Type()](event)
+	registry.handlers[event.Type()](event)
+	if event.Success() {
+		registry.store.Append(event.ToJson())
+	}
+	return event
 }
 
 func CreateUserHandler(event Event) Event {
