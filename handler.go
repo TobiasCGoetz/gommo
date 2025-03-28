@@ -6,10 +6,11 @@ import (
 
 type handlerRegistry struct {
 	handlers map[string]func(event Event) Event
+	store    EventStore
 }
 
 func newHandlerRegistry() *handlerRegistry {
-	return &handlerRegistry{make(map[string]func(event Event) Event)}
+	return &handlerRegistry{make(map[string]func(event Event) Event), *NewEventStore()}
 }
 
 func (registry handlerRegistry) AddHandler(typeName string, handler func(event Event) Event) {
