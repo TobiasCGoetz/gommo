@@ -25,13 +25,13 @@ func (registry handlerRegistry) Handle(event Event) Event {
 	return processedEvent
 }
 
-func AssertTypeAndHandleFailure[T Event](event Event) (Event, bool) {
+func AssertTypeAndHandleFailure[T any](event Event) (*T, bool) {
 	specificEvent, ok := event.(T)
 	if !ok {
 		event.SetSuccess(false)
-		return event, false
+		return nil, false
 	}
-	return specificEvent, true
+	return &specificEvent, true
 }
 
 func CreateUserHandler(event Event) Event {
