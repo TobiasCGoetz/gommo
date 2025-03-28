@@ -35,3 +35,7 @@ func CreateUserHandler(event Event) Event {
 	fmt.Println("Successfully handled ", createUserEvent.Type())
 	return event
 }
+
+func GetUserHandler(event Event) Event         {}
+func GetSurroundingsHandler(event Event) Event {}
+func GetConfigHandler(event Event) Event       {}
