@@ -5,26 +5,14 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/google/uuid"
 )
 
-var gameMap [mapWidth][mapHeight]*Tile
 var playerMap = make(map[string]*Player)
 var botList []*Player
 var r *rand.Rand
-
-func initMap(r rand.Rand, gMap *[mapWidth][mapHeight]*Tile) {
-	fmt.Println("Initializing game map...")
-	for a, column := range gMap {
-		for b := range column {
-			choice := r.Intn(len(terrainTypes) - 1)
-			gMap[a][b] = &Tile{terrainTypes[choice], 0, []string{}}
-		}
-	}
-}
 
 func rollDice() int {
 	return rand.Intn(playerMaxAttack) + playerMinAttack
@@ -83,14 +71,6 @@ func move(playerMap *map[string]*Player) {
 		player.Direction = defaultDirection
 		//Write new state
 		(*playerMap)[player.ID] = player
-	}
-}
-
-func resources() {
-	for x, _ := range gameMap {
-		for _, tile := range gameMap[x] {
-			tile.giveResources()
-		}
 	}
 }
 
@@ -173,41 +153,6 @@ func limitCards(playerMap *map[string]*Player) {
 		}
 		player.Discard = None
 		(*playerMap)[mapKey] = player
-	}
-}
-
-func handleCombat() {
-	var wg = sync.WaitGroup{}
-	for x, _ := range gameMap {
-		for y, _ := range gameMap[x] {
-			wg.Add(1)
-			go tileWorker(gameMap[x][y], &wg)
-		}
-	}
-	wg.Wait()
-}
-
-func spreadFromSpreader(gMap *[mapWidth][mapHeight]*Tile, xCoord int, yCoord int) {
-	// TODO: decide if spread is 4 or 8 directions
-	var xOffsets = []int{0, -1, 0, 1, 0}
-	var yOffsets = []int{-1, 0, 0, 0, 1} //TODO: Check y-axis direction again!
-	for neighbor := 0; neighbor < len(xOffsets); neighbor++ {
-		var xTarget = xCoord + xOffsets[neighbor]
-		var yTarget = yCoord + yOffsets[neighbor]
-		if xTarget < 0 || xTarget >= mapWidth || yTarget < 0 || yTarget >= mapHeight {
-			continue
-		}
-		gMap[xTarget][yTarget].spreadTo()
-	}
-}
-
-func spread(gMap *[mapWidth][mapHeight]*Tile) {
-	for x, _ := range gMap {
-		for y, tile := range gMap[x] {
-			if tile.isSpreader() {
-				spreadFromSpreader(gMap, x, y)
-			}
-		}
 	}
 }
 
@@ -314,58 +259,6 @@ func havePlayersWon(playerMap map[string]*Player) bool {
 
 func getPlayerOrNil(id string) *Player {
 	return playerMap[id]
-}
-
-func getSurroundingsOfPlayer(id string) (Surroundings, bool) {
-	player := getPlayerOrNil(id)
-	if player == nil { //TODO: If nil else function or invert? Make them all identical!
-		return Surroundings{}, false
-	} else {
-		var NW = gameMap[player.X-1][player.Y-1].getMapPiece()
-		var NN = gameMap[player.X][player.Y-1].getMapPiece()
-		var NE = gameMap[player.X+1][player.Y-1].getMapPiece()
-		var WW = gameMap[player.X-1][player.Y].getMapPiece()
-		var CE = gameMap[player.X][player.Y].getMapPiece()
-		var EE = gameMap[player.X+1][player.Y].getMapPiece()
-		var SW = gameMap[player.X-1][player.Y+1].getMapPiece()
-		var SS = gameMap[player.X][player.Y+1].getMapPiece()
-		var SE = gameMap[player.X+1][player.Y+1].getMapPiece()
-
-		var miniMap = Surroundings{
-			NW: NW,
-			NN: NN,
-			NE: NE,
-			WW: WW,
-			CE: CE,
-			EE: EE,
-			SW: SW,
-			SS: SS,
-			SE: SE,
-		}
-		return miniMap, true
-	}
-}
-
-func printMap() {
-	for x, _ := range gameMap {
-		for _, tile := range gameMap[x] {
-			fmt.Print(fmt.Sprintf("%s ", tile.Terrain.toChar()))
-		}
-		fmt.Print("\n")
-		for _, tile := range gameMap[x] {
-			if len(tile.playerIds) > 0 {
-				fmt.Print(fmt.Sprintf("%d", len(tile.playerIds)))
-			} else {
-				fmt.Print(" ")
-			}
-			if tile.Zombies > 0 {
-				fmt.Print(fmt.Sprintf("%d", tile.Zombies))
-			} else {
-				fmt.Print(" ")
-			}
-		}
-		fmt.Print("\n")
-	}
 }
 
 func main() {
