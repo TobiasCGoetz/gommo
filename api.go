@@ -11,13 +11,13 @@ import (
 
 // TODO: Move functionality&complexity outside of this api file, call suitable functions instead
 // Ideally, we wouldn't rely on the data here at all
-func setupAPI(turnTime *int8, hasWon *bool) {
+func setupAPI(handlerRegistry *handlerRegistry, turnTime *int8, hasWon *bool) {
 	router := gin.Default()
 	router.Use(cors.Default())
 	//Player endpoints
 	router.POST("/player/:name", addPlayerHandlerFunc())
 	router.GET("/player/:id", getPlayerHandlerFunc())
-	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc())
+	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(handlerRegistry))
 	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc())
 	router.PUT("/player/:id/consume/:card", setConsumeHandlerFunc())
 	router.PUT("/player/:id/discard/:card", setDiscardHandlerFunc())
@@ -76,10 +76,12 @@ func getRemainingTimerHandlerFunc(turnTimer int8) gin.HandlerFunc {
 	return fn
 }
 
-func getSurroundingsHandlerFunc() gin.HandlerFunc {
+func getSurroundingsHandlerFunc(registry *handlerRegistry) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
-		miniMap, success := getSurroundingsOfPlayer(id)
+		processedEvent := registry.Handle(NewGetSurroundingsEvent(id))
+		success := processedEvent.Success()
+		miniMap := processedEvent.(*GetSurroundingsEvent).Minimap
 		if !success {
 			c.AbortWithStatus(http.StatusBadRequest)
 		}

@@ -13,6 +13,7 @@ import (
 var playerMap = make(map[string]*Player)
 var botList []*Player
 var r *rand.Rand
+var gMap gameMap
 
 func rollDice() int {
 	return rand.Intn(playerMaxAttack) + playerMinAttack
@@ -74,62 +75,6 @@ func move(playerMap *map[string]*Player) {
 	}
 }
 
-func consume(playerMap *map[string]*Player, gMap *[mapWidth][mapHeight]*Tile) {
-	for playerID := range *playerMap {
-		//Fetch current player state
-		var player = (*playerMap)[playerID]
-		if !player.Alive {
-			continue
-		}
-
-		//We don't allow death by indecision
-		if player.Consume == None {
-			_, hasCard := hasCardWhere(player.Cards[:], Food)
-			if hasCard {
-				player.Consume = Food
-			} else {
-				player.Consume = Wood
-			}
-		}
-
-		//Now remove that card or kill the player
-		cardPos, hasCard := hasCardWhere(player.Cards[:], player.Consume)
-		if hasCard {
-			if player.Consume == Wood {
-
-				var zombiesAttracted = 0
-
-				var tileNW = getMapTile(player.X-1, player.Y+1, gMap)
-				var tileNN = getMapTile(player.X, player.Y+1, gMap)
-				var tileNE = getMapTile(player.X+1, player.Y+1, gMap)
-				var tileWW = getMapTile(player.X-1, player.Y, gMap)
-				var tileEE = getMapTile(player.X+1, player.Y, gMap)
-				var tileSW = getMapTile(player.X-1, player.Y-1, gMap)
-				var tileSS = getMapTile(player.X, player.Y-1, gMap)
-				var tileSE = getMapTile(player.X+1, player.Y-1, gMap)
-
-				var tileArray = []*Tile{tileNW, tileNN, tileNE, tileWW, tileEE, tileSW, tileSS, tileSE}
-
-				//Remove zombies from surrounding tiles
-				for _, nextTile := range tileArray {
-					if nextTile.Zombies > 0 {
-						zombiesAttracted++
-						nextTile.Zombies--
-					}
-				}
-
-				//Add to players tile
-				getMapTile(player.X, player.Y, gMap).Zombies += zombiesAttracted
-			}
-			player.Cards[cardPos] = None //Remove card from hand
-			(*playerMap)[player.ID] = player
-		} else {
-			player.Alive = false //Card not in hand, kill the player
-			(*playerMap)[player.ID] = player
-		}
-	}
-}
-
 func getHandSize(player *Player) int {
 	var count = 0
 	for _, card := range player.Cards {
@@ -157,18 +102,18 @@ func limitCards(playerMap *map[string]*Player) {
 }
 
 // TODO: Unify order of attributes across functions
-func tick(gMap *[mapWidth][mapHeight]*Tile, playerMap *map[string]*Player) {
+func tick(playerMap *map[string]*Player) {
 	fmt.Println("Next tick is happening...")
 	fmt.Println("Moving players...")
 	move(playerMap)
 	fmt.Println("Distributing ressources...")
-	resources()
+	gMap.resources()
 	fmt.Println("Combat is upon us...")
-	handleCombat()
+	gMap.handleCombat()
 	fmt.Println("The infection is spreading...")
-	spread(gMap)
+	gMap.spread()
 	fmt.Println("Players feeding themselves...")
-	consume(playerMap, gMap)
+	gMap.consume(playerMap)
 	fmt.Println("Limiting player inventory")
 	limitCards(playerMap)
 }
@@ -266,20 +211,19 @@ func main() {
 		idSalt = os.Args[1]
 		fmt.Println(idSalt)
 	}
+	gMap = NewGameMap()
 	var botID = 0
 	var turnTimer = int8(turnLength)
 	hasWon = false
 	r = rand.New(rand.NewSource(time.Now().Unix()))
-	initMap(*r, &gameMap)
-	//registry := newHandlerRegistry()
+	registry := newHandlerRegistry()
 	//registry.AddHandler(CreateUserEvent{}.Type(), CreateUserHandler)
 	//baseEvent := BaseEvent{"playerId", time.Now(), BaseEvent{}.Type(), false}
 	//createUserEvent := CreateUserEvent{baseEvent, "username"}
 	//fmt.Println(baseEvent.Type(), createUserEvent.Type())
 	//registry.Handle(createUserEvent)
-	//Data set up, now we can start the API
 
-	go setupAPI(&turnTimer, &hasWon)
+	go setupAPI(registry, &turnTimer, &hasWon)
 
 	var remainingTurns = maxTurns
 	for ; remainingTurns > 0; remainingTurns-- {
@@ -288,7 +232,7 @@ func main() {
 		for turnTimer = int8(turnLength); turnTimer >= 0; turnTimer-- {
 			if turnTimer == 0 {
 				randomizeBots(botList)
-				tick(&gameMap, &playerMap)
+				tick(&playerMap)
 				hasWon = havePlayersWon(playerMap)
 				restockBots(&playerMap, &botList, &botID)
 				if hasWon {

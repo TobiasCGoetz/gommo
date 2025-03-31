@@ -23,6 +23,10 @@ type BaseEvent struct {
 	success   bool
 }
 
+func NewBaseEvent(playerId string, eType string) BaseEvent {
+	return BaseEvent{playerId, time.Now(), eType, false}
+}
+
 func (event *BaseEvent) SetSuccess(s bool) {
 	event.success = s
 }
@@ -83,6 +87,10 @@ func (event *GetUserEvent) SetSuccess(s bool) {
 type GetSurroundingsEvent struct {
 	BaseEvent
 	Minimap Surroundings
+}
+
+func NewGetSurroundingsEvent(playerId string) GetSurroundingsEvent {
+	return GetSurroundingsEvent{NewBaseEvent(playerId, GetSurroundingsEvent{}.Type()), Surroundings{}}
 }
 
 func (event GetSurroundingsEvent) Type() string {
