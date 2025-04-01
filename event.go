@@ -11,11 +11,10 @@ type Event interface {
 	OfPlayer() string
 	ToJson() []byte
 	Success() bool
-	SetSuccess(bool)
+	SetSuccess(bool) Event
 }
 
 // Base event
-
 type BaseEvent struct {
 	playerId  string
 	timestamp time.Time
@@ -27,8 +26,9 @@ func NewBaseEvent(playerId string, eType string) BaseEvent {
 	return BaseEvent{playerId, time.Now(), eType, false}
 }
 
-func (event *BaseEvent) SetSuccess(s bool) {
+func (event BaseEvent) SetSuccess(s bool) Event {
 	event.success = s
+	return event
 }
 
 func (event BaseEvent) Success() bool {
@@ -67,10 +67,6 @@ func (event CreateUserEvent) Type() string {
 	return "CreateUserEvent"
 }
 
-func (event *CreateUserEvent) SetSuccess(s bool) {
-	event.success = s
-}
-
 type GetUserEvent struct {
 	BaseEvent
 	User Player
@@ -78,10 +74,6 @@ type GetUserEvent struct {
 
 func (event GetUserEvent) Type() string {
 	return "GetUserEvent"
-}
-
-func (event *GetUserEvent) SetSuccess(s bool) {
-	event.success = s
 }
 
 type GetSurroundingsEvent struct {
@@ -97,10 +89,6 @@ func (event GetSurroundingsEvent) Type() string {
 	return "GetSurroundingsEvent"
 }
 
-func (event *GetSurroundingsEvent) SetSuccess(s bool) {
-	event.success = s
-}
-
 type GetConfigEvent struct {
 	BaseEvent
 	Config ConfigResponse
@@ -108,8 +96,4 @@ type GetConfigEvent struct {
 
 func (event GetConfigEvent) Type() string {
 	return "GetConfigEvent"
-}
-
-func (event *GetConfigEvent) SetSuccess(s bool) {
-	event.success = s
 }
