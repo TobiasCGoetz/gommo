@@ -52,6 +52,16 @@ func (p Player) firstIndexOfCardType(target Card) int {
 	return -1
 }
 
+func (p Player) getHandSize() int { //TODO: Move to method
+	var count = 0
+	for _, card := range p.Cards {
+		if card != None {
+			count++
+		}
+	}
+	return count
+}
+
 func (p Player) toString() string {
 	var r strings.Builder
 	r.WriteString(p.ID)
