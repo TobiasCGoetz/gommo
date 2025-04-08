@@ -45,6 +45,35 @@ func CreateUserHandler(event Event) Event {
 	return event
 }
 
-func GetUserHandler(event Event) Event         { return event }
-func GetSurroundingsHandler(event Event) Event { return event }
-func GetConfigHandler(event Event) Event       { return event }
+func GetUserHandler(event Event) Event {
+	getUserEvent, ok := event.(*GetUserEvent)
+	if !ok {
+		event.SetSuccess(false)
+		return event
+	}
+	getUserEvent.User = pMap.getPlayer(getUserEvent.playerId)
+	getUserEvent.SetSuccess(true)
+	return getUserEvent
+}
+
+func GetSurroundingsHandler(event Event) Event {
+	getSurroundingsEvent, ok := event.(*GetSurroundingsEvent)
+	if !ok {
+		event.SetSuccess(false)
+		return event
+	}
+	getSurroundingsEvent.Minimap, _ = gMap.getSurroundingsOfPlayer(getSurroundingsEvent.OfPlayer()) //TODO: Handle bool flag
+	getSurroundingsEvent.SetSuccess(true)
+	return getSurroundingsEvent
+}
+
+func GetConfigHandler(event Event) Event {
+	getConfigEvent, ok := event.(*GetConfigEvent)
+	if !ok {
+		event.SetSuccess(false)
+		return event
+	}
+	getConfigEvent.Config = ConfigResponse{} //TODO: FIX ME
+	getConfigEvent.SetSuccess(true)
+	return getConfigEvent
+}
