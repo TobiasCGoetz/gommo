@@ -23,7 +23,6 @@ func setupAPI() {
 	router.PUT("/player/:id/discard/:card", setDiscardHandlerFunc())
 	router.PUT("/player/:id/play/:card", setPlayHandlerFunc())
 	//Config endpoints
-	router.GET("/config/turnTimer", getRemainingTimerHandlerFunc())
 	router.GET("/config/turnLength", getConfigTurnTimerHandlerFunc())
 	router.GET("/config/mapSize", getConfigMapSizeHandlerFunc())
 	router.GET("/config/hasWon", getConfigGameStateHandlerFunc())
@@ -33,8 +32,7 @@ func setupAPI() {
 
 func getAllConfigHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		var response = ConfigResponse{int(turnTimer), turnLength, hasWon}
-		c.JSON(http.StatusOK, response)
+		c.JSON(http.StatusOK, registry.Dispatch(GetConfigEvent{}))
 	}
 	return fn
 }
@@ -63,15 +61,7 @@ func getConfigMapSizeHandlerFunc() gin.HandlerFunc {
 func addPlayerHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		var pName = filterPlayerName(c.Param("name"))
-		var pID = addPlayer(pName)
-		c.JSON(http.StatusOK, pID)
-	}
-	return fn
-}
-
-func getRemainingTimerHandlerFunc() gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		c.JSON(http.StatusOK, turnTimer)
+		c.JSON(http.StatusOK, registry.Dispatch(CreateUserEvent{BaseEvent{}, pName}))
 	}
 	return fn
 }
@@ -79,13 +69,8 @@ func getRemainingTimerHandlerFunc() gin.HandlerFunc {
 func getSurroundingsHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
-		processedEvent := registry.Handle(NewGetSurroundingsEvent(id))
-		success := processedEvent.Success()
-		miniMap := processedEvent.(*GetSurroundingsEvent).Minimap
-		if !success {
-			c.AbortWithStatus(http.StatusBadRequest)
-		}
-		c.JSON(http.StatusOK, miniMap)
+		surroundings := registry.Dispatch(NewGetSurroundingsEvent(id))
+		c.JSON(http.StatusOK, surroundings)
 		return
 	}
 	return fn
