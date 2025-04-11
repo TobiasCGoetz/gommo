@@ -6,7 +6,6 @@ import (
 )
 
 type Event interface {
-	Type() string
 	Timestamp() time.Time
 	OfPlayer() string
 	ToJson() []byte
@@ -18,12 +17,11 @@ type Event interface {
 type BaseEvent struct {
 	playerId  string
 	timestamp time.Time
-	eventType string
 	success   bool
 }
 
-func NewBaseEvent(playerId string, eType string) BaseEvent {
-	return BaseEvent{playerId, time.Now(), eType, false}
+func NewBaseEvent(playerId string) BaseEvent {
+	return BaseEvent{playerId, time.Now(), false}
 }
 
 func (event BaseEvent) SetSuccess(s bool) Event {
@@ -63,17 +61,9 @@ type CreateUserEvent struct {
 	Username string
 }
 
-func (event CreateUserEvent) Type() string {
-	return "CreateUserEvent"
-}
-
 type GetUserEvent struct {
 	BaseEvent
 	User Player
-}
-
-func (event GetUserEvent) Type() string {
-	return "GetUserEvent"
 }
 
 type GetSurroundingsEvent struct {
@@ -82,18 +72,10 @@ type GetSurroundingsEvent struct {
 }
 
 func NewGetSurroundingsEvent(playerId string) GetSurroundingsEvent {
-	return GetSurroundingsEvent{NewBaseEvent(playerId, GetSurroundingsEvent{}.Type()), Surroundings{}}
-}
-
-func (event GetSurroundingsEvent) Type() string {
-	return "GetSurroundingsEvent"
+	return GetSurroundingsEvent{NewBaseEvent(playerId), Surroundings{}}
 }
 
 type GetConfigEvent struct {
 	BaseEvent
 	Config ConfigResponse
-}
-
-func (event GetConfigEvent) Type() string {
-	return "GetConfigEvent"
 }
