@@ -12,6 +12,7 @@ var pMap playerMap
 var botList []*Player
 var r *rand.Rand
 var gMap gameMap
+var registry *handlerRegistry
 
 func rollDice() int {
 	return rand.Intn(playerMaxAttack) + playerMinAttack
@@ -109,7 +110,7 @@ func main() {
 	var turnTimer = int8(turnLength)
 	hasWon = false
 	r = rand.New(rand.NewSource(time.Now().Unix()))
-	registry := newHandlerRegistry()
+	registry = newHandlerRegistry()
 	gMap = NewGameMap()
 	//registry.AddHandler(CreateUserEvent{}.Type(), CreateUserHandler)
 	//baseEvent := BaseEvent{"playerId", time.Now(), BaseEvent{}.Type(), false}
@@ -117,7 +118,7 @@ func main() {
 	//fmt.Println(baseEvent.Type(), createUserEvent.Type())
 	//registry.Handle(createUserEvent)
 
-	go setupAPI(registry, &turnTimer, &hasWon)
+	go setupAPI()
 
 	var remainingTurns = maxTurns
 	for ; remainingTurns > 0; remainingTurns-- {

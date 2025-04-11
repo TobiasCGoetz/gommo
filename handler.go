@@ -2,36 +2,53 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 )
 
+type internalHandlerAdapter interface {
+	Execute(event any) error
+}
+
+type specificHandlerAdapter[T any] struct {
+	// Stores the actual user function (e.g., handleOrderCreated)
+	innerHandler func(event T) error
+}
+
+func (adapter *specificHandlerAdapter[T]) Execute(event any) error {
+	if specificEvent, ok := event.(T); ok {
+		return adapter.innerHandler(specificEvent)
+	}
+	return fmt.Errorf("type mismatch: expected %T but got %T", *new(T), event)
+}
+
 type handlerRegistry struct {
-	handlers map[string]func(event Event) Event
+	handlers map[reflect.Type]internalHandlerAdapter
 	store    EventStore
 }
 
 func newHandlerRegistry() *handlerRegistry {
-	return &handlerRegistry{make(map[string]func(event Event) Event), *NewEventStore()}
+	return &handlerRegistry{make(map[reflect.Type]internalHandlerAdapter), *NewEventStore()}
 }
 
-func (registry handlerRegistry) AddHandler(typeName string, handler func(event Event) Event) {
-	registry.handlers[typeName] = handler
-}
-
-func (registry handlerRegistry) Handle(event Event) Event {
-	processedEvent := registry.handlers[event.Type()](event)
-	if processedEvent.Success() {
-		registry.store.Append(processedEvent.ToJson())
+func Register[T any](registry *handlerRegistry, handler func(event T) error) {
+	eventType := reflect.TypeOf(*new(T))
+	adapter := &specificHandlerAdapter[T]{
+		innerHandler: handler,
 	}
-	return processedEvent
+	if registry.handlers == nil {
+		registry.handlers = make(map[reflect.Type]internalHandlerAdapter)
+	}
+	registry.handlers[eventType] = adapter
+	fmt.Printf("Registered handler for type %v\n", eventType)
 }
 
-func AssertTypeAndHandleFailure[T any](event Event) (*T, bool) {
-	specificEvent, ok := event.(T)
-	if !ok {
-		event.SetSuccess(false)
-		return nil, false
+func (r *handlerRegistry) Dispatch(event any) error {
+	eventType := reflect.TypeOf(event)
+	adapter, found := r.handlers[eventType]
+	if !found {
+		return fmt.Errorf("no handler for type %v", eventType)
 	}
-	return &specificEvent, true
+	return adapter.Execute(event)
 }
 
 func CreateUserHandler(event Event) Event {

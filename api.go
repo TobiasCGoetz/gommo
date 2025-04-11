@@ -11,27 +11,27 @@ import (
 
 // TODO: Move functionality&complexity outside of this api file, call suitable functions instead
 // Ideally, we wouldn't rely on the data here at all
-func setupAPI(handlerRegistry *handlerRegistry, turnTime *int8, hasWon *bool) {
+func setupAPI() {
 	router := gin.Default()
 	router.Use(cors.Default())
 	//Player endpoints
 	router.POST("/player/:name", addPlayerHandlerFunc())
 	router.GET("/player/:id", getPlayerHandlerFunc())
-	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc(handlerRegistry))
+	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc())
 	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc())
 	router.PUT("/player/:id/consume/:card", setConsumeHandlerFunc())
 	router.PUT("/player/:id/discard/:card", setDiscardHandlerFunc())
 	router.PUT("/player/:id/play/:card", setPlayHandlerFunc())
 	//Config endpoints
-	router.GET("/config/turnTimer", getRemainingTimerHandlerFunc(*turnTime)) //TODO: Call function instead of relying on argument
+	router.GET("/config/turnTimer", getRemainingTimerHandlerFunc())
 	router.GET("/config/turnLength", getConfigTurnTimerHandlerFunc())
 	router.GET("/config/mapSize", getConfigMapSizeHandlerFunc())
-	router.GET("/config/hasWon", getConfigGameStateHandlerFunc(*hasWon)) //TODO: Call function instead of relying on argument
-	router.GET("/config", getAllConfigHandlerFunc(*turnTime, *hasWon))   //TODO: Call function instead of relying on argument
+	router.GET("/config/hasWon", getConfigGameStateHandlerFunc())
+	router.GET("/config", getAllConfigHandlerFunc())
 	router.Run("0.0.0.0:8080")
 }
 
-func getAllConfigHandlerFunc(turnTimer int8, hasWon bool) gin.HandlerFunc {
+func getAllConfigHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		var response = ConfigResponse{int(turnTimer), turnLength, hasWon}
 		c.JSON(http.StatusOK, response)
@@ -39,7 +39,7 @@ func getAllConfigHandlerFunc(turnTimer int8, hasWon bool) gin.HandlerFunc {
 	return fn
 }
 
-func getConfigGameStateHandlerFunc(hasWon bool) gin.HandlerFunc {
+func getConfigGameStateHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		c.JSON(http.StatusOK, hasWon)
 	}
@@ -69,14 +69,14 @@ func addPlayerHandlerFunc() gin.HandlerFunc {
 	return fn
 }
 
-func getRemainingTimerHandlerFunc(turnTimer int8) gin.HandlerFunc {
+func getRemainingTimerHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		c.JSON(http.StatusOK, turnTimer)
 	}
 	return fn
 }
 
-func getSurroundingsHandlerFunc(registry *handlerRegistry) gin.HandlerFunc {
+func getSurroundingsHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		processedEvent := registry.Handle(NewGetSurroundingsEvent(id))
