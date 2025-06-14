@@ -70,19 +70,16 @@ func randomizeBots(bots []*Player) {
 }
 
 func addBot(playerMap *map[string]*Player, bots *[]*Player, bID int) {
-	var rX = r.Intn(mapWidth - 1)
-	var rY = r.Intn(mapHeight - 1)
 	var bot = Player{
-		ID:        strconv.Itoa(bID),
-		X:         rX,
-		Y:         rY,
-		Direction: Stay,
-		Play:      None,
-		Consume:   None,
-		Discard:   None,
-		Cards:     [5]Card{Food, Wood, Wood, None, None},
-		Alive:     true,
-		IsBot:     true,
+		ID:          strconv.Itoa(bID),
+		CurrentTile: nil,
+		Direction:   Stay,
+		Play:        None,
+		Consume:     None,
+		Discard:     None,
+		Cards:       [5]Card{Food, Wood, Wood, None, None},
+		Alive:       true,
+		IsBot:       true,
 	}
 	(*playerMap)[strconv.Itoa(bID)] = &bot
 	*bots = append(*bots, &bot)

@@ -19,7 +19,7 @@ func (g *gameMap) init() {
 	for a, column := range g.gMap {
 		for b := range column {
 			choice := rand.Intn(len(terrainTypes) - 1)
-			g.gMap[a][b] = &Tile{terrainTypes[choice], 0, []string{}}
+			g.gMap[a][b] = &Tile{terrainTypes[choice], 0, []*Player{}}
 		}
 	}
 }
@@ -151,4 +151,10 @@ func (g *gameMap) spread() {
 			}
 		}
 	}
+}
+
+func (g gameMap) getNewPlayerEntryTile() *Tile {
+	var rX = r.Intn(mapWidth - 1)
+	var rY = r.Intn(mapHeight - 1)
+	return g.gMap[rX][rY]
 }

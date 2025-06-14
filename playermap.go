@@ -8,23 +8,20 @@ type playerMap struct {
 }
 
 // TODO: Somehow remove inactive players
-func (pm playerMap) addPlayer(playerName string) string {
-	var rX = r.Intn(mapWidth - 1)
-	var rY = r.Intn(mapHeight - 1)
+func (pm playerMap) addPlayer(playerName string, entryTile *Tile) string {
 	playerID, _ := uuid.NewV7()
 	idString := playerID.String()
 	var player = Player{
-		ID:        idString,
-		Name:      playerName,
-		X:         rX,
-		Y:         rY,
-		Direction: defaultDirection,
-		Play:      None,
-		Consume:   None,
-		Discard:   None,
-		Cards:     [5]Card{Food, Wood, Wood, None, None},
-		Alive:     true,
-		IsBot:     false,
+		ID:          idString,
+		Name:        playerName,
+		CurrentTile: entryTile,
+		Direction:   defaultDirection,
+		Play:        None,
+		Consume:     None,
+		Discard:     None,
+		Cards:       [5]Card{Food, Wood, Wood, None, None},
+		Alive:       true,
+		IsBot:       false,
 	}
 	pm.Players[idString] = &player
 	return idString
