@@ -6,16 +6,17 @@ import (
 )
 
 type Player struct {
-	ID        string
-	Name      string
-	X, Y      int
-	Direction Direction
-	Play      Card
-	Consume   Card
-	Discard   Card
-	Cards     [5]Card
-	Alive     bool
-	IsBot     bool
+	ID          string
+	Name        string
+	X, Y        int
+	CurrentTile *Tile
+	Direction   Direction
+	Play        Card
+	Consume     Card
+	Discard     Card
+	Cards       [5]Card
+	Alive       bool
+	IsBot       bool
 }
 
 func (p Player) hasWinCondition() bool {
