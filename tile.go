@@ -9,7 +9,7 @@ import (
 type Tile struct {
 	Terrain   Terrain
 	Zombies   int
-	playerIds []string
+	playerIds []*Player
 }
 
 func tileWorker(t *Tile, wg *sync.WaitGroup) {
