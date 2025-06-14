@@ -8,7 +8,7 @@ import (
 type Player struct {
 	ID          string
 	Name        string
-	CurrentTile Tile //TODO: Remove if not needed
+	CurrentTile *Tile
 	Direction   Direction
 	Play        Card
 	Consume     Card

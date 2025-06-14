@@ -7,9 +7,9 @@ import (
 )
 
 type Tile struct {
-	Terrain   Terrain
-	Zombies   int
-	playerIds []*Player
+	Terrain    Terrain
+	Zombies    int
+	playerPtrs []*Player
 }
 
 func tileWorker(t *Tile, wg *sync.WaitGroup) {
@@ -21,11 +21,8 @@ func tileWorker(t *Tile, wg *sync.WaitGroup) {
 func (t *Tile) resolveCombat() {
 	totalPlayerStrength := 0
 	// Iterate through the players on this tile
-	for _, id := range t.playerIds {
-		var player = getPlayerOrNil(id)
-		if player == nil || !player.Alive {
-			continue
-		}
+	for _, playerPtr := range t.playerPtrs {
+		var player = *playerPtr
 		var strength = 0
 		weaponIndex, hasCard := hasCardWhere(player.Cards[:], Weapon)
 		if player.Play == Weapon && hasCard { // Check if the played card is a weapon
@@ -42,11 +39,8 @@ func (t *Tile) resolveCombat() {
 	} else {
 		// Kill all players on the tile
 		numDeadPlayers := 0
-		for _, id := range t.playerIds {
-			var player = getPlayerOrNil(id)
-			if player == nil || !player.Alive {
-				continue
-			}
+		for _, playerPtr := range t.playerPtrs {
+			var player = *playerPtr
 			player.Alive = false
 			numDeadPlayers++
 		}
