@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"sync"
 )
 
@@ -49,11 +48,8 @@ func (t *Tile) resolveCombat() {
 }
 
 func (t Tile) giveResources() {
-	for _, id := range t.playerIds {
-		var player = getPlayerOrNil(id)
-		if player == nil || !player.Alive {
-			continue
-		}
+	for _, playerPtr := range t.playerPtrs {
+		var player = *playerPtr
 		cards, amount := t.Terrain.offersResource()
 		for i := 0; i < amount; i++ {
 			emptyIndex, hasSpace := hasCardWhere(player.Cards[:], None)
@@ -79,20 +75,20 @@ func (t *Tile) spreadToUnbound() {
 	t.Zombies++
 }
 
-func (t *Tile) addPlayer(incomingPlayer string) {
-	t.playerIds = append(t.playerIds, incomingPlayer)
+func (t *Tile) addPlayer(playerPtr *Player) {
+	t.playerPtrs = append(t.playerPtrs)
 }
 
-func (t *Tile) removePlayer(leavingPlayer string) {
-	index, found := t.findPlayerIdIndex(leavingPlayer)
+func (t *Tile) removePlayer(leavingPlayer *Player) {
+	index, found := t.findPlayerPtrIndex(leavingPlayer)
 	if found {
-		t.playerIds = append(t.playerIds[:index], t.playerIds[index+1])
+		t.playerPtrs = append(t.playerPtrs[:index], t.playerPtrs[index+1])
 	}
 }
 
-func (t Tile) findPlayerIdIndex(playerId string) (int, bool) {
-	for index, pId := range t.playerIds {
-		if pId == playerId {
+func (t Tile) findPlayerPtrIndex(requestedPlayerPtr *Player) (int, bool) {
+	for index, playerPtr := range t.playerPtrs {
+		if playerPtr == requestedPlayerPtr {
 			return index, true
 		}
 	}
@@ -101,8 +97,8 @@ func (t Tile) findPlayerIdIndex(playerId string) (int, bool) {
 
 func (t Tile) getMapPiece() MapPiece {
 	var planNorth, planEast, planSouth, planWest = 0, 0, 0, 0
-	for _, pId := range t.playerIds {
-		switch getPlayerOrNil(pId).Direction {
+	for _, playerPtr := range t.playerPtrs {
+		switch playerPtr.Direction {
 		case North:
 			planNorth++
 		case East:
@@ -116,7 +112,7 @@ func (t Tile) getMapPiece() MapPiece {
 	return MapPiece{
 		t.Terrain.toString(),
 		t.Zombies,
-		len(t.playerIds),
+		len(t.playerPtrs),
 		planNorth,
 		planEast,
 		planSouth,
@@ -125,6 +121,6 @@ func (t Tile) getMapPiece() MapPiece {
 }
 
 func (t Tile) toString() string {
-	var r = fmt.Sprintf("%s %d %s", t.Terrain.toString(), t.Zombies, strings.Join(t.playerIds, ","))
+	var r = fmt.Sprintf("%s %d %d", t.Terrain.toString(), t.Zombies, len(t.playerPtrs))
 	return r
 }
