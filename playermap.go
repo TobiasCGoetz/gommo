@@ -35,41 +35,50 @@ func (pm playerMap) move() {
 		}
 		//Fetch current player state
 		var player = pm.Players[player.ID]
+		var playerX = player.CurrentTile.XPos
+		var playerY = player.CurrentTile.YPos
+		var targetX = playerX
+		var targetY = playerY
 
 		//Perform move
 		switch player.Direction {
 		case North:
-			player.Y += 1
+			targetY += 1
 		case East:
-			player.X += 1
+			targetX += 1
 		case South:
-			player.Y -= 1
+			targetY -= 1
 		case West:
-			player.X -= 1
+			targetX -= 1
 		case Stay:
 			return
 		}
 
-		//Write new coordinates
-		pm.Players[player.ID] = player
-
 		//Prevent out-of-map moves
-		if mapWidth <= player.X {
-			player.X = mapWidth - 1
+		if targetX >= mapWidth {
+			targetX = mapWidth - 1
 		}
-		if player.X < 0 {
-			player.X = 0
+		if targetX < 0 {
+			targetX = 0
 		}
-		if mapHeight <= player.Y {
-			player.Y = mapHeight - 1
+		if targetY >= mapHeight {
+			targetY = mapHeight - 1
 		}
-		if player.Y < 0 {
-			player.Y = 0
+		if targetY < 0 {
+			targetY = 0
 		}
+
+		// Remove player from current position
+		// Add player to new position
+		// Set player.CurrentTile
+		var oldTile = player.CurrentTile
+		var newTile = gMap.getTileFromPos(targetX, targetY)
+		oldTile.removePlayer(player)
+		newTile.addPlayer(player)
+		player.CurrentTile = newTile
+
 		//Reset move direction
 		player.Direction = defaultDirection
-		//Write new state
-		pm.Players[player.ID] = player
 	}
 }
 
