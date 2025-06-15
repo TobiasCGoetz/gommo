@@ -9,6 +9,8 @@ type Tile struct {
 	Terrain    Terrain
 	Zombies    int
 	playerPtrs []*Player
+	XPos       int
+	YPos       int
 }
 
 func tileWorker(t *Tile, wg *sync.WaitGroup) {
@@ -117,6 +119,22 @@ func (t Tile) getMapPiece() MapPiece {
 		planEast,
 		planSouth,
 		planWest,
+	}
+}
+
+func (t *Tile) addZombies(count int) {
+	for i := 0; i < count; i++ {
+		t.spreadTo()
+	}
+}
+
+func (t *Tile) removeZombies(count int) bool {
+	if count <= t.Zombies {
+		t.Zombies -= count
+		return true
+	} else {
+		t.Zombies = 0
+		return false
 	}
 }
 

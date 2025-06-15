@@ -19,7 +19,7 @@ func (g *gameMap) init() {
 	for a, column := range g.gMap {
 		for b := range column {
 			choice := rand.Intn(len(terrainTypes) - 1)
-			g.gMap[a][b] = &Tile{terrainTypes[choice], 0, []*Player{}}
+			g.gMap[a][b] = &Tile{terrainTypes[choice], 0, []*Player{}, 0, 0}
 		}
 	}
 }
@@ -43,33 +43,21 @@ func (g gameMap) resources() {
 	}
 }
 
-func (g gameMap) getSurroundingsOfPlayer(id string) (Surroundings, bool) {
-	player := getPlayerOrNil(id)
-	if player == nil { //TODO: If nil else function or invert? Make them all identical!
-		return Surroundings{}, false
-	} else {
-		var NW = g.gMap[player.X-1][player.Y-1].getMapPiece()
-		var NN = g.gMap[player.X][player.Y-1].getMapPiece()
-		var NE = g.gMap[player.X+1][player.Y-1].getMapPiece()
-		var WW = g.gMap[player.X-1][player.Y].getMapPiece()
-		var CE = g.gMap[player.X][player.Y].getMapPiece()
-		var EE = g.gMap[player.X+1][player.Y].getMapPiece()
-		var SW = g.gMap[player.X-1][player.Y+1].getMapPiece()
-		var SS = g.gMap[player.X][player.Y+1].getMapPiece()
-		var SE = g.gMap[player.X+1][player.Y+1].getMapPiece()
+func (g gameMap) getTileFromPos(xPos int, yPos int) *Tile {
+	return g.gMap[xPos][yPos]
+}
 
-		var miniMap = Surroundings{
-			NW: NW,
-			NN: NN,
-			NE: NE,
-			WW: WW,
-			CE: CE,
-			EE: EE,
-			SW: SW,
-			SS: SS,
-			SE: SE,
-		}
-		return miniMap, true
+func (g gameMap) getSurroundingsFromPos(xPos int, yPos int) Surroundings {
+	return Surroundings{
+		NW: g.gMap[xPos-1][yPos-1].getMapPiece(),
+		NN: g.gMap[xPos][yPos-1].getMapPiece(),
+		NE: g.gMap[xPos+1][yPos-1].getMapPiece(),
+		WW: g.gMap[xPos-1][yPos].getMapPiece(),
+		CE: g.gMap[xPos][yPos].getMapPiece(),
+		EE: g.gMap[xPos+1][yPos].getMapPiece(),
+		SW: g.gMap[xPos-1][yPos+1].getMapPiece(),
+		SS: g.gMap[xPos][yPos+1].getMapPiece(),
+		SE: g.gMap[xPos+1][yPos+1].getMapPiece(),
 	}
 }
 
@@ -87,58 +75,53 @@ func (g gameMap) spreadFromSpreader(xCoord int, yCoord int) {
 	}
 }
 
-func (g gameMap) consume(playerMap *map[string]*Player) {
-	for playerID := range *playerMap {
+func (g gameMap) removeZombiesFromTile(xPos int, yPos int, count int) bool {
+	return g.gMap[xPos][yPos].removeZombies(count)
+}
+
+func (g gameMap) addZombiesToTile(xPos int, yPos int, count int) {
+	g.gMap[xPos][yPos].addZombies(count)
+}
+
+func (g gameMap) consume(playerMap *map[string]*Player) { //TODO: Simplify this a lot
+	for _, playerPtr := range *playerMap {
 		//Fetch current player state
-		var player = (*playerMap)[playerID]
-		if !player.Alive {
+		if !playerPtr.Alive {
 			continue
 		}
-
+		var playerX = playerPtr.CurrentTile.XPos
+		var playerY = playerPtr.CurrentTile.YPos
 		//We don't allow death by indecision
-		if player.Consume == None {
-			_, hasCard := hasCardWhere(player.Cards[:], Food)
+		if playerPtr.Consume == None {
+			_, hasCard := hasCardWhere(playerPtr.Cards[:], Food)
 			if hasCard {
-				player.Consume = Food
+				playerPtr.Consume = Food
 			} else {
-				player.Consume = Wood
+				playerPtr.Consume = Wood
 			}
 		}
 
 		//Now remove that card or kill the player
-		cardPos, hasCard := hasCardWhere(player.Cards[:], player.Consume)
+		cardPos, hasCard := hasCardWhere(playerPtr.Cards[:], playerPtr.Consume)
 		if hasCard {
-			if player.Consume == Wood {
+			if playerPtr.Consume == Wood {
 
 				var zombiesAttracted = 0
 
-				var tileNW = getMapTile(player.X-1, player.Y+1, &g.gMap)
-				var tileNN = getMapTile(player.X, player.Y+1, &g.gMap)
-				var tileNE = getMapTile(player.X+1, player.Y+1, &g.gMap)
-				var tileWW = getMapTile(player.X-1, player.Y, &g.gMap)
-				var tileEE = getMapTile(player.X+1, player.Y, &g.gMap)
-				var tileSW = getMapTile(player.X-1, player.Y-1, &g.gMap)
-				var tileSS = getMapTile(player.X, player.Y-1, &g.gMap)
-				var tileSE = getMapTile(player.X+1, player.Y-1, &g.gMap)
-
-				var tileArray = []*Tile{tileNW, tileNN, tileNE, tileWW, tileEE, tileSW, tileSS, tileSE}
-
 				//Remove zombies from surrounding tiles
-				for _, nextTile := range tileArray {
-					if nextTile.Zombies > 0 {
-						zombiesAttracted++
-						nextTile.Zombies--
+				for i := -1; i <= 1; i++ {
+					for j := -1; j <= 1; j++ {
+						if g.removeZombiesFromTile(playerX+i, playerY+j, 1) {
+							zombiesAttracted++
+						}
 					}
 				}
-
 				//Add to players tile
-				getMapTile(player.X, player.Y, &g.gMap).Zombies += zombiesAttracted
+				g.addZombiesToTile(playerX, playerY, zombiesAttracted)
 			}
-			player.Cards[cardPos] = None //Remove card from hand
-			(*playerMap)[player.ID] = player
+			playerPtr.Cards[cardPos] = None //Remove card from hand
 		} else {
-			player.Alive = false //Card not in hand, kill the player
-			(*playerMap)[player.ID] = player
+			playerPtr.Alive = false //Card not in hand, kill the player
 		}
 	}
 }
