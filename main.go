@@ -27,7 +27,7 @@ func tick() {
 	fmt.Println("The infection is spreading...")
 	gMap.spread()
 	fmt.Println("Players feeding themselves...")
-	gMap.playersConsume()
+	pMap.playersConsume()
 	fmt.Println("Limiting player inventory")
 	pMap.limitCards()
 }
