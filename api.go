@@ -9,24 +9,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TODO: Move functionality&complexity outside of this api file, call suitable functions instead
-// Ideally, we wouldn't rely on the data here at all
 func setupAPI() {
 	router := gin.Default()
 	router.Use(cors.Default())
-	//Player endpoints
-	router.POST("/player/:name", addPlayerHandlerFunc())
 	router.GET("/player/:id", getPlayerHandlerFunc())
 	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc())
-	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc())
-	router.PUT("/player/:id/consume/:card", setConsumeHandlerFunc())
-	router.PUT("/player/:id/discard/:card", setDiscardHandlerFunc())
-	router.PUT("/player/:id/play/:card", setPlayHandlerFunc())
-	//Config endpoints
-	router.GET("/config/turnLength", getConfigTurnTimerHandlerFunc())
-	router.GET("/config/mapSize", getConfigMapSizeHandlerFunc())
-	router.GET("/config/hasWon", getConfigGameStateHandlerFunc())
 	router.GET("/config", getAllConfigHandlerFunc())
+	router.POST("/player/:name", addPlayerHandlerFunc())
+	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc())
+	router.PUT("/player/:id/play/:cardType", setPlayHandlerFunc())
 	router.Run("0.0.0.0:8080")
 }
 

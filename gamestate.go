@@ -1,42 +1,46 @@
 package main
 
-type gamestate struct {
-	turnTimer      int8
+type gameState struct {
+	turnTimer      int
+	remainingTurns int
 	havePlayersWon bool
 }
 
-func newGameState() gamestate {
-	return gamestate{0, false}
+func NewGameState() gameState {
+	return gameState{turnLength, maxTurns, false}
 }
 
-func (gs gamestate) haveWon() bool {
+func (gs gameState) haveWon() bool {
 	return gs.havePlayersWon
 }
 
-func (gs *gamestate) win() {
+func (gs *gameState) win() {
 	gs.havePlayersWon = true
 }
 
-func (gs *gamestate) timeTick() {
+func (gs *gameState) timerDown() {
 	gs.turnTimer--
 }
 
-func (gs *gamestate) timeTickWithCheck() bool {
-	gs.turnTimer--
-	if gs.turnTimer <= 0 {
-		gs.turnTimer = turnLength
-		return true
-	}
-	return false
-}
-
-func (gs gamestate) isTurnOver() bool {
+func (gs gameState) isTurnOver() bool {
 	if gs.turnTimer <= 0 {
 		return true
 	}
 	return false
 }
 
-func (gs *gamestate) resetTime() {
+func (gs *gameState) resetTime() {
 	gs.turnTimer = turnLength
+	gs.remainingTurns--
+}
+
+func (gs gameState) getRemainingTurns() int {
+	return gs.remainingTurns
+}
+
+func (gs gameState) isGameOver() bool {
+	if gs.remainingTurns < 0 || gs.haveWon() {
+		return true
+	}
+	return false
 }
