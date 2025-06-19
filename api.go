@@ -31,7 +31,7 @@ func getAllConfigHandlerFunc() gin.HandlerFunc {
 func addPlayerHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		var pName = filterPlayerName(c.Param("name"))
-		c.JSON(http.StatusOK, registry.Dispatch(CreateUserEvent{BaseEvent{}, pName}))
+		c.JSON(http.StatusOK, pMap)
 	}
 	return fn
 }
@@ -39,8 +39,10 @@ func addPlayerHandlerFunc() gin.HandlerFunc {
 func getSurroundingsHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
-		surroundings := registry.Dispatch(NewGetSurroundingsEvent(id))
-		c.JSON(http.StatusOK, surroundings)
+		var player = pMap.getPlayer(id)
+		var xPos = player.CurrentTile.XPos
+		var yPos = player.CurrentTile.YPos
+		c.JSON(http.StatusOK, gMap.getSurroundingsFromPos(xPos, yPos))
 		return
 	}
 	return fn
