@@ -75,6 +75,19 @@ func (g gameMap) spreadFromSpreader(xCoord int, yCoord int) {
 	}
 }
 
+func (g gameMap) fireAttractingTo(xPos int, yPos int) {
+	var zombiesMoved = 0
+	for x := -1; x <= 1; x++ {
+		for y := -1; y <= 1; y++ {
+			if g.gMap[xPos+x][yPos+y].Zombies > 0 {
+				g.gMap[xPos+x][yPos+y].removeZombies(1)
+				zombiesMoved++
+			}
+		}
+	}
+	g.gMap[xPos][yPos].addZombies(zombiesMoved)
+}
+
 func (g gameMap) removeZombiesFromTile(xPos int, yPos int, count int) bool {
 	return g.gMap[xPos][yPos].removeZombies(count)
 }
@@ -83,45 +96,12 @@ func (g gameMap) addZombiesToTile(xPos int, yPos int, count int) {
 	g.gMap[xPos][yPos].addZombies(count)
 }
 
-func (g gameMap) consume(playerMap *map[string]*Player) { //TODO: Simplify this a lot
-	for _, playerPtr := range *playerMap {
-		//Fetch current player state
-		if !playerPtr.Alive {
-			continue
-		}
-		var playerX = playerPtr.CurrentTile.XPos
-		var playerY = playerPtr.CurrentTile.YPos
-		//We don't allow death by indecision
-		if playerPtr.Consume == None {
-			_, hasCard := hasCardWhere(playerPtr.Cards[:], Food)
-			if hasCard {
-				playerPtr.Consume = Food
-			} else {
-				playerPtr.Consume = Wood
+func (g gameMap) consume() {
+	for _, tileArray := range g.gMap {
+		for _, tilePtr := range tileArray {
+			for _, playerPtr := range tilePtr.playerPtrs {
+				playerPtr.playCard()
 			}
-		}
-
-		//Now remove that card or kill the player
-		cardPos, hasCard := hasCardWhere(playerPtr.Cards[:], playerPtr.Consume)
-		if hasCard {
-			if playerPtr.Consume == Wood {
-
-				var zombiesAttracted = 0
-
-				//Remove zombies from surrounding tiles
-				for i := -1; i <= 1; i++ {
-					for j := -1; j <= 1; j++ {
-						if g.removeZombiesFromTile(playerX+i, playerY+j, 1) {
-							zombiesAttracted++
-						}
-					}
-				}
-				//Add to players tile
-				g.addZombiesToTile(playerX, playerY, zombiesAttracted)
-			}
-			playerPtr.Cards[cardPos] = None //Remove card from hand
-		} else {
-			playerPtr.Alive = false //Card not in hand, kill the player
 		}
 	}
 }

@@ -18,6 +18,34 @@ type Player struct {
 	IsBot       bool
 }
 
+func (p *Player) consume() {
+	if !p.Alive {
+		return
+	}
+	var playerX = p.CurrentTile.XPos
+	var playerY = p.CurrentTile.YPos
+	//We don't allow death by indecision
+	if p.Consume == None {
+		_, hasCard := hasCardWhere(p.Cards[:], Food)
+		if hasCard {
+			p.Consume = Food
+		} else {
+			p.Consume = Wood
+		}
+	}
+
+	//Now remove that card or kill the player
+	cardPos, hasCard := hasCardWhere(p.Cards[:], p.Consume)
+	if hasCard {
+		if p.Consume == Wood {
+			gMap.fireAttractingTo(playerX, playerY)
+		}
+		p.Cards[cardPos] = None //Remove card from hand
+	} else {
+		p.Alive = false //Card not in hand, kill the player
+	}
+}
+
 func (p Player) hasWinCondition() bool {
 	var numberOfResearchs = 0
 	for _, card := range p.Cards {

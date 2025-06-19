@@ -16,9 +16,8 @@ func rollDice() int {
 	return rand.Intn(playerMaxAttack) + playerMinAttack
 }
 
-// TODO: Unify order of attributes across functions
 func tick() {
-	fmt.Println("Next tick is happening...")
+	fmt.Println("# Tick")
 	fmt.Println("Moving players...")
 	pMap.move()
 	fmt.Println("Distributing ressources...")
