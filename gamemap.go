@@ -19,7 +19,7 @@ func (g *gameMap) init() {
 	for a, column := range g.gMap {
 		for b := range column {
 			choice := rand.Intn(len(terrainTypes) - 1)
-			g.gMap[a][b] = &Tile{terrainTypes[choice], 0, []*Player{}, 0, 0}
+			g.gMap[a][b] = &Tile{terrainTypes[choice], 0, []*Player{}, a, b}
 		}
 	}
 }
