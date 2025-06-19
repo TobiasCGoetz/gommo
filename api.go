@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/gin-contrib/cors"
@@ -48,40 +47,13 @@ func getSurroundingsHandlerFunc() gin.HandlerFunc {
 	return fn
 }
 
-func setDiscardHandlerFunc() gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		id := c.Param("id")
-		cardStr := c.Param("card")
-		var card, err = strconv.Atoi(cardStr)
-		if err != nil || card >= len(cardTypes) {
-			c.AbortWithStatus(http.StatusBadRequest)
-			return
-		}
-		playerPtr := getPlayerOrNil(id)
-		if playerPtr != nil {
-			(playerPtr).Discard = cardTypes[card]
-			c.Status(http.StatusOK)
-			return
-		} else {
-			c.AbortWithStatus(http.StatusForbidden)
-			return
-		}
-	}
-	return fn
-}
-
 func setPlayHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		id := c.Param("id")
 		cardStr := c.Param("card")
-		var card, err = strconv.Atoi(cardStr)
-		if err != nil || card >= len(cardTypes) {
-			c.AbortWithStatus(http.StatusBadRequest)
-			return
-		}
 		playerPtr := getPlayerOrNil(id)
 		if playerPtr != nil {
-			(*playerPtr).Play = cardTypes[card]
+			playerPtr.cardInput(cardStr)
 			c.Status(http.StatusOK)
 			return
 		} else {

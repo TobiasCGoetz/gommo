@@ -46,6 +46,14 @@ func (p *Player) consume() {
 	}
 }
 
+func (p *Player) cardInput(inputCard string) {
+	if inputCard == Weapon.toString() {
+		p.Play = Weapon
+	} else {
+		p.Consume = cards[inputCard]
+	}
+}
+
 func (p Player) hasWinCondition() bool {
 	var numberOfResearchs = 0
 	for _, card := range p.Cards {
