@@ -23,28 +23,7 @@ func setupAPI() {
 
 func getAllConfigHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		c.JSON(http.StatusOK, registry.Dispatch(GetConfigEvent{}))
-	}
-	return fn
-}
-
-func getConfigGameStateHandlerFunc() gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		c.JSON(http.StatusOK, hasWon)
-	}
-	return fn
-}
-
-func getConfigTurnTimerHandlerFunc() gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		c.JSON(http.StatusOK, turnLength)
-	}
-	return fn
-}
-
-func getConfigMapSizeHandlerFunc() gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		c.JSON(http.StatusOK, IntTuple{mapWidth, mapHeight})
+		c.JSON(http.StatusOK, gState)
 	}
 	return fn
 }

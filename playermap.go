@@ -82,6 +82,12 @@ func (pm playerMap) move() {
 	}
 }
 
+func (p playerMap) playersConsume() {
+	for _, playerPtr := range p.Players {
+		playerPtr.consume()
+	}
+}
+
 func (pm playerMap) limitCards() {
 	for mapKey := range pm.Players {
 		var player = pm.Players[mapKey]

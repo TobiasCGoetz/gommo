@@ -96,16 +96,6 @@ func (g gameMap) addZombiesToTile(xPos int, yPos int, count int) {
 	g.gMap[xPos][yPos].addZombies(count)
 }
 
-func (g gameMap) playersConsume() {
-	for _, tileArray := range g.gMap {
-		for _, tilePtr := range tileArray {
-			for _, playerPtr := range tilePtr.playerPtrs {
-				playerPtr.consume()
-			}
-		}
-	}
-}
-
 func (g *gameMap) spread() {
 	for x, _ := range g.gMap {
 		for y, tile := range g.gMap[x] {
