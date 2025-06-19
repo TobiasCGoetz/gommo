@@ -17,16 +17,6 @@ func rollDice() int {
 	return rand.Intn(playerMaxAttack) + playerMinAttack
 }
 
-func getMapTile(x int, y int, gMap *[mapWidth][mapHeight]*Tile) *Tile {
-	if x < 0 || x >= mapWidth || y < 0 || y >= mapHeight {
-		fmt.Printf("Prevented tile access at %d/%d", x, y)
-		return &Tile{Edge, -1, []string{}}
-	}
-	var truncX = x % 100
-	var truncY = y % 100
-	return (*gMap)[truncX][truncY]
-}
-
 // TODO: Unify order of attributes across functions
 func tick() {
 	fmt.Println("Next tick is happening...")
