@@ -29,8 +29,10 @@ func getAllConfigHandlerFunc() gin.HandlerFunc {
 
 func addPlayerHandlerFunc() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		var pName = filterPlayerName(c.Param("name"))
-		c.JSON(http.StatusOK, pMap)
+		var pId = pMap.addPlayer(
+			filterPlayerName(c.Param("name")),
+			gMap.getNewPlayerEntryTile())
+		c.JSON(http.StatusOK, pId)
 	}
 	return fn
 }
@@ -59,23 +61,6 @@ func setPlayHandlerFunc() gin.HandlerFunc {
 		} else {
 			c.AbortWithStatus(http.StatusForbidden)
 			return
-		}
-	}
-	return fn
-}
-
-func setConsumeHandlerFunc() gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		id := c.Param("id")
-		cardStr := c.Param("card")
-		var card = cards[strings.ToLower(cardStr)]
-		playerPtr := getPlayerOrNil(id)
-		if playerPtr != nil {
-			(*playerPtr).Consume = card
-			c.Status(http.StatusOK)
-			return
-		} else {
-			c.AbortWithStatus(http.StatusForbidden)
 		}
 	}
 	return fn
