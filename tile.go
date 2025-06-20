@@ -16,7 +16,7 @@ type Tile struct {
 func tileWorker(t *Tile, wg *sync.WaitGroup) {
 	defer wg.Done()
 	t.resolveCombat()
-	fmt.Println("Worker started with ", t.toString())
+	//fmt.Println("Worker started with ", t.toString())
 }
 
 func (t *Tile) resolveCombat() {
@@ -41,11 +41,10 @@ func (t *Tile) resolveCombat() {
 		// Kill all players on the tile
 		numDeadPlayers := 0
 		for _, playerPtr := range t.playerPtrs {
-			var player = *playerPtr
-			player.Alive = false
+			playerPtr.Alive = false
 			numDeadPlayers++
 		}
-		t.Zombies += numDeadPlayers // Add killed player count to zombies
+		t.addZombies(numDeadPlayers)
 	}
 }
 
