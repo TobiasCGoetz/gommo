@@ -47,14 +47,15 @@ func main() {
 
 	go setupAPI()
 
+	fmt.Println("Remaining turns: ", gState.getRemainingTurns())
 	for !gState.isGameOver() {
-		fmt.Println("Remaining turns: ", gState.getRemainingTurns())
 		if !gState.isTurnOver() {
 			time.Sleep(time.Second)
 			gState.timerDown()
 		} else {
 			gState.resetTime()
 			tick()
+			fmt.Println("Remaining turns: ", gState.getRemainingTurns())
 			if gState.haveWon() {
 				fmt.Println("Game over due to win")
 			}
