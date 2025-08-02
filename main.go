@@ -44,6 +44,7 @@ func main() {
 	r = rand.New(rand.NewSource(time.Now().Unix()))
 	gMap = NewGameMap()
 	gState = NewGameState()
+	pMap = NewPlayerMap()
 
 	go setupAPI()
 

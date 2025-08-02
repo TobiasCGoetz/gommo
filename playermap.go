@@ -117,6 +117,10 @@ func (pm playerMap) getPlayer(id string) Player {
 	return *pm.Players[id]
 }
 
+func (pm playerMap) getPlayerPtr(id string) *Player {
+	return pm.Players[id]
+}
+
 func NewPlayerMap() playerMap {
 	return playerMap{make(map[string]*Player)}
 }
