@@ -4,8 +4,6 @@ import (
 	"testing"
 )
 
-//t.Errorf("Got %d, but wanted 1", got)
-
 func TestMovement(t *testing.T) {
 	xPos, yPos := 1, 1
 	playerId := setupTest(xPos, yPos)
@@ -25,11 +23,51 @@ func TestMovement(t *testing.T) {
 	}
 }
 
-func TestCombatLose(t *testing.T) {}
-func TestCombatWin(t *testing.T)  {}
-func TestConsume(t *testing.T)    {}
-func TestResources(t *testing.T)  {}
-func TestWin(t *testing.T)        {}
+func TestCombatLose(t *testing.T) {
+	xPos, yPos := 1, 1
+	playerId := setupTest(xPos, yPos)
+	playerPtr := pMap.getPlayerPtr(playerId)
+	gMap.addZombiesToTile(xPos, yPos, 100)
+	gMap.handleCombat()
+	if playerPtr.Alive {
+		t.Errorf("Player survived impossible combat encounter")
+	}
+}
+
+func TestCombatWin(t *testing.T) {
+	xPos, yPos := 1, 1
+	playerId := setupTest(xPos, yPos)
+	playerPtr := pMap.getPlayerPtr(playerId)
+	//Add another player for guaranteed win against single Zombie
+	pMap.addPlayer("TestPlayer2", gMap.getTileFromPos(xPos, yPos))
+	gMap.getTileFromPos(xPos, yPos).addZombies(1)
+	t.Logf(
+		"%d/%d has %d Zombies and %d players",
+		xPos,
+		yPos,
+		gMap.getTileFromPos(xPos, yPos).Zombies,
+		len(gMap.getTileFromPos(xPos, yPos).playerPtrs))
+	gMap.handleCombat()
+	if !playerPtr.Alive {
+		t.Errorf("Player died in safe combat encounter")
+	}
+}
+
+func TestCombatItemWin(t *testing.T) {
+	xPos, yPos := 1, 1
+	playerId := setupTest(xPos, yPos)
+	playerPtr := pMap.getPlayerPtr(playerId)
+	playerPtr.Cards[0] = Weapon
+	playerPtr.Play = Weapon
+	gMap.getTileFromPos(xPos, yPos).addZombies(5)
+	if !playerPtr.Alive {
+		t.Errorf("Player died regardless of adequate weapon use")
+	}
+}
+
+func TestConsume(t *testing.T)   {}
+func TestResources(t *testing.T) {}
+func TestWin(t *testing.T)       {}
 
 func setupTest(xPos int, yPos int) string {
 	setupTestState()

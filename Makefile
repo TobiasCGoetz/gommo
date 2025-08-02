@@ -6,7 +6,7 @@ init:
 	go get .
 
 test:
-	go test -cover
+	go test -v -cover
 
 build:
 	CGO_ENABLED=0 GOOS=linux go build -a -o gommo ./...
