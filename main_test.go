@@ -27,6 +27,7 @@ func TestCombatLose(t *testing.T) {
 	xPos, yPos := 1, 1
 	playerId := setupTest(xPos, yPos)
 	playerPtr := pMap.getPlayerPtr(playerId)
+	t.Logf("Tile has %d players", len(gMap.getTileFromPos(xPos, yPos).playerPtrs))
 	gMap.addZombiesToTile(xPos, yPos, 100)
 	gMap.handleCombat()
 	if playerPtr.Alive {
@@ -80,7 +81,17 @@ func TestConsume(t *testing.T)   {
 	}
 }
 
-func TestResources(t *testing.T) {}
+func TestResources(t *testing.T) {
+	xPos, yPos := 1, 1
+	playerId := setupTest(xPos, yPos)
+	playerPtr := pMap.getPlayerPtr(playerId)
+	playerPtr.Cards = [5]Card{Weapon, None, None, Wood, Wood}
+	gMap.getTileFromPos(xPos, yPos).Terrain = Forest
+	gMap.resources()
+	for _, value := range playerPtr.Cards {
+		t.Logf("- %s",value.toString())
+	}
+}
 
 func TestWin(t *testing.T)       {}
 
