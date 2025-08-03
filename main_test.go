@@ -65,8 +65,23 @@ func TestCombatItemWin(t *testing.T) {
 	}
 }
 
-func TestConsume(t *testing.T)   {}
+func TestConsume(t *testing.T)   {
+	xPos, yPos := 1, 1
+	playerId := setupTest(xPos, yPos)
+	playerPtr := pMap.getPlayerPtr(playerId)
+	playerPtr.Cards = [5]Card{Weapon, Food, Wood, Wood, Wood}
+	playerPtr.Consume = Food
+	pMap.playersConsume()
+	if playerPtr.Cards != [5]Card{Weapon, None, Wood, Wood, Wood} {
+		t.Errorf("Cards in hand incorrectly consumed. Wrong result is:")
+		for _, value := range playerPtr.Cards {
+			t.Errorf("- %s",value.toString())
+		}
+	}
+}
+
 func TestResources(t *testing.T) {}
+
 func TestWin(t *testing.T)       {}
 
 func setupTest(xPos int, yPos int) string {
