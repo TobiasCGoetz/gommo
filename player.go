@@ -6,16 +6,17 @@ import (
 )
 
 type Player struct {
-	ID          string
-	Name        string
-	CurrentTile *Tile
-	Direction   Direction
-	Play        Card
-	Consume     Card
-	Discard     Card
-	Cards       [5]Card
-	Alive       bool
-	IsBot       bool
+	ID                    string
+	Name                  string
+	CurrentTile           *Tile
+	Direction             Direction
+	Play                  Card
+	Consume               Card
+	Discard               Card
+	Cards                 [5]Card
+	ResearchAcquisitionPos [5][2]int // Track x,y coordinates where each research card was acquired
+	Alive                 bool
+	IsBot                 bool
 }
 
 func (p *Player) consume() {
@@ -41,6 +42,8 @@ func (p *Player) consume() {
 			gMap.fireAttractingTo(playerX, playerY)
 		}
 		p.Cards[cardPos] = None //Remove card from hand
+		// Clear research acquisition position when card is removed
+		p.ResearchAcquisitionPos[cardPos] = [2]int{-1, -1}
 	} else {
 		p.Alive = false //Card not in hand, kill the player
 	}
@@ -55,12 +58,30 @@ func (p *Player) cardInput(inputCard string) {
 }
 
 func (p Player) hasWinCondition() bool {
+	// Must be at a laboratory to win
+	if p.CurrentTile.Terrain != Laboratory {
+		return false
+	}
+	
 	var numberOfResearchs = 0
-	for _, card := range p.Cards {
+	currentX := p.CurrentTile.XPos
+	currentY := p.CurrentTile.YPos
+	
+	for i, card := range p.Cards {
 		if card == Research {
+			// Check if this research card was acquired at the current laboratory
+			acquisitionX := p.ResearchAcquisitionPos[i][0]
+			acquisitionY := p.ResearchAcquisitionPos[i][1]
+			
+			// If research was acquired at current location, it doesn't count for victory
+			if acquisitionX == currentX && acquisitionY == currentY {
+				continue
+			}
+			
 			numberOfResearchs++
 		}
 	}
+	
 	if numberOfResearchs < victoryNumber {
 		return false
 	} else {

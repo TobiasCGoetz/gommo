@@ -12,16 +12,17 @@ func (pm playerMap) addPlayer(playerName string, entryTile *Tile) string {
 	playerID, _ := uuid.NewV7()
 	idString := playerID.String()
 	var player = Player{
-		ID:          idString,
-		Name:        playerName,
-		CurrentTile: entryTile,
-		Direction:   defaultDirection,
-		Play:        None,
-		Consume:     None,
-		Discard:     None,
-		Cards:       [5]Card{Food, Wood, Wood, None, None},
-		Alive:       true,
-		IsBot:       false,
+		ID:                    idString,
+		Name:                  playerName,
+		CurrentTile:           entryTile,
+		Direction:             defaultDirection,
+		Play:                  None,
+		Consume:               None,
+		Discard:               None,
+		Cards:                 [5]Card{Food, Wood, Wood, None, None},
+		ResearchAcquisitionPos: [5][2]int{{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}}, // Initialize with invalid positions
+		Alive:                 true,
+		IsBot:                 false,
 	}
 	pm.Players[idString] = &player
 	entryTile.addPlayer(&player)  // Actually add the player to the tile
@@ -96,8 +97,10 @@ func (pm playerMap) limitCards() {
 			var cardPos, hasCard = hasCardWhere(player.Cards[:], player.Discard)
 			if hasCard && player.Discard != None && cardPos > -1 { //Better safe...
 				player.Cards[cardPos] = None
+				player.ResearchAcquisitionPos[cardPos] = [2]int{-1, -1} // Clear research position
 			} else {
 				player.Cards[4] = None
+				player.ResearchAcquisitionPos[4] = [2]int{-1, -1} // Clear research position
 			}
 		}
 		player.Discard = None

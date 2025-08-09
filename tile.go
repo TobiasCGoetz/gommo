@@ -50,14 +50,17 @@ func (t *Tile) resolveCombat() {
 
 func (t Tile) giveResources() {
 	for _, playerPtr := range t.playerPtrs {
-		var player = *playerPtr
 		cards, amount := t.Terrain.offersResource()
 		for i := 0; i < amount; i++ {
-			emptyIndex, hasSpace := hasCardWhere(player.Cards[:], None)
+			emptyIndex, hasSpace := hasCardWhere(playerPtr.Cards[:], None)
 			if !hasSpace {
 				continue
 			}
-			player.Cards[emptyIndex] = cards
+			playerPtr.Cards[emptyIndex] = cards
+			// Track where research cards are acquired
+			if cards == Research {
+				playerPtr.ResearchAcquisitionPos[emptyIndex] = [2]int{t.XPos, t.YPos}
+			}
 		}
 	}
 }

@@ -101,12 +101,18 @@ func TestWin(t *testing.T) {
 	playerId := setupTest(xPos, yPos)
 	playerPtr := pMap.getPlayerPtr(playerId)
 
-	// Set up a laboratory tile and give player research cards
+	// Set up a laboratory tile and acquire research cards through the proper system
 	gMap.getTileFromPos(xPos, yPos).Terrain = Laboratory
-	playerPtr.Cards = [5]Card{Research, Research, Research, Research, Research}
+	playerPtr.Cards = [5]Card{None, None, None, None, None} // Clear initial cards
+	
+	// Acquire research cards at the first laboratory (this should be tracked)
+	gMap.resources() // This gives research cards and tracks their acquisition location
+	gMap.resources() // Get more research cards
+	gMap.resources() // Get more research cards
+	gMap.resources() // Get more research cards
+	gMap.resources() // Get enough research cards for victory
 
 	// Player should not win at the same laboratory where they got the research
-	gMap.resources() // This would give more research at the laboratory
 	if pMap.havePlayersWon() {
 		t.Errorf("Player won at the same laboratory where they got research cards")
 	}
