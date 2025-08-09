@@ -12,20 +12,20 @@ func (pm playerMap) addPlayer(playerName string, entryTile *Tile) string {
 	playerID, _ := uuid.NewV7()
 	idString := playerID.String()
 	var player = Player{
-		ID:                    idString,
-		Name:                  playerName,
-		CurrentTile:           entryTile,
-		Direction:             defaultDirection,
-		Play:                  None,
-		Consume:               None,
-		Discard:               None,
-		Cards:                 [5]Card{Food, Wood, Wood, None, None},
+		ID:                     idString,
+		Name:                   playerName,
+		CurrentTile:            entryTile,
+		Direction:              defaultDirection,
+		Play:                   None,
+		Consume:                None,
+		Discard:                None,
+		Cards:                  [5]Card{Food, Wood, Wood, None, None},
 		ResearchAcquisitionPos: [5][2]int{{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}}, // Initialize with invalid positions
-		Alive:                 true,
-		IsBot:                 false,
+		Alive:                  true,
+		IsBot:                  false,
 	}
 	pm.Players[idString] = &player
-	entryTile.addPlayer(&player)  // Actually add the player to the tile
+	entryTile.addPlayer(&player) // Actually add the player to the tile
 	return idString
 }
 
