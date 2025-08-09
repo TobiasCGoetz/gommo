@@ -24,6 +24,7 @@ func (pm playerMap) addPlayer(playerName string, entryTile *Tile) string {
 		IsBot:       false,
 	}
 	pm.Players[idString] = &player
+	entryTile.addPlayer(&player)  // Actually add the player to the tile
 	return idString
 }
 

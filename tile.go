@@ -77,13 +77,13 @@ func (t *Tile) spreadToUnbound() {
 }
 
 func (t *Tile) addPlayer(playerPtr *Player) {
-	t.playerPtrs = append(t.playerPtrs)
+	t.playerPtrs = append(t.playerPtrs, playerPtr)
 }
 
 func (t *Tile) removePlayer(leavingPlayer *Player) {
 	index, found := t.findPlayerPtrIndex(leavingPlayer)
 	if found {
-		t.playerPtrs = append(t.playerPtrs[:index], t.playerPtrs[index+1])
+		t.playerPtrs = append(t.playerPtrs[:index], t.playerPtrs[index+1:]...)
 	}
 }
 
