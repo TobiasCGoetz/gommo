@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"strings"
 
@@ -11,6 +12,10 @@ import (
 func setupAPI() {
 	router := gin.Default()
 	router.Use(cors.Default())
+
+	// Add middleware for error handling and logging
+	router.Use(errorHandlingMiddleware())
+
 	router.GET("/player/:id", getPlayerHandlerFunc())
 	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc())
 	router.GET("/config", getAllConfigHandlerFunc())
@@ -102,4 +107,19 @@ func filterPlayerName(name string) string {
 	}
 	//TODO: Filter bad words
 	return name
+}
+
+// errorHandlingMiddleware provides centralized error handling and logging
+func errorHandlingMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Printf("Panic recovered in API handler: %v", r)
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+				c.Abort()
+			}
+		}()
+
+		c.Next()
+	}
 }
