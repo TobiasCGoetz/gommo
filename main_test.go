@@ -93,7 +93,38 @@ func TestResources(t *testing.T) {
 	}
 }
 
-func TestWin(t *testing.T) {}
+func TestWin(t *testing.T) {
+	//Test if a player can win if he arrives at a laboratory while holding a research card
+	//It's important, that he can't win at the laboratory where he got the research card
+	//He has to bring it to a different laboratory than the card originated from
+	xPos, yPos := 1, 1
+	playerId := setupTest(xPos, yPos)
+	playerPtr := pMap.getPlayerPtr(playerId)
+
+	// Set up a laboratory tile and give player research cards
+	gMap.getTileFromPos(xPos, yPos).Terrain = Laboratory
+	playerPtr.Cards = [5]Card{Research, Research, Research, Research, Research}
+
+	// Player should not win at the same laboratory where they got the research
+	gMap.resources() // This would give more research at the laboratory
+	if pMap.havePlayersWon() {
+		t.Errorf("Player won at the same laboratory where they got research cards")
+	}
+
+	// Move player to a different laboratory
+	newX, newY := 2, 2
+	newTile := gMap.getTileFromPos(newX, newY)
+	newTile.Terrain = Laboratory
+	playerPtr.CurrentTile.removePlayer(playerPtr)
+	newTile.addPlayer(playerPtr)
+	playerPtr.CurrentTile = newTile
+
+	// Now player should be able to win at the different laboratory
+	if !pMap.havePlayersWon() {
+		t.Errorf("Player should win when at a different laboratory with enough research cards")
+	}
+
+}
 
 func setupTest(xPos int, yPos int) string {
 	setupTestState()
