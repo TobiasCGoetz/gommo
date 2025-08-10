@@ -18,5 +18,5 @@ docker:
 	sudo docker build . -t tskal.dev/gommo:latest
 
 testReport:
-	go test -coverprofile=coverage.out
-	go tool cover -html=coverage.out
+	go test -covermode=count -coverpkg=./... -coverprofile cover.out -v ./...
+	go tool cover -html cover.out -o cover.html
