@@ -24,53 +24,57 @@ func (p *Player) consume() {
 		return
 	}
 
-	var playerX = p.CurrentTile.XPos
-	var playerY = p.CurrentTile.YPos
+	HandleEmptyConsume(p)
 
-	// We don't allow death by indecision
+	cardPos, hasCard := hasCardWhere(p.Cards[:], p.Consume)
+	if hasCard {
+		ExecuteConsumption(p, cardPos)
+	} else {
+		HandleFailedConsumption(p)
+	}
+}
+
+func HandleEmptyConsume(p *Player) {
 	if p.Consume == None {
-		_, hasFood := hasCardWhere(p.Cards[:], Food)
-		if hasFood {
+		if _, hasFood := hasCardWhere(p.Cards[:], Food); hasFood {
 			p.Consume = Food
 		} else {
 			p.Consume = Wood
 		}
 	}
+}
 
-	// Log the consumption attempt
-	eventDetails := map[string]interface{}{
+// ExecuteConsumption handles the logic for a successful card consumption.
+func ExecuteConsumption(p *Player, cardPos int) {
+	playerX, playerY := p.CurrentTile.XPos, p.CurrentTile.YPos
+
+	if p.Consume == Wood {
+		gMap.fireAttractingTo(playerX, playerY)
+	}
+
+	eventLogger.LogEvent(EventCardConsumed, p.ID, map[string]interface{}{
 		"card":      p.Consume.String(),
 		"x":         playerX,
 		"y":         playerY,
-		"card_slot": -1,
-	}
+		"card_slot": cardPos,
+	})
 
-	// Now remove that card or kill the player
-	cardPos, hasCard := hasCardWhere(p.Cards[:], p.Consume)
-	if hasCard {
-		eventDetails["card_slot"] = cardPos
+	p.Cards[cardPos] = None
+	p.ResearchAcquisitionPos[cardPos] = [2]int{-1, -1} // Clear research position
+}
 
-		if p.Consume == Wood {
-			gMap.fireAttractingTo(playerX, playerY)
-		}
+// HandleFailedConsumption handles the logic when a player cannot consume the required card.
+func HandleFailedConsumption(p *Player) {
+	playerX, playerY := p.CurrentTile.XPos, p.CurrentTile.YPos
 
-		// Log the card consumption
-		eventLogger.LogEvent(EventCardConsumed, p.ID, eventDetails)
+	eventLogger.LogEvent(EventPlayerDeath, p.ID, map[string]interface{}{
+		"reason": "starvation",
+		"card":   p.Consume.String(),
+		"x":      playerX,
+		"y":      playerY,
+	})
 
-		p.Cards[cardPos] = None // Remove card from hand
-		// Clear research acquisition position when card is removed
-		p.ResearchAcquisitionPos[cardPos] = [2]int{-1, -1}
-	} else {
-		// Log failed consumption (player death)
-		eventLogger.LogEvent(EventPlayerDeath, p.ID, map[string]interface{}{
-			"reason": "starvation",
-			"card":   p.Consume.String(),
-			"x":      playerX,
-			"y":      playerY,
-		})
-
-		p.Alive = false // Card not in hand, kill the player
-	}
+	p.Alive = false
 }
 
 func (p *Player) cardInput(inputCard string) {

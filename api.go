@@ -63,7 +63,7 @@ func getSurroundingsHandler(c *gin.Context) {
 
 func setPlayHandler(c *gin.Context) {
 	id := c.Param("id")
-	cardStr := c.Param("card")
+	cardStr := c.Param("cardType")
 	playerPtr := getPlayerOrNil(id)
 	if playerPtr != nil {
 		playerPtr.cardInput(cardStr)
