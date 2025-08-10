@@ -39,8 +39,8 @@ func NewDefaultConfig() *Config {
 	config := &Config{}
 
 	// Map configuration
-	config.Map.Width = 100
-	config.Map.Height = 100
+	config.Map.Width = 50
+	config.Map.Height = 50
 
 	// Game configuration
 	config.Game.BotNumber = 0
@@ -74,24 +74,3 @@ func NewDefaultConfig() *Config {
 
 // Global configuration instance
 var gameConfig = NewDefaultConfig()
-
-// Legacy global variables for backward compatibility
-// These will be removed in future refactoring phases
-const mapWidth = 100
-const mapHeight = 100
-
-var botNumber = gameConfig.Game.BotNumber
-var zombieCutoff = gameConfig.Combat.ZombieCutoff
-var weaponStrength = gameConfig.Combat.WeaponStrength
-var playerNameMaxLength = gameConfig.Player.NameMaxLength
-var playerMinAttack = gameConfig.Combat.PlayerMinAttack
-var playerMaxAttack = gameConfig.Combat.PlayerMaxAttack
-var turnLength = gameConfig.Game.TurnLength
-var maxTurns = gameConfig.Game.MaxTurns
-var victoryNumber = gameConfig.Game.VictoryNumber
-var defaultDirection = gameConfig.Game.DefaultDirection
-var terrainResources = gameConfig.TerrainResources
-var idSalt = gameConfig.Server.IDSalt
-
-// Legacy global variables that weren't in config
-var hasWon bool = false

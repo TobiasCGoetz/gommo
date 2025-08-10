@@ -16,15 +16,15 @@ var gState gameState
 var eventLogger EventLogger
 
 func rollDice(playerID string) int {
-	result := rand.Intn(playerMaxAttack) + playerMinAttack
-	
+	result := rand.Intn(gameConfig.Combat.PlayerMaxAttack) + gameConfig.Combat.PlayerMinAttack
+
 	// Log the dice roll event
 	eventLogger.LogEvent(EventDiceRoll, playerID, map[string]interface{}{
 		"result": result,
-		"min":    playerMinAttack,
-		"max":    playerMaxAttack,
+		"min":    gameConfig.Combat.PlayerMinAttack,
+		"max":    gameConfig.Combat.PlayerMaxAttack,
 	})
-	
+
 	return result
 }
 
@@ -50,8 +50,8 @@ func getPlayerOrNil(id string) *Player {
 
 func main() {
 	if len(os.Args) == 2 {
-		idSalt = os.Args[1]
-		fmt.Println(idSalt)
+		gameConfig.Server.IDSalt = os.Args[1]
+		fmt.Println(gameConfig.Server.IDSalt)
 	}
 
 	r = rand.New(rand.NewSource(time.Now().Unix()))

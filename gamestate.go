@@ -7,7 +7,7 @@ type gameState struct {
 }
 
 func NewGameState() gameState {
-	return gameState{turnLength, maxTurns, false}
+	return gameState{gameConfig.Game.TurnLength, gameConfig.Game.MaxTurns, false}
 }
 
 func (gs gameState) haveWon() bool {
@@ -30,7 +30,7 @@ func (gs gameState) isTurnOver() bool {
 }
 
 func (gs *gameState) resetTime() {
-	gs.turnTimer = turnLength
+	gs.turnTimer = gameConfig.Game.TurnLength
 	gs.remainingTurns--
 }
 

@@ -46,12 +46,12 @@ func (t *Tile) resolveCombat() {
 		var player = *playerPtr
 		var strength = 0
 		weaponIndex, hasCard := hasCardWhere(player.Cards[:], Weapon)
-		
+
 		if player.Play == Weapon && hasCard {
 			// Player used a weapon card
-			strength = weaponStrength
+			strength = gameConfig.Combat.WeaponStrength
 			player.Cards[weaponIndex] = None
-			
+
 			eventLogger.LogEvent(EventCardUsed, player.ID, map[string]interface{}{
 				"card":      Weapon.String(),
 				"card_slot": weaponIndex,
@@ -63,7 +63,7 @@ func (t *Tile) resolveCombat() {
 			// Player rolls dice
 			strength = rollDice(player.ID)
 		}
-		
+
 		playerStrengths[player.ID] = strength
 		totalPlayerStrength += strength
 	}
@@ -82,32 +82,32 @@ func (t *Tile) resolveCombat() {
 		playersKilled = len(t.playerPtrs)
 		for _, playerPtr := range t.playerPtrs {
 			playerPtr.Alive = false
-			
+
 			// Log player death in combat
 			eventLogger.LogEvent(EventPlayerDeath, playerPtr.ID, map[string]interface{}{
-				"reason":    "combat",
-				"x":         t.XPos,
-				"y":         t.YPos,
-				"zombies":   t.Zombies,
-				"strength":  playerStrengths[playerPtr.ID],
+				"reason":   "combat",
+				"x":        t.XPos,
+				"y":        t.YPos,
+				"zombies":  t.Zombies,
+				"strength": playerStrengths[playerPtr.ID],
 			})
 		}
-		
+
 		// Zombies multiply from dead players
 		t.addZombies(playersKilled)
 	}
 
 	// Log combat result
 	eventLogger.LogEvent(EventCombatResult, "", map[string]interface{}{
-		"x":              t.XPos,
-		"y":              t.YPos,
-		"players":        playerIDs,
+		"x":               t.XPos,
+		"y":               t.YPos,
+		"players":         playerIDs,
 		"player_strength": totalPlayerStrength,
-		"zombies_before": t.Zombies + zombiesKilled,
-		"zombies_after":  t.Zombies,
-		"combat_won":     combatWon,
-		"zombies_killed": zombiesKilled,
-		"players_killed": playersKilled,
+		"zombies_before":  t.Zombies + zombiesKilled,
+		"zombies_after":   t.Zombies,
+		"combat_won":      combatWon,
+		"zombies_killed":  zombiesKilled,
+		"players_killed":  playersKilled,
 	})
 }
 
@@ -129,11 +129,11 @@ func (t Tile) giveResources() {
 }
 
 func (t Tile) isSpreader() bool {
-	return t.Terrain.isCity() || t.Zombies >= zombieCutoff
+	return t.Terrain.isCity() || t.Zombies >= gameConfig.Combat.ZombieCutoff
 }
 
 func (t *Tile) spreadTo() {
-	if t.Zombies < zombieCutoff {
+	if t.Zombies < gameConfig.Combat.ZombieCutoff {
 		t.Zombies++
 	}
 }

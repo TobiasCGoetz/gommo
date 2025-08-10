@@ -29,12 +29,12 @@ func TestMovement(t *testing.T) {
 
 func TestCombat(t *testing.T) {
 	tests := []struct {
-		name           string
-		zombieCount    int
-		playerCount    int
-		hasWeapon      bool
-		expectedAlive  bool
-		description    string
+		name          string
+		zombieCount   int
+		playerCount   int
+		hasWeapon     bool
+		expectedAlive bool
+		description   string
 	}{
 		{
 			name:          "player loses against overwhelming zombies",
@@ -93,31 +93,27 @@ func TestCombat(t *testing.T) {
 	}
 }
 
-
-
-
-
 func TestPlayerConsume(t *testing.T) {
 	tests := []struct {
-		name         string
-		initialCards [5]Card
-		consumeCard  Card
+		name          string
+		initialCards  [5]Card
+		consumeCard   Card
 		expectedCards [5]Card
-		description  string
+		description   string
 	}{
 		{
-			name:         "consume food card",
-			initialCards: [5]Card{Weapon, Food, Wood, Wood, Wood},
-			consumeCard:  Food,
+			name:          "consume food card",
+			initialCards:  [5]Card{Weapon, Food, Wood, Wood, Wood},
+			consumeCard:   Food,
 			expectedCards: [5]Card{Weapon, None, Wood, Wood, Wood},
-			description:  "Food card should be consumed and replaced with None",
+			description:   "Food card should be consumed and replaced with None",
 		},
 		{
-			name:         "consume wood card",
-			initialCards: [5]Card{Weapon, Food, Wood, Wood, None},
-			consumeCard:  Wood,
+			name:          "consume wood card",
+			initialCards:  [5]Card{Weapon, Food, Wood, Wood, None},
+			consumeCard:   Wood,
 			expectedCards: [5]Card{Weapon, Food, None, Wood, None},
-			description:  "First wood card should be consumed",
+			description:   "First wood card should be consumed",
 		},
 	}
 
@@ -211,7 +207,7 @@ func TestWinConditions(t *testing.T) {
 		player.Cards = [5]Card{None, None, None, None, None}
 
 		// Act - acquire research cards at the first laboratory
-		for i := 0; i < victoryNumber; i++ {
+		for i := 0; i < gameConfig.Game.VictoryNumber; i++ {
 			ts.gameMap.resources()
 		}
 
@@ -229,7 +225,7 @@ func TestWinConditions(t *testing.T) {
 		// Set up first laboratory and acquire research cards
 		ts.gameMap.getTileFromPos(xPos, yPos).Terrain = Laboratory
 		player.Cards = [5]Card{None, None, None, None, None}
-		for i := 0; i < victoryNumber; i++ {
+		for i := 0; i < gameConfig.Game.VictoryNumber; i++ {
 			ts.gameMap.resources()
 		}
 
@@ -283,7 +279,7 @@ func TestPlayerManagement(t *testing.T) {
 		assert.Equal(t, tile, player.CurrentTile, "Player should be on correct tile")
 		assert.True(t, player.Alive, "Player should be alive by default")
 		assert.False(t, player.IsBot, "Player should not be bot by default")
-		assert.Equal(t, defaultDirection, player.Direction, "Player should have default direction")
+		assert.Equal(t, gameConfig.Game.DefaultDirection, player.Direction, "Player should have default direction")
 		assert.Equal(t, [5]Card{Food, Wood, Wood, None, None}, player.Cards, "Player should have default cards")
 	})
 
@@ -480,7 +476,7 @@ func TestMovementEdgeCases(t *testing.T) {
 	t.Run("movement handles eastern boundary", func(t *testing.T) {
 		// Arrange
 		ts := setupTestSuite(t)
-		playerID := ts.createPlayerAt(mapWidth-1, 0) // Eastern edge
+		playerID := ts.createPlayerAt(ts.gameMap.width-1, 0) // Eastern edge
 		player := ts.getPlayer(playerID)
 
 		// Act - try to move east out of bounds
@@ -488,13 +484,13 @@ func TestMovementEdgeCases(t *testing.T) {
 		ts.playerMap.move()
 
 		// Assert - should stay at boundary
-		assert.Equal(t, mapWidth-1, player.CurrentTile.XPos, "Player should stay at eastern boundary")
+		assert.Equal(t, ts.gameMap.width-1, player.CurrentTile.XPos, "Player should stay at eastern boundary")
 	})
 
 	t.Run("movement handles northern boundary", func(t *testing.T) {
 		// Arrange
 		ts := setupTestSuite(t)
-		playerID := ts.createPlayerAt(0, mapHeight-1) // Northern edge
+		playerID := ts.createPlayerAt(0, ts.gameMap.height-1) // Northern edge
 		player := ts.getPlayer(playerID)
 
 		// Act - try to move north out of bounds
@@ -502,7 +498,7 @@ func TestMovementEdgeCases(t *testing.T) {
 		ts.playerMap.move()
 
 		// Assert - should stay at boundary
-		assert.Equal(t, mapHeight-1, player.CurrentTile.YPos, "Player should stay at northern boundary")
+		assert.Equal(t, ts.gameMap.height-1, player.CurrentTile.YPos, "Player should stay at northern boundary")
 	})
 
 	t.Run("dead players do not move", func(t *testing.T) {
@@ -533,7 +529,7 @@ func TestMovementEdgeCases(t *testing.T) {
 		ts.playerMap.move()
 
 		// Assert
-		assert.Equal(t, defaultDirection, player.Direction, "Direction should reset to default")
+		assert.Equal(t, gameConfig.Game.DefaultDirection, player.Direction, "Direction should reset to default")
 	})
 }
 
@@ -605,9 +601,9 @@ func TestGameMapOperations(t *testing.T) {
 		// Assert
 		assert.NotNil(t, tile, "Entry tile should not be nil")
 		assert.GreaterOrEqual(t, tile.XPos, 0, "Entry tile X should be valid")
-		assert.LessOrEqual(t, tile.XPos, mapWidth-1, "Entry tile X should be within bounds")
+		assert.LessOrEqual(t, tile.XPos, ts.gameMap.width-1, "Entry tile X should be within bounds")
 		assert.GreaterOrEqual(t, tile.YPos, 0, "Entry tile Y should be valid")
-		assert.LessOrEqual(t, tile.YPos, mapHeight-1, "Entry tile Y should be within bounds")
+		assert.LessOrEqual(t, tile.YPos, ts.gameMap.height-1, "Entry tile Y should be within bounds")
 	})
 }
 
@@ -616,7 +612,7 @@ func TestZombieManagement(t *testing.T) {
 		// Arrange
 		ts := setupTestSuite(t)
 		centerX, centerY := 2, 2
-		
+
 		// Add zombies to surrounding tiles
 		ts.gameMap.addZombiesToTile(centerX-1, centerY-1, 2)
 		ts.gameMap.addZombiesToTile(centerX+1, centerY+1, 3)
@@ -727,7 +723,7 @@ func TestTileOperations(t *testing.T) {
 		ts := setupTestSuite(t)
 		tile := ts.gameMap.getTileFromPos(1, 1)
 		tile.Terrain = Forest
-		tile.Zombies = zombieCutoff + 1
+		tile.Zombies = gameConfig.Combat.ZombieCutoff + 1
 
 		// Act & Assert
 		assert.True(t, tile.isSpreader(), "High zombie count should make tile a spreader")
@@ -748,33 +744,33 @@ func TestTileOperations(t *testing.T) {
 		// Arrange
 		ts := setupTestSuite(t)
 		tile := ts.gameMap.getTileFromPos(1, 1)
-		tile.Zombies = zombieCutoff - 1
+		tile.Zombies = gameConfig.Combat.ZombieCutoff - 1
 
 		// Act
 		tile.spreadTo()
 
 		// Assert
-		assert.Equal(t, zombieCutoff, tile.Zombies, "Zombies should increase to cutoff")
+		assert.Equal(t, gameConfig.Combat.ZombieCutoff, tile.Zombies, "Zombies should increase to cutoff")
 	})
 
 	t.Run("spreadTo does not increase zombies beyond cutoff", func(t *testing.T) {
 		// Arrange
 		ts := setupTestSuite(t)
 		tile := ts.gameMap.getTileFromPos(1, 1)
-		tile.Zombies = zombieCutoff
+		tile.Zombies = gameConfig.Combat.ZombieCutoff
 
 		// Act
 		tile.spreadTo()
 
 		// Assert
-		assert.Equal(t, zombieCutoff, tile.Zombies, "Zombies should not increase beyond cutoff")
+		assert.Equal(t, gameConfig.Combat.ZombieCutoff, tile.Zombies, "Zombies should not increase beyond cutoff")
 	})
 
 	t.Run("spreadToUnbound always increases zombies", func(t *testing.T) {
 		// Arrange
 		ts := setupTestSuite(t)
 		tile := ts.gameMap.getTileFromPos(1, 1)
-		initialZombies := zombieCutoff + 5
+		initialZombies := gameConfig.Combat.ZombieCutoff + 5
 		tile.Zombies = initialZombies
 
 		// Act
@@ -832,7 +828,7 @@ func TestCombatScenarios(t *testing.T) {
 		tile := ts.gameMap.getTileFromPos(1, 1)
 		playerID := ts.createPlayerAt(1, 1)
 		player := ts.getPlayer(playerID)
-		player.Play = None // No weapon
+		player.Play = None    // No weapon
 		initialZombies := 100 // Overwhelming force
 		tile.Zombies = initialZombies
 
@@ -849,19 +845,19 @@ func TestCombatScenarios(t *testing.T) {
 		// Arrange
 		ts := setupTestSuite(t)
 		tile := ts.gameMap.getTileFromPos(1, 1)
-		
+
 		// Create multiple players
 		player1ID := ts.createPlayerAt(1, 1)
 		player1 := ts.getPlayer(player1ID)
 		player1.Cards[0] = Weapon
 		player1.Play = Weapon
-		
+
 		player2ID := ts.playerMap.addPlayer("Player2", tile)
 		player2 := ts.getPlayer(player2ID)
 		player2.Cards[0] = Weapon
 		player2.Play = Weapon
-		
-		tile.Zombies = weaponStrength + 1 // Requires both weapons
+
+		tile.Zombies = gameConfig.Combat.WeaponStrength + 1 // Requires both weapons
 
 		// Act
 		tile.resolveCombat()
@@ -920,7 +916,7 @@ func TestGameStateIntegration(t *testing.T) {
 		centerTile := ts.gameMap.getTileFromPos(centerX, centerY)
 		centerTile.Terrain = City // Make it a spreader
 		centerTile.Zombies = 1
-		
+
 		// Check surrounding tiles before spread
 		surroundingTiles := []*Tile{
 			ts.gameMap.getTileFromPos(centerX, centerY-1), // North
@@ -928,7 +924,7 @@ func TestGameStateIntegration(t *testing.T) {
 			ts.gameMap.getTileFromPos(centerX+1, centerY), // East
 			ts.gameMap.getTileFromPos(centerX, centerY+1), // South
 		}
-		
+
 		initialZombieCounts := make([]int, len(surroundingTiles))
 		for i, tile := range surroundingTiles {
 			initialZombieCounts[i] = tile.Zombies
@@ -950,17 +946,17 @@ func TestGameStateIntegration(t *testing.T) {
 	t.Run("handleCombat processes all tiles", func(t *testing.T) {
 		// Arrange
 		ts := setupTestSuite(t)
-		
+
 		// Set up multiple tiles with players and zombies
 		player1ID := ts.createPlayerAt(1, 1)
 		player1 := ts.getPlayer(player1ID)
 		player1.Cards[0] = Weapon
 		player1.Play = Weapon
 		ts.gameMap.getTileFromPos(1, 1).Zombies = 1
-		
+
 		player2ID := ts.createPlayerAt(2, 2)
 		player2 := ts.getPlayer(player2ID)
-		player2.Play = None // No weapon
+		player2.Play = None                           // No weapon
 		ts.gameMap.getTileFromPos(2, 2).Zombies = 100 // Overwhelming
 
 		// Act
@@ -977,13 +973,13 @@ func TestGameStateIntegration(t *testing.T) {
 	t.Run("resources distributes to all players on all tiles", func(t *testing.T) {
 		// Arrange
 		ts := setupTestSuite(t)
-		
+
 		// Set up laboratory tiles with players
 		ts.gameMap.getTileFromPos(1, 1).Terrain = Laboratory
 		player1ID := ts.createPlayerAt(1, 1)
 		player1 := ts.getPlayer(player1ID)
 		player1.Cards = [5]Card{None, None, None, None, None}
-		
+
 		ts.gameMap.getTileFromPos(2, 2).Terrain = Laboratory
 		player2ID := ts.createPlayerAt(2, 2)
 		player2 := ts.getPlayer(player2ID)
@@ -1000,7 +996,7 @@ func TestGameStateIntegration(t *testing.T) {
 
 // TestSuite provides isolated test environment
 type TestSuite struct {
-	t          *testing.T
+	t         *testing.T
 	gameMap   *gameMap
 	playerMap *playerMap
 	gameState *gameState
@@ -1013,15 +1009,15 @@ func setupTestSuite(t *testing.T) *TestSuite {
 	gMap = NewGameMap()
 	pMap = NewPlayerMap()
 	gState = NewGameState()
-	
+
 	// Initialize the global random number generator for tests
 	if r == nil {
 		r = rand.New(rand.NewSource(1)) // Use fixed seed for deterministic tests
 	}
-	
+
 	// Initialize event logger
 	eventLogger = NewEventLogger()
-	
+
 	return &TestSuite{
 		t:         t,
 		gameMap:   &gMap,
@@ -1118,7 +1114,7 @@ func TestCoverageSummary(t *testing.T) {
 			"Resource giving with position tracking",
 			"Game state integration (spread, combat, resources)",
 		}
-		
+
 		assert.Equal(t, 13, len(coveredAreas), "Test suite covers 13 major areas")
 		t.Logf("Test coverage includes: %v", coveredAreas)
 	})

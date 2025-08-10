@@ -10,11 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
-
 func setupAPI() {
 	router := gin.Default()
-	
+
 	// Configure CORS to allow all origins for local development
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
@@ -24,8 +22,6 @@ func setupAPI() {
 
 	// Add middleware for error handling and logging
 	router.Use(errorHandlingMiddleware())
-	
-
 
 	router.GET("/player/:id", getPlayerHandler)
 	router.GET("/player/:id/surroundings", getSurroundingsHandler)
@@ -33,11 +29,11 @@ func setupAPI() {
 	router.POST("/player/:name", addPlayerHandler)
 	router.PUT("/player/:id/direction/:dir", setDirectionHandler)
 	router.PUT("/player/:id/play/:cardType", setPlayHandler)
-	
+
 	// Event log endpoints
 	router.GET("/player/:id/events", getPlayerEventsHandler)
 	router.GET("/player/:id/events/type/:eventType", getPlayerEventsByTypeHandler)
-	
+
 	router.Run("0.0.0.0:8080")
 }
 
@@ -100,8 +96,8 @@ func getPlayerHandler(c *gin.Context) {
 }
 
 func filterPlayerName(name string) string {
-	if len(name) > playerNameMaxLength {
-		return name[0:playerNameMaxLength]
+	if len(name) > gameConfig.Player.NameMaxLength {
+		return name[0:gameConfig.Player.NameMaxLength]
 	}
 	//TODO: Filter bad words
 	return name
@@ -131,8 +127,8 @@ func getPlayerEventsHandler(c *gin.Context) {
 	}
 
 	events := eventLogger.GetPlayerEvents(playerID, filters)
-	
-sendSuccessResponse(c, http.StatusOK, gin.H{
+
+	sendSuccessResponse(c, http.StatusOK, gin.H{
 		"events": events,
 		"count":  len(events),
 	})
@@ -176,17 +172,13 @@ func getPlayerEventsByTypeHandler(c *gin.Context) {
 		EventType: eventType,
 		LastTurns: lastTurns,
 	})
-	
-sendSuccessResponse(c, http.StatusOK, gin.H{
+
+	sendSuccessResponse(c, http.StatusOK, gin.H{
 		"events": events,
 		"count":  len(events),
 		"type":   eventType,
 	})
 }
-
-
-
-
 
 // errorHandlingMiddleware provides centralized error handling and logging
 func errorHandlingMiddleware() gin.HandlerFunc {

@@ -6,11 +6,25 @@ import (
 )
 
 type gameMap struct {
-	gMap [mapWidth][mapHeight]*Tile
+	gMap   [][]*Tile
+	width  int
+	height int
 }
 
 func NewGameMap() gameMap {
-	instance := gameMap{}
+	width := gameConfig.Map.Width
+	height := gameConfig.Map.Height
+	
+	instance := gameMap{
+		width:  width,
+		height: height,
+		gMap:   make([][]*Tile, width),
+	}
+	
+	for i := range instance.gMap {
+		instance.gMap[i] = make([]*Tile, height)
+	}
+	
 	instance.init()
 	return instance
 }
@@ -45,7 +59,7 @@ func (g gameMap) resources() {
 
 // getTile safely retrieves a tile, returning an Edge tile for out-of-bounds requests.
 func (g gameMap) getTile(x, y int) *Tile {
-	if x < 0 || x >= mapWidth || y < 0 || y >= mapHeight {
+	if x < 0 || x >= g.width || y < 0 || y >= g.height {
 		return &Tile{Terrain: Edge, XPos: x, YPos: y} // Return a default edge tile
 	}
 	return g.gMap[x][y]
@@ -76,7 +90,7 @@ func (g gameMap) spreadFromSpreader(xCoord int, yCoord int) {
 	for neighbor := 0; neighbor < len(xOffsets); neighbor++ {
 		var xTarget = xCoord + xOffsets[neighbor]
 		var yTarget = yCoord + yOffsets[neighbor]
-		if xTarget < 0 || xTarget >= mapWidth || yTarget < 0 || yTarget >= mapHeight {
+		if xTarget < 0 || xTarget >= g.width || yTarget < 0 || yTarget >= g.height {
 			continue
 		}
 		g.gMap[xTarget][yTarget].spreadTo()
@@ -116,7 +130,7 @@ func (g *gameMap) spread() {
 }
 
 func (g gameMap) getNewPlayerEntryTile() *Tile {
-	var rX = r.Intn(mapWidth - 1)
-	var rY = r.Intn(mapHeight - 1)
+	var rX = r.Intn(g.width - 1)
+	var rY = r.Intn(g.height - 1)
 	return g.gMap[rX][rY]
 }

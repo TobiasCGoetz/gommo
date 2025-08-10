@@ -130,7 +130,7 @@ func (p Player) hasWinCondition() bool {
 		}
 	}
 
-	if numberOfResearchs < victoryNumber {
+	if numberOfResearchs < gameConfig.Game.VictoryNumber {
 		return false
 	} else {
 		fmt.Println("Player has won")

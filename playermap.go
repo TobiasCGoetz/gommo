@@ -15,7 +15,7 @@ func (pm playerMap) addPlayer(playerName string, entryTile *Tile) string {
 		ID:                     idString,
 		Name:                   playerName,
 		CurrentTile:            entryTile,
-		Direction:              defaultDirection,
+		Direction:              gameConfig.Game.DefaultDirection,
 		Play:                   None,
 		Consume:                None,
 		Discard:                None,
@@ -26,14 +26,14 @@ func (pm playerMap) addPlayer(playerName string, entryTile *Tile) string {
 	}
 	pm.Players[idString] = &player
 	entryTile.addPlayer(&player) // Actually add the player to the tile
-	
+
 	// Log player join event
 	eventLogger.LogEvent(EventPlayerJoin, idString, map[string]interface{}{
 		"name": playerName,
 		"x":    entryTile.XPos,
 		"y":    entryTile.YPos,
 	})
-	
+
 	return idString
 }
 
@@ -58,7 +58,7 @@ func (pm playerMap) move() {
 		}
 
 		targetX, targetY := calculateNewPosition(oldX, oldY, player.Direction)
-		clampedX, clampedY := clampToMapBoundaries(targetX, targetY)
+		clampedX, clampedY := clampToMapBoundaries(targetX, targetY, gMap.width, gMap.height)
 
 		if clampedX == oldX && clampedY == oldY {
 			eventLogger.LogEvent(EventPlayerMove, player.ID, map[string]interface{}{
@@ -91,15 +91,15 @@ func calculateNewPosition(x, y int, direction Direction) (int, int) {
 }
 
 // clampToMapBoundaries ensures coordinates are within the map limits.
-func clampToMapBoundaries(x, y int) (int, int) {
-	if x >= mapWidth {
-		x = mapWidth - 1
+func clampToMapBoundaries(x, y, width, height int) (int, int) {
+	if x >= width {
+		x = width - 1
 	}
 	if x < 0 {
 		x = 0
 	}
-	if y >= mapHeight {
-		y = mapHeight - 1
+	if y >= height {
+		y = height - 1
 	}
 	if y < 0 {
 		y = 0
@@ -121,7 +121,7 @@ func handlePlayerMovement(player *Player, oldTile *Tile, newX, newY int) {
 		"to_y":   newY,
 	})
 
-	player.Direction = defaultDirection
+	player.Direction = gameConfig.Game.DefaultDirection
 }
 
 func (p playerMap) playersConsume() {

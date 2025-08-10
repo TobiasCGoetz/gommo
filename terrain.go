@@ -25,5 +25,5 @@ func (t Terrain) isCity() bool {
 }
 
 func (t Terrain) offersResource() (Card, int) {
-	return terrainResources[t].givesCard, terrainResources[t].amount
+	return gameConfig.TerrainResources[t].givesCard, gameConfig.TerrainResources[t].amount
 }
