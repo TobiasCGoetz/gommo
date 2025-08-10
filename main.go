@@ -12,8 +12,20 @@ var r *rand.Rand
 var gMap gameMap
 var gState gameState
 
-func rollDice() int {
-	return rand.Intn(playerMaxAttack) + playerMinAttack
+// eventLogger is the global event logger instance
+var eventLogger EventLogger
+
+func rollDice(playerID string) int {
+	result := rand.Intn(playerMaxAttack) + playerMinAttack
+	
+	// Log the dice roll event
+	eventLogger.LogEvent(EventDiceRoll, playerID, map[string]interface{}{
+		"result": result,
+		"min":    playerMinAttack,
+		"max":    playerMaxAttack,
+	})
+	
+	return result
 }
 
 func tick() {
@@ -41,10 +53,12 @@ func main() {
 		idSalt = os.Args[1]
 		fmt.Println(idSalt)
 	}
+
 	r = rand.New(rand.NewSource(time.Now().Unix()))
 	gMap = NewGameMap()
 	gState = NewGameState()
 	pMap = NewPlayerMap()
+	eventLogger = NewEventLogger() // Initialize the global event logger
 
 	go setupAPI()
 

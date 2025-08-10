@@ -3,11 +3,14 @@ package main
 import (
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
+
+
 
 func setupAPI() {
 	router := gin.Default()
@@ -21,6 +24,8 @@ func setupAPI() {
 
 	// Add middleware for error handling and logging
 	router.Use(errorHandlingMiddleware())
+	
+
 
 	router.GET("/player/:id", getPlayerHandlerFunc())
 	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc())
@@ -28,6 +33,11 @@ func setupAPI() {
 	router.POST("/player/:name", addPlayerHandlerFunc())
 	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc())
 	router.PUT("/player/:id/play/:cardType", setPlayHandlerFunc())
+	
+	// Event log endpoints
+	router.GET("/player/:id/events", getPlayerEventsHandlerFunc())
+	router.GET("/player/:id/events/type/:eventType", getPlayerEventsByTypeHandlerFunc())
+	
 	router.Run("0.0.0.0:8080")
 }
 
@@ -115,17 +125,130 @@ func filterPlayerName(name string) string {
 	return name
 }
 
+// getPlayerEventsHandlerFunc returns a handler for getting recent events for a player
+func getPlayerEventsHandlerFunc() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		playerID := c.Param("id")
+
+		// Verify player exists
+		if playerID != "" && pMap.getPlayerPtr(playerID) == nil {
+			sendErrorResponse(c, http.StatusNotFound, "player_not_found", "Player not found")
+			return
+		}
+
+		// Parse query parameters
+		lastTurns := 5 // Default to last 5 turns
+		if turnsStr := c.Query("turns"); turnsStr != "" {
+			if turns, err := strconv.Atoi(turnsStr); err == nil && turns > 0 {
+				lastTurns = turns
+			}
+		}
+
+		// Get events with filters
+		filters := EventFilters{
+			LastTurns: lastTurns,
+		}
+
+		events := eventLogger.GetPlayerEvents(playerID, filters)
+		
+		sendSuccessResponse(c, http.StatusOK, gin.H{
+			"events": events,
+			"count":  len(events),
+		})
+	}
+}
+
+// getPlayerEventsByTypeHandlerFunc returns a handler for getting filtered events for a player
+func getPlayerEventsByTypeHandlerFunc() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		playerID := c.Param("id")
+		eventType := EventType(c.Param("eventType"))
+
+		// Verify player exists
+		if playerID != "" && pMap.getPlayerPtr(playerID) == nil {
+			sendErrorResponse(c, http.StatusNotFound, "player_not_found", "Player not found")
+			return
+		}
+
+		// Validate event type
+		validType := false
+		for _, et := range EventTypeList() {
+			if et == eventType {
+				validType = true
+				break
+			}
+		}
+
+		if !validType {
+			sendErrorResponse(c, http.StatusBadRequest, "invalid_event_type", "Invalid event type")
+			return
+		}
+
+		// Parse query parameters
+		lastTurns := 5 // Default to last 5 turns
+		if turnsStr := c.Query("turns"); turnsStr != "" {
+			if turns, err := strconv.Atoi(turnsStr); err == nil && turns > 0 {
+				lastTurns = turns
+			}
+		}
+
+		// Get filtered events
+		events := eventLogger.GetPlayerEvents(playerID, EventFilters{
+			EventType: eventType,
+			LastTurns: lastTurns,
+		})
+		
+		sendSuccessResponse(c, http.StatusOK, gin.H{
+			"events": events,
+			"count":  len(events),
+			"type":   eventType,
+		})
+	}
+}
+
+
+
+
+
 // errorHandlingMiddleware provides centralized error handling and logging
 func errorHandlingMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if r := recover(); r != nil {
 				log.Printf("Panic recovered in API handler: %v", r)
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-				c.Abort()
+				sendErrorResponse(c, http.StatusInternalServerError, "internal_server_error", "An unexpected error occurred")
 			}
 		}()
 
 		c.Next()
+
+		// Handle other HTTP errors
+		if len(c.Errors) > 0 {
+			err := c.Errors.Last().Err
+			sendErrorResponse(c, c.Writer.Status(), "api_error", err.Error())
+		}
 	}
+}
+
+// sendErrorResponse sends a standardized error response
+func sendErrorResponse(c *gin.Context, status int, code, message string) {
+	c.JSON(status, gin.H{
+		"success": false,
+		"error": gin.H{
+			"code":    code,
+			"message": message,
+		},
+	})
+}
+
+// sendSuccessResponse sends a standardized success response
+func sendSuccessResponse(c *gin.Context, status int, data gin.H) {
+	if data == nil {
+		data = gin.H{}
+	}
+
+	// Add success flag to response
+	data["success"] = true
+
+	c.JSON(status, data)
 }

@@ -6,54 +6,98 @@ import (
 )
 
 type Player struct {
-	ID                    string
-	Name                  string
-	CurrentTile           *Tile
-	Direction             Direction
-	Play                  Card
-	Consume               Card
-	Discard               Card
-	Cards                 [5]Card
+	ID                     string
+	Name                   string
+	CurrentTile            *Tile
+	Direction              Direction
+	Play                   Card
+	Consume                Card
+	Discard                Card
+	Cards                  [5]Card
 	ResearchAcquisitionPos [5][2]int // Track x,y coordinates where each research card was acquired
-	Alive                 bool
-	IsBot                 bool
+	Alive                  bool
+	IsBot                  bool
 }
 
 func (p *Player) consume() {
 	if !p.Alive {
 		return
 	}
+
 	var playerX = p.CurrentTile.XPos
 	var playerY = p.CurrentTile.YPos
-	//We don't allow death by indecision
+
+	// We don't allow death by indecision
 	if p.Consume == None {
-		_, hasCard := hasCardWhere(p.Cards[:], Food)
-		if hasCard {
+		_, hasFood := hasCardWhere(p.Cards[:], Food)
+		if hasFood {
 			p.Consume = Food
 		} else {
 			p.Consume = Wood
 		}
 	}
 
-	//Now remove that card or kill the player
+	// Log the consumption attempt
+	eventDetails := map[string]interface{}{
+		"card":      p.Consume.String(),
+		"x":         playerX,
+		"y":         playerY,
+		"card_slot": -1,
+	}
+
+	// Now remove that card or kill the player
 	cardPos, hasCard := hasCardWhere(p.Cards[:], p.Consume)
 	if hasCard {
+		eventDetails["card_slot"] = cardPos
+
 		if p.Consume == Wood {
 			gMap.fireAttractingTo(playerX, playerY)
 		}
-		p.Cards[cardPos] = None //Remove card from hand
+
+		// Log the card consumption
+		eventLogger.LogEvent(EventCardConsumed, p.ID, eventDetails)
+
+		p.Cards[cardPos] = None // Remove card from hand
 		// Clear research acquisition position when card is removed
 		p.ResearchAcquisitionPos[cardPos] = [2]int{-1, -1}
 	} else {
-		p.Alive = false //Card not in hand, kill the player
+		// Log failed consumption (player death)
+		eventLogger.LogEvent(EventPlayerDeath, p.ID, map[string]interface{}{
+			"reason": "starvation",
+			"card":   p.Consume.String(),
+			"x":      playerX,
+			"y":      playerY,
+		})
+
+		p.Alive = false // Card not in hand, kill the player
 	}
 }
 
 func (p *Player) cardInput(inputCard string) {
-	if inputCard == Weapon.toString() {
+	// Convert input to lowercase for case-insensitive comparison
+	lowerInput := strings.ToLower(inputCard)
+
+	// Check if the input matches a weapon card
+	if lowerInput == "weapon" {
+		// Log weapon play
+		if cardPos, hasWeapon := hasCardWhere(p.Cards[:], Weapon); hasWeapon {
+			eventLogger.LogEvent(EventCardPlayed, p.ID, map[string]interface{}{
+				"card":      Weapon.String(),
+				"card_slot": cardPos,
+				"x":         p.CurrentTile.XPos,
+				"y":         p.CurrentTile.YPos,
+			})
+		}
 		p.Play = Weapon
-	} else {
-		p.Consume = cards[inputCard]
+	} else if card, exists := cards[lowerInput]; exists {
+		// For other card types, set Consume
+		eventLogger.LogEvent(EventCardSelected, p.ID, map[string]interface{}{
+			"card":   card.String(),
+			"action": "consume",
+			"x":      p.CurrentTile.XPos,
+			"y":      p.CurrentTile.YPos,
+		})
+		p.Consume = card
 	}
 }
 
@@ -62,31 +106,31 @@ func (p Player) hasWinCondition() bool {
 	if p.CurrentTile.Terrain != Laboratory {
 		return false
 	}
-	
+
 	var numberOfResearchs = 0
 	currentX := p.CurrentTile.XPos
 	currentY := p.CurrentTile.YPos
-	
+
 	for i, card := range p.Cards {
 		if card == Research {
 			// Check if this research card was acquired at the current laboratory
 			acquisitionX := p.ResearchAcquisitionPos[i][0]
 			acquisitionY := p.ResearchAcquisitionPos[i][1]
-			
+
 			// If research was acquired at current location, it doesn't count for victory
 			if acquisitionX == currentX && acquisitionY == currentY {
 				continue
 			}
-			
+
 			numberOfResearchs++
 		}
 	}
-	
+
 	if numberOfResearchs < victoryNumber {
 		return false
 	} else {
 		fmt.Println("Player has won")
-		fmt.Println(p.toString())
+		fmt.Println(p.String())
 		return true
 	}
 }
@@ -119,7 +163,7 @@ func (p Player) getHandSize() int { //TODO: Move to method
 	return count
 }
 
-func (p Player) toString() string {
+func (p Player) String() string {
 	var r strings.Builder
 	r.WriteString(p.ID)
 	r.WriteString(p.Name)
@@ -128,10 +172,10 @@ func (p Player) toString() string {
 	r.WriteString("|")
 	//r.WriteString(fmt.Sprintf("%d", p.Y))
 	r.WriteString(" ")
-	r.WriteString(p.Cards[0].toString())
-	r.WriteString(p.Cards[1].toString())
-	r.WriteString(p.Cards[2].toString())
-	r.WriteString(p.Cards[3].toString())
+	r.WriteString(p.Cards[0].String())
+	r.WriteString(p.Cards[1].String())
+	r.WriteString(p.Cards[2].String())
+	r.WriteString(p.Cards[3].String())
 	return r.String()
 }
 

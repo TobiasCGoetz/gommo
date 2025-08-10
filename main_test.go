@@ -428,12 +428,36 @@ func TestPlayerMethods(t *testing.T) {
 		playerID := ts.createPlayerAt(1, 1)
 		player := ts.getPlayer(playerID)
 
-		// Act & Assert
-		player.cardInput("Weapon")
+		// Test 1: Verify weapon input sets Play field (using lowercase to match cardInput expectations)
+		player.cardInput("weapon")
 		assert.Equal(t, Weapon, player.Play, "Should set Play to Weapon")
+		assert.Equal(t, None, player.Consume, "Consume should remain unchanged")
 
-		player.cardInput("Food")
+		// Reset for next test
+		player.Play = None
+
+		// Test 2: Verify food input sets Consume field (using lowercase to match cardInput expectations)
+		player.cardInput("food")
 		assert.Equal(t, Food, player.Consume, "Should set Consume to Food")
+		assert.Equal(t, None, player.Play, "Play should remain unchanged")
+
+		// Test 3: Verify case-insensitive input for weapon (uppercase)
+		player.cardInput("WEAPON")
+		assert.Equal(t, Weapon, player.Play, "Should handle uppercase input for Weapon")
+
+		// Reset for next test
+		player.Play = None
+
+		// Test 4: Verify case-insensitive input for food (already lowercase)
+		player.cardInput("food")
+		assert.Equal(t, Food, player.Consume, "Should handle lowercase input for food")
+
+		// Test 5: Verify invalid input doesn't change anything
+		player.Play = None
+		player.Consume = None
+		player.cardInput("invalid")
+		assert.Equal(t, None, player.Play, "Invalid input should not change Play")
+		assert.Equal(t, None, player.Consume, "Invalid input should not change Consume")
 	})
 }
 
@@ -976,10 +1000,11 @@ func TestGameStateIntegration(t *testing.T) {
 
 // TestSuite provides isolated test environment
 type TestSuite struct {
-	t         *testing.T
+	t          *testing.T
 	gameMap   *gameMap
 	playerMap *playerMap
 	gameState *gameState
+	eventLog  *EventLogger // Add event logger to test suite
 }
 
 // setupTestSuite creates a new isolated test environment
@@ -994,11 +1019,15 @@ func setupTestSuite(t *testing.T) *TestSuite {
 		r = rand.New(rand.NewSource(1)) // Use fixed seed for deterministic tests
 	}
 	
+	// Initialize event logger
+	eventLogger = NewEventLogger()
+	
 	return &TestSuite{
 		t:         t,
 		gameMap:   &gMap,
 		playerMap: &pMap,
 		gameState: &gState,
+		eventLog:  &eventLogger,
 	}
 }
 

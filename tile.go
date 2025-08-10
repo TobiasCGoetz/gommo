@@ -20,32 +20,95 @@ func tileWorker(t *Tile, wg *sync.WaitGroup) {
 }
 
 func (t *Tile) resolveCombat() {
+	// Skip if no players on this tile
+	if len(t.playerPtrs) == 0 {
+		return
+	}
+
+	// Log combat start
+	playerIDs := make([]string, 0, len(t.playerPtrs))
+	for _, p := range t.playerPtrs {
+		playerIDs = append(playerIDs, p.ID)
+	}
+
+	eventLogger.LogEvent(EventCombatStart, "", map[string]interface{}{
+		"x":              t.XPos,
+		"y":              t.YPos,
+		"players":        playerIDs,
+		"zombies_before": t.Zombies,
+	})
+
 	totalPlayerStrength := 0
-	// Iterate through the players on this tile
+	playerStrengths := make(map[string]int)
+
+	// Calculate each player's strength
 	for _, playerPtr := range t.playerPtrs {
 		var player = *playerPtr
 		var strength = 0
 		weaponIndex, hasCard := hasCardWhere(player.Cards[:], Weapon)
-		if player.Play == Weapon && hasCard { // Check if the played card is a weapon
+		
+		if player.Play == Weapon && hasCard {
+			// Player used a weapon card
 			strength = weaponStrength
 			player.Cards[weaponIndex] = None
+			
+			eventLogger.LogEvent(EventCardUsed, player.ID, map[string]interface{}{
+				"card":      Weapon.String(),
+				"card_slot": weaponIndex,
+				"x":         t.XPos,
+				"y":         t.YPos,
+				"strength":  strength,
+			})
 		} else {
-			strength = rollDice() // Alternatively, roll a dice
+			// Player rolls dice
+			strength = rollDice(player.ID)
 		}
+		
+		playerStrengths[player.ID] = strength
 		totalPlayerStrength += strength
 	}
 
-	if totalPlayerStrength > t.Zombies {
+	// Determine combat outcome
+	combatWon := totalPlayerStrength > t.Zombies
+	zombiesKilled := 0
+	playersKilled := 0
+
+	if combatWon {
+		// Players win - kill all zombies
+		zombiesKilled = t.Zombies
 		t.Zombies = 0
 	} else {
-		// Kill all players on the tile
-		numDeadPlayers := 0
+		// Zombies win - kill all players
+		playersKilled = len(t.playerPtrs)
 		for _, playerPtr := range t.playerPtrs {
 			playerPtr.Alive = false
-			numDeadPlayers++
+			
+			// Log player death in combat
+			eventLogger.LogEvent(EventPlayerDeath, playerPtr.ID, map[string]interface{}{
+				"reason":    "combat",
+				"x":         t.XPos,
+				"y":         t.YPos,
+				"zombies":   t.Zombies,
+				"strength":  playerStrengths[playerPtr.ID],
+			})
 		}
-		t.addZombies(numDeadPlayers)
+		
+		// Zombies multiply from dead players
+		t.addZombies(playersKilled)
 	}
+
+	// Log combat result
+	eventLogger.LogEvent(EventCombatResult, "", map[string]interface{}{
+		"x":              t.XPos,
+		"y":              t.YPos,
+		"players":        playerIDs,
+		"player_strength": totalPlayerStrength,
+		"zombies_before": t.Zombies + zombiesKilled,
+		"zombies_after":  t.Zombies,
+		"combat_won":     combatWon,
+		"zombies_killed": zombiesKilled,
+		"players_killed": playersKilled,
+	})
 }
 
 func (t Tile) giveResources() {

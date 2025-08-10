@@ -17,12 +17,12 @@ const (
 
 var cardTypes = [6]Card{Food, Wood, Weapon, Dice, Research, None}
 
-func (c Card) toString() string {
+func (c Card) String() string {
 	return []string{"Food", "Wood", "Weapon", "Dice", "Research", "None"}[c]
 }
 
 func (c Card) MarshalJSON() ([]byte, error) {
-	return json.Marshal(c.toString())
+	return json.Marshal(c.String())
 }
 
 var cards = map[string]Card{

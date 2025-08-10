@@ -26,6 +26,14 @@ func (pm playerMap) addPlayer(playerName string, entryTile *Tile) string {
 	}
 	pm.Players[idString] = &player
 	entryTile.addPlayer(&player) // Actually add the player to the tile
+	
+	// Log player join event
+	eventLogger.LogEvent(EventPlayerJoin, idString, map[string]interface{}{
+		"name": playerName,
+		"x":    entryTile.XPos,
+		"y":    entryTile.YPos,
+	})
+	
 	return idString
 }
 
@@ -35,14 +43,13 @@ func (pm playerMap) move() {
 		if !player.Alive {
 			continue
 		}
-		//Fetch current player state
-		var player = pm.Players[player.ID]
-		var playerX = player.CurrentTile.XPos
-		var playerY = player.CurrentTile.YPos
-		var targetX = playerX
-		var targetY = playerY
-
-		//Perform move
+		
+		// Get current position before move
+		oldTile := player.CurrentTile
+		oldX, oldY := oldTile.XPos, oldTile.YPos
+		
+		// Calculate target position
+		targetX, targetY := oldX, oldY
 		switch player.Direction {
 		case North:
 			targetY += 1
@@ -53,10 +60,18 @@ func (pm playerMap) move() {
 		case West:
 			targetX -= 1
 		case Stay:
-			return
+			// Log that player stayed in place
+			eventLogger.LogEvent(EventPlayerMove, player.ID, map[string]interface{}{
+				"from_x": oldX,
+				"from_y": oldY,
+				"to_x":   oldX,
+				"to_y":   oldY,
+				"reason": "stayed",
+			})
+			continue
 		}
 
-		//Prevent out-of-map moves
+		// Prevent out-of-map moves
 		if targetX >= mapWidth {
 			targetX = mapWidth - 1
 		}
@@ -70,16 +85,34 @@ func (pm playerMap) move() {
 			targetY = 0
 		}
 
-		// Remove player from current position
-		// Add player to new position
-		// Set player.CurrentTile
-		var oldTile = player.CurrentTile
-		var newTile = gMap.getTileFromPos(targetX, targetY)
+		// Skip if position didn't change (hit map boundary)
+		if targetX == oldX && targetY == oldY {
+			// Log that player tried to move but was blocked by map boundary
+			eventLogger.LogEvent(EventPlayerMove, player.ID, map[string]interface{}{
+				"from_x": oldX,
+				"from_y": oldY,
+				"to_x":   targetX,
+				"to_y":   targetY,
+				"reason": "blocked_by_boundary",
+			})
+			continue
+		}
+
+		// Move player to new position
+		newTile := gMap.getTileFromPos(targetX, targetY)
 		oldTile.removePlayer(player)
 		newTile.addPlayer(player)
 		player.CurrentTile = newTile
 
-		//Reset move direction
+		// Log successful movement
+		eventLogger.LogEvent(EventPlayerMove, player.ID, map[string]interface{}{
+			"from_x": oldX,
+			"from_y": oldY,
+			"to_x":   targetX,
+			"to_y":   targetY,
+		})
+
+		// Reset move direction
 		player.Direction = defaultDirection
 	}
 }
