@@ -27,94 +27,76 @@ func setupAPI() {
 	
 
 
-	router.GET("/player/:id", getPlayerHandlerFunc())
-	router.GET("/player/:id/surroundings", getSurroundingsHandlerFunc())
-	router.GET("/config", getAllConfigHandlerFunc())
-	router.POST("/player/:name", addPlayerHandlerFunc())
-	router.PUT("/player/:id/direction/:dir", setDirectionHandlerFunc())
-	router.PUT("/player/:id/play/:cardType", setPlayHandlerFunc())
+	router.GET("/player/:id", getPlayerHandler)
+	router.GET("/player/:id/surroundings", getSurroundingsHandler)
+	router.GET("/config", getAllConfigHandler)
+	router.POST("/player/:name", addPlayerHandler)
+	router.PUT("/player/:id/direction/:dir", setDirectionHandler)
+	router.PUT("/player/:id/play/:cardType", setPlayHandler)
 	
 	// Event log endpoints
-	router.GET("/player/:id/events", getPlayerEventsHandlerFunc())
-	router.GET("/player/:id/events/type/:eventType", getPlayerEventsByTypeHandlerFunc())
+	router.GET("/player/:id/events", getPlayerEventsHandler)
+	router.GET("/player/:id/events/type/:eventType", getPlayerEventsByTypeHandler)
 	
 	router.Run("0.0.0.0:8080")
 }
 
-func getAllConfigHandlerFunc() gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		c.JSON(http.StatusOK, gState)
-	}
-	return fn
+func getAllConfigHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gState)
 }
 
-func addPlayerHandlerFunc() gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		var pId = pMap.addPlayer(
-			filterPlayerName(c.Param("name")),
-			gMap.getNewPlayerEntryTile())
-		c.JSON(http.StatusOK, pId)
-	}
-	return fn
+func addPlayerHandler(c *gin.Context) {
+	var pId = pMap.addPlayer(
+		filterPlayerName(c.Param("name")),
+		gMap.getNewPlayerEntryTile())
+	c.JSON(http.StatusOK, pId)
 }
 
-func getSurroundingsHandlerFunc() gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		id := c.Param("id")
-		var player = pMap.getPlayer(id)
-		var xPos = player.CurrentTile.XPos
-		var yPos = player.CurrentTile.YPos
-		c.JSON(http.StatusOK, gMap.getSurroundingsFromPos(xPos, yPos))
+func getSurroundingsHandler(c *gin.Context) {
+	id := c.Param("id")
+	var player = pMap.getPlayer(id)
+	var xPos = player.CurrentTile.XPos
+	var yPos = player.CurrentTile.YPos
+	c.JSON(http.StatusOK, gMap.getSurroundingsFromPos(xPos, yPos))
+	return
+}
+
+func setPlayHandler(c *gin.Context) {
+	id := c.Param("id")
+	cardStr := c.Param("card")
+	playerPtr := getPlayerOrNil(id)
+	if playerPtr != nil {
+		playerPtr.cardInput(cardStr)
+		c.Status(http.StatusOK)
+		return
+	} else {
+		c.AbortWithStatus(http.StatusForbidden)
 		return
 	}
-	return fn
 }
 
-func setPlayHandlerFunc() gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		id := c.Param("id")
-		cardStr := c.Param("card")
-		playerPtr := getPlayerOrNil(id)
-		if playerPtr != nil {
-			playerPtr.cardInput(cardStr)
-			c.Status(http.StatusOK)
-			return
-		} else {
-			c.AbortWithStatus(http.StatusForbidden)
-			return
-		}
+func setDirectionHandler(c *gin.Context) {
+	id := c.Param("id")
+	dirStr := c.Param("dir")
+	var dir = directions[strings.ToLower(dirStr)]
+	playerPtr := getPlayerOrNil(id)
+	if playerPtr != nil {
+		(*playerPtr).Direction = dir
+		c.Status(http.StatusOK)
+	} else {
+		c.AbortWithStatus(http.StatusForbidden)
 	}
-	return fn
 }
 
-func setDirectionHandlerFunc() gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		id := c.Param("id")
-		dirStr := c.Param("dir")
-		var dir = directions[strings.ToLower(dirStr)]
-		playerPtr := getPlayerOrNil(id)
-		if playerPtr != nil {
-			(*playerPtr).Direction = dir
-			c.Status(http.StatusOK)
-		} else {
-			c.AbortWithStatus(http.StatusForbidden)
-		}
+func getPlayerHandler(c *gin.Context) {
+	id := c.Param("id")
+	playerPtr := getPlayerOrNil(id)
+	if playerPtr != nil {
+		c.JSON(http.StatusOK, (*playerPtr))
+		return
+	} else {
+		c.AbortWithStatus(http.StatusForbidden)
 	}
-	return fn
-}
-
-func getPlayerHandlerFunc() gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		id := c.Param("id")
-		playerPtr := getPlayerOrNil(id)
-		if playerPtr != nil {
-			c.JSON(http.StatusOK, (*playerPtr))
-			return
-		} else {
-			c.AbortWithStatus(http.StatusForbidden)
-		}
-	}
-	return fn
 }
 
 func filterPlayerName(name string) string {
@@ -125,85 +107,81 @@ func filterPlayerName(name string) string {
 	return name
 }
 
-// getPlayerEventsHandlerFunc returns a handler for getting recent events for a player
-func getPlayerEventsHandlerFunc() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		playerID := c.Param("id")
+// getPlayerEventsHandler returns a handler for getting recent events for a player
+func getPlayerEventsHandler(c *gin.Context) {
+	playerID := c.Param("id")
 
-		// Verify player exists
-		if playerID != "" && pMap.getPlayerPtr(playerID) == nil {
-			sendErrorResponse(c, http.StatusNotFound, "player_not_found", "Player not found")
-			return
-		}
-
-		// Parse query parameters
-		lastTurns := 5 // Default to last 5 turns
-		if turnsStr := c.Query("turns"); turnsStr != "" {
-			if turns, err := strconv.Atoi(turnsStr); err == nil && turns > 0 {
-				lastTurns = turns
-			}
-		}
-
-		// Get events with filters
-		filters := EventFilters{
-			LastTurns: lastTurns,
-		}
-
-		events := eventLogger.GetPlayerEvents(playerID, filters)
-		
-		sendSuccessResponse(c, http.StatusOK, gin.H{
-			"events": events,
-			"count":  len(events),
-		})
+	// Verify player exists
+	if playerID != "" && pMap.getPlayerPtr(playerID) == nil {
+		sendErrorResponse(c, http.StatusNotFound, "player_not_found", "Player not found")
+		return
 	}
+
+	// Parse query parameters
+	lastTurns := 5 // Default to last 5 turns
+	if turnsStr := c.Query("turns"); turnsStr != "" {
+		if turns, err := strconv.Atoi(turnsStr); err == nil && turns > 0 {
+			lastTurns = turns
+		}
+	}
+
+	// Get events with filters
+	filters := EventFilters{
+		LastTurns: lastTurns,
+	}
+
+	events := eventLogger.GetPlayerEvents(playerID, filters)
+	
+sendSuccessResponse(c, http.StatusOK, gin.H{
+		"events": events,
+		"count":  len(events),
+	})
 }
 
-// getPlayerEventsByTypeHandlerFunc returns a handler for getting filtered events for a player
-func getPlayerEventsByTypeHandlerFunc() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		playerID := c.Param("id")
-		eventType := EventType(c.Param("eventType"))
+// getPlayerEventsByTypeHandler returns a handler for getting filtered events for a player
+func getPlayerEventsByTypeHandler(c *gin.Context) {
+	playerID := c.Param("id")
+	eventType := EventType(c.Param("eventType"))
 
-		// Verify player exists
-		if playerID != "" && pMap.getPlayerPtr(playerID) == nil {
-			sendErrorResponse(c, http.StatusNotFound, "player_not_found", "Player not found")
-			return
-		}
-
-		// Validate event type
-		validType := false
-		for _, et := range EventTypeList() {
-			if et == eventType {
-				validType = true
-				break
-			}
-		}
-
-		if !validType {
-			sendErrorResponse(c, http.StatusBadRequest, "invalid_event_type", "Invalid event type")
-			return
-		}
-
-		// Parse query parameters
-		lastTurns := 5 // Default to last 5 turns
-		if turnsStr := c.Query("turns"); turnsStr != "" {
-			if turns, err := strconv.Atoi(turnsStr); err == nil && turns > 0 {
-				lastTurns = turns
-			}
-		}
-
-		// Get filtered events
-		events := eventLogger.GetPlayerEvents(playerID, EventFilters{
-			EventType: eventType,
-			LastTurns: lastTurns,
-		})
-		
-		sendSuccessResponse(c, http.StatusOK, gin.H{
-			"events": events,
-			"count":  len(events),
-			"type":   eventType,
-		})
+	// Verify player exists
+	if playerID != "" && pMap.getPlayerPtr(playerID) == nil {
+		sendErrorResponse(c, http.StatusNotFound, "player_not_found", "Player not found")
+		return
 	}
+
+	// Validate event type
+	validType := false
+	for _, et := range EventTypeList() {
+		if et == eventType {
+			validType = true
+			break
+		}
+	}
+
+	if !validType {
+		sendErrorResponse(c, http.StatusBadRequest, "invalid_event_type", "Invalid event type")
+		return
+	}
+
+	// Parse query parameters
+	lastTurns := 5 // Default to last 5 turns
+	if turnsStr := c.Query("turns"); turnsStr != "" {
+		if turns, err := strconv.Atoi(turnsStr); err == nil && turns > 0 {
+			lastTurns = turns
+		}
+	}
+
+	// Get filtered events
+	events := eventLogger.GetPlayerEvents(playerID, EventFilters{
+		EventType: eventType,
+		LastTurns: lastTurns,
+	})
+	
+sendSuccessResponse(c, http.StatusOK, gin.H{
+		"events": events,
+		"count":  len(events),
+		"type":   eventType,
+	})
 }
 
 
