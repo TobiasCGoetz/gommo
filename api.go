@@ -11,7 +11,13 @@ import (
 
 func setupAPI() {
 	router := gin.Default()
-	router.Use(cors.Default())
+	
+	// Configure CORS to allow all origins for local development
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
+	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
+	router.Use(cors.New(config))
 
 	// Add middleware for error handling and logging
 	router.Use(errorHandlingMiddleware())
