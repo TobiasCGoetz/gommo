@@ -1,3 +1,6 @@
+build:
+	CGO_ENABLED=0 GOOS=linux go build -a -o gommo ./...
+
 run:
 	go run ./...
 
@@ -7,9 +10,6 @@ init:
 
 test:
 	go test -v -cover
-
-build:
-	CGO_ENABLED=0 GOOS=linux go build -a -o gommo ./...
 
 buildarm:
 	CGO_ENABLED=1 GOOD=linux GOARCH=arm64 go build -a -o ./bin/arm64/gommo
