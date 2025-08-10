@@ -38,29 +38,15 @@ func (pm playerMap) addPlayer(playerName string, entryTile *Tile) string {
 }
 
 func (pm playerMap) move() {
-	//Set new coordinates per player from move
 	for _, player := range pm.Players {
 		if !player.Alive {
 			continue
 		}
-		
-		// Get current position before move
+
 		oldTile := player.CurrentTile
 		oldX, oldY := oldTile.XPos, oldTile.YPos
-		
-		// Calculate target position
-		targetX, targetY := oldX, oldY
-		switch player.Direction {
-		case North:
-			targetY += 1
-		case East:
-			targetX += 1
-		case South:
-			targetY -= 1
-		case West:
-			targetX -= 1
-		case Stay:
-			// Log that player stayed in place
+
+		if player.Direction == Stay {
 			eventLogger.LogEvent(EventPlayerMove, player.ID, map[string]interface{}{
 				"from_x": oldX,
 				"from_y": oldY,
@@ -71,50 +57,71 @@ func (pm playerMap) move() {
 			continue
 		}
 
-		// Prevent out-of-map moves
-		if targetX >= mapWidth {
-			targetX = mapWidth - 1
-		}
-		if targetX < 0 {
-			targetX = 0
-		}
-		if targetY >= mapHeight {
-			targetY = mapHeight - 1
-		}
-		if targetY < 0 {
-			targetY = 0
-		}
+		targetX, targetY := calculateNewPosition(oldX, oldY, player.Direction)
+		clampedX, clampedY := clampToMapBoundaries(targetX, targetY)
 
-		// Skip if position didn't change (hit map boundary)
-		if targetX == oldX && targetY == oldY {
-			// Log that player tried to move but was blocked by map boundary
+		if clampedX == oldX && clampedY == oldY {
 			eventLogger.LogEvent(EventPlayerMove, player.ID, map[string]interface{}{
 				"from_x": oldX,
 				"from_y": oldY,
-				"to_x":   targetX,
-				"to_y":   targetY,
+				"to_x":   clampedX,
+				"to_y":   clampedY,
 				"reason": "blocked_by_boundary",
 			})
 			continue
 		}
 
-		// Move player to new position
-		newTile := gMap.getTileFromPos(targetX, targetY)
-		oldTile.removePlayer(player)
-		newTile.addPlayer(player)
-		player.CurrentTile = newTile
-
-		// Log successful movement
-		eventLogger.LogEvent(EventPlayerMove, player.ID, map[string]interface{}{
-			"from_x": oldX,
-			"from_y": oldY,
-			"to_x":   targetX,
-			"to_y":   targetY,
-		})
-
-		// Reset move direction
-		player.Direction = defaultDirection
+		handlePlayerMovement(player, oldTile, clampedX, clampedY)
 	}
+}
+
+// calculateNewPosition computes the target coordinates based on direction.
+func calculateNewPosition(x, y int, direction Direction) (int, int) {
+	switch direction {
+	case North:
+		y++
+	case East:
+		x++
+	case South:
+		y--
+	case West:
+		x--
+	}
+	return x, y
+}
+
+// clampToMapBoundaries ensures coordinates are within the map limits.
+func clampToMapBoundaries(x, y int) (int, int) {
+	if x >= mapWidth {
+		x = mapWidth - 1
+	}
+	if x < 0 {
+		x = 0
+	}
+	if y >= mapHeight {
+		y = mapHeight - 1
+	}
+	if y < 0 {
+		y = 0
+	}
+	return x, y
+}
+
+// handlePlayerMovement updates the player's position and logs the event.
+func handlePlayerMovement(player *Player, oldTile *Tile, newX, newY int) {
+	newTile := gMap.getTileFromPos(newX, newY)
+	oldTile.removePlayer(player)
+	newTile.addPlayer(player)
+	player.CurrentTile = newTile
+
+	eventLogger.LogEvent(EventPlayerMove, player.ID, map[string]interface{}{
+		"from_x": oldTile.XPos,
+		"from_y": oldTile.YPos,
+		"to_x":   newX,
+		"to_y":   newY,
+	})
+
+	player.Direction = defaultDirection
 }
 
 func (p playerMap) playersConsume() {

@@ -43,21 +43,29 @@ func (g gameMap) resources() {
 	}
 }
 
+// getTile safely retrieves a tile, returning an Edge tile for out-of-bounds requests.
+func (g gameMap) getTile(x, y int) *Tile {
+	if x < 0 || x >= mapWidth || y < 0 || y >= mapHeight {
+		return &Tile{Terrain: Edge, XPos: x, YPos: y} // Return a default edge tile
+	}
+	return g.gMap[x][y]
+}
+
 func (g gameMap) getTileFromPos(xPos int, yPos int) *Tile {
-	return g.gMap[xPos][yPos]
+	return g.getTile(xPos, yPos)
 }
 
 func (g gameMap) getSurroundingsFromPos(xPos int, yPos int) Surroundings {
 	return Surroundings{
-		NW: g.gMap[xPos-1][yPos-1].getMapPiece(),
-		NN: g.gMap[xPos][yPos-1].getMapPiece(),
-		NE: g.gMap[xPos+1][yPos-1].getMapPiece(),
-		WW: g.gMap[xPos-1][yPos].getMapPiece(),
-		CE: g.gMap[xPos][yPos].getMapPiece(),
-		EE: g.gMap[xPos+1][yPos].getMapPiece(),
-		SW: g.gMap[xPos-1][yPos+1].getMapPiece(),
-		SS: g.gMap[xPos][yPos+1].getMapPiece(),
-		SE: g.gMap[xPos+1][yPos+1].getMapPiece(),
+		NW: g.getTile(xPos-1, yPos-1).getMapPiece(),
+		NN: g.getTile(xPos, yPos-1).getMapPiece(),
+		NE: g.getTile(xPos+1, yPos-1).getMapPiece(),
+		WW: g.getTile(xPos-1, yPos).getMapPiece(),
+		CE: g.getTile(xPos, yPos).getMapPiece(),
+		EE: g.getTile(xPos+1, yPos).getMapPiece(),
+		SW: g.getTile(xPos-1, yPos+1).getMapPiece(),
+		SS: g.getTile(xPos, yPos+1).getMapPiece(),
+		SE: g.getTile(xPos+1, yPos+1).getMapPiece(),
 	}
 }
 
@@ -79,21 +87,22 @@ func (g gameMap) fireAttractingTo(xPos int, yPos int) {
 	var zombiesMoved = 0
 	for x := -1; x <= 1; x++ {
 		for y := -1; y <= 1; y++ {
-			if g.gMap[xPos+x][yPos+y].Zombies > 0 {
-				g.gMap[xPos+x][yPos+y].removeZombies(1)
+			tile := g.getTile(xPos+x, yPos+y)
+			if tile.Zombies > 0 {
+				tile.removeZombies(1)
 				zombiesMoved++
 			}
 		}
 	}
-	g.gMap[xPos][yPos].addZombies(zombiesMoved)
+	g.getTile(xPos, yPos).addZombies(zombiesMoved)
 }
 
 func (g gameMap) removeZombiesFromTile(xPos int, yPos int, count int) bool {
-	return g.gMap[xPos][yPos].removeZombies(count)
+	return g.getTile(xPos, yPos).removeZombies(count)
 }
 
 func (g gameMap) addZombiesToTile(xPos int, yPos int, count int) {
-	g.gMap[xPos][yPos].addZombies(count)
+	g.getTile(xPos, yPos).addZombies(count)
 }
 
 func (g *gameMap) spread() {
