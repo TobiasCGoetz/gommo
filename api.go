@@ -51,6 +51,24 @@ func addPlayerHandler(c *gin.Context) {
 func getSurroundingsHandler(c *gin.Context) {
 	id := c.Param("id")
 	var player = pMap.getPlayer(id)
+
+	// Special case: if player is dead, return laboratory surrounded by edges
+	if !player.Alive {
+		deadPlayerSurroundings := Surroundings{
+			NW: MapPiece{Edge.toString(), 0, 0, 0, 0, 0, 0},
+			NN: MapPiece{Edge.toString(), 0, 0, 0, 0, 0, 0},
+			NE: MapPiece{Edge.toString(), 0, 0, 0, 0, 0, 0},
+			WW: MapPiece{Edge.toString(), 0, 0, 0, 0, 0, 0},
+			CE: MapPiece{Laboratory.toString(), 0, 0, 0, 0, 0, 0},
+			EE: MapPiece{Edge.toString(), 0, 0, 0, 0, 0, 0},
+			SW: MapPiece{Edge.toString(), 0, 0, 0, 0, 0, 0},
+			SS: MapPiece{Edge.toString(), 0, 0, 0, 0, 0, 0},
+			SE: MapPiece{Edge.toString(), 0, 0, 0, 0, 0, 0},
+		}
+		c.JSON(http.StatusOK, deadPlayerSurroundings)
+		return
+	}
+
 	var xPos = player.CurrentTile.XPos
 	var yPos = player.CurrentTile.YPos
 	c.JSON(http.StatusOK, gMap.getSurroundingsFromPos(xPos, yPos))
