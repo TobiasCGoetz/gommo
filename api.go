@@ -177,8 +177,7 @@ func getPlayerEventsByTypeHandler(c *gin.Context) {
 		return
 	}
 
-	// Parse query parameters
-	lastTurns := 5 // Default to last 5 turns
+	lastTurns := gameConfig.Api.DefaultReportedTurns
 	if turnsStr := c.Query("turns"); turnsStr != "" {
 		if turns, err := strconv.Atoi(turnsStr); err == nil && turns > 0 {
 			lastTurns = turns

@@ -22,6 +22,9 @@ type Config struct {
 	Player struct {
 		NameMaxLength int
 	}
+	Api struct {
+		DefaultReportedTurns int
+	}
 	Server struct {
 		IDSalt string
 	}
@@ -57,6 +60,8 @@ func NewDefaultConfig() *Config {
 
 	// Player configuration
 	config.Player.NameMaxLength = 20
+
+	config.api.DefaultReportedTurns = 5
 
 	// Server configuration
 	config.Server.IDSalt = "6LIBN8OWPzTKctUvbZtXV2mFn2tCq3qZKjHYbTTnLWtu6oGTU3ow3tuNx9SBTuND"
