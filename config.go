@@ -61,7 +61,7 @@ func NewDefaultConfig() *Config {
 	// Player configuration
 	config.Player.NameMaxLength = 20
 
-	config.api.DefaultReportedTurns = 5
+	config.Api.DefaultReportedTurns = 5
 
 	// Server configuration
 	config.Server.IDSalt = "6LIBN8OWPzTKctUvbZtXV2mFn2tCq3qZKjHYbTTnLWtu6oGTU3ow3tuNx9SBTuND"
