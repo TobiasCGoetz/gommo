@@ -79,11 +79,11 @@ func (pm playerMap) move() {
 func calculateNewPosition(x, y int, direction Direction) (int, int) {
 	switch direction {
 	case North:
-		y++
+		y--
 	case East:
 		x++
 	case South:
-		y--
+		y++
 	case West:
 		x--
 	}
