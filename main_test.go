@@ -54,11 +54,11 @@ func TestCombat(t *testing.T) {
 		},
 		{
 			name:          "player with weapon wins against multiple zombies",
-			zombieCount:   5,
+			zombieCount:   gameConfig.Combat.WeaponStrength - 1,
 			playerCount:   1,
 			hasWeapon:     true,
 			expectedAlive: true,
-			description:   "Player with weapon should survive against 5 zombies",
+			description:   "Player with weapon should survive against zombies less than weapon strength",
 		},
 	}
 
@@ -490,7 +490,7 @@ func TestMovementEdgeCases(t *testing.T) {
 	t.Run("movement handles northern boundary", func(t *testing.T) {
 		// Arrange
 		ts := setupTestSuite(t)
-		playerID := ts.createPlayerAt(0, ts.gameMap.height-1) // Northern edge
+		playerID := ts.createPlayerAt(0, 0) // Northern edge (y=0)
 		player := ts.getPlayer(playerID)
 
 		// Act - try to move north out of bounds
@@ -498,7 +498,7 @@ func TestMovementEdgeCases(t *testing.T) {
 		ts.playerMap.move()
 
 		// Assert - should stay at boundary
-		assert.Equal(t, ts.gameMap.height-1, player.CurrentTile.YPos, "Player should stay at northern boundary")
+		assert.Equal(t, 0, player.CurrentTile.YPos, "Player should stay at northern boundary")
 	})
 
 	t.Run("dead players do not move", func(t *testing.T) {
@@ -605,6 +605,68 @@ func TestGameMapOperations(t *testing.T) {
 		assert.GreaterOrEqual(t, tile.YPos, 0, "Entry tile Y should be valid")
 		assert.LessOrEqual(t, tile.YPos, ts.gameMap.height-1, "Entry tile Y should be within bounds")
 	})
+}
+
+func TestSpawnLogic(t *testing.T) {
+    t.Run("spawn prefers empty tile and clears zombies", func(t *testing.T) {
+        // Arrange - use a small map and make exactly one empty tile with zombies
+        oldW, oldH := gameConfig.Map.Width, gameConfig.Map.Height
+        gameConfig.Map.Width, gameConfig.Map.Height = 5, 5
+        defer func() { gameConfig.Map.Width, gameConfig.Map.Height = oldW, oldH }()
+
+        ts := setupTestSuite(t)
+        spawnX, spawnY := 2, 2
+
+        // Fill all tiles except the designated spawn tile with one player each
+        for x := 0; x < ts.gameMap.width; x++ {
+            for y := 0; y < ts.gameMap.height; y++ {
+                if x == spawnX && y == spawnY {
+                    continue
+                }
+                ts.playerMap.addPlayer("Filler", ts.gameMap.getTileFromPos(x, y))
+            }
+        }
+
+        // Put zombies on the only empty tile to verify they get cleared
+        spawnTile := ts.gameMap.getTileFromPos(spawnX, spawnY)
+        spawnTile.Zombies = 3
+
+        // Act
+        tile := ts.gameMap.getNewPlayerEntryTile()
+
+        // Assert - should pick the only empty tile and clear zombies
+        assert.Equal(t, spawnX, tile.XPos, "Should pick the only empty tile (X)")
+        assert.Equal(t, spawnY, tile.YPos, "Should pick the only empty tile (Y)")
+        assert.Equal(t, 0, tile.Zombies, "Spawn tile zombies should be cleared")
+        assert.Equal(t, 0, len(tile.playerPtrs), "Spawn tile should have no players")
+    })
+
+    t.Run("spawn fallback clears zombies on least crowded tile", func(t *testing.T) {
+        // Arrange - use a small map with no empty tiles
+        oldW, oldH := gameConfig.Map.Width, gameConfig.Map.Height
+        gameConfig.Map.Width, gameConfig.Map.Height = 3, 3
+        defer func() { gameConfig.Map.Width, gameConfig.Map.Height = oldW, oldH }()
+
+        ts := setupTestSuite(t)
+
+        // Fill all tiles with exactly one player
+        for x := 0; x < ts.gameMap.width; x++ {
+            for y := 0; y < ts.gameMap.height; y++ {
+                ts.playerMap.addPlayer("Filler", ts.gameMap.getTileFromPos(x, y))
+            }
+        }
+
+        // Put zombies on (0,0); deterministic fallback should choose it
+        ts.gameMap.getTileFromPos(0, 0).Zombies = 4
+
+        // Act
+        tile := ts.gameMap.getNewPlayerEntryTile()
+
+        // Assert - should choose the first least-crowded tile by scan and clear zombies
+        assert.Equal(t, 0, tile.XPos, "Fallback should choose first least-crowded tile by scan (X)")
+        assert.Equal(t, 0, tile.YPos, "Fallback should choose first least-crowded tile by scan (Y)")
+        assert.Equal(t, 0, tile.Zombies, "Zombies should be cleared on fallback spawn tile")
+    })
 }
 
 func TestZombieManagement(t *testing.T) {

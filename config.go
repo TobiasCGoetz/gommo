@@ -53,8 +53,8 @@ func NewDefaultConfig() *Config {
 	config.Game.DefaultDirection = South
 
 	// Combat configuration
-	config.Combat.ZombieCutoff = 13
-	config.Combat.WeaponStrength = 6
+	config.Combat.ZombieCutoff = 3
+	config.Combat.WeaponStrength = 3
 	config.Combat.PlayerMinAttack = 1
 	config.Combat.PlayerMaxAttack = 6
 

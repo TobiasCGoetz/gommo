@@ -116,7 +116,7 @@ func (g gameMap) removeZombiesFromTile(xPos int, yPos int, count int) bool {
 }
 
 func (g gameMap) addZombiesToTile(xPos int, yPos int, count int) {
-	g.getTile(xPos, yPos).addZombies(count)
+	g.getTile(xPos, yPos).addZombiesUnbound(count)
 }
 
 func (g *gameMap) spread() {
@@ -130,7 +130,58 @@ func (g *gameMap) spread() {
 }
 
 func (g gameMap) getNewPlayerEntryTile() *Tile {
-	var rX = r.Intn(g.width - 1)
-	var rY = r.Intn(g.height - 1)
-	return g.gMap[rX][rY]
+    // Prefer spawning on an empty tile and ensure the spawn tile is safe (no zombies)
+    // 1) Try random sampling up to the total number of tiles
+    total := g.width * g.height
+    if total <= 0 {
+        // Fallback: return a safe edge tile if the map is somehow invalid
+        return &Tile{Terrain: Edge, XPos: 0, YPos: 0}
+    }
+
+    for i := 0; i < total; i++ {
+        rX := r.Intn(g.width)  // include full range [0, width-1]
+        rY := r.Intn(g.height) // include full range [0, height-1]
+        tile := g.gMap[rX][rY]
+        if tile != nil && len(tile.playerPtrs) == 0 {
+            if tile.Zombies > 0 {
+                tile.removeZombies(tile.Zombies)
+            }
+            return tile
+        }
+    }
+
+    // 2) Deterministic fallback: scan for the tile with the fewest players
+    var bestTile *Tile
+    minPlayers := int(^uint(0) >> 1) // max int
+    for x := range g.gMap {
+        for y := range g.gMap[x] {
+            tile := g.gMap[x][y]
+            if tile == nil {
+                continue
+            }
+            players := len(tile.playerPtrs)
+            if players < minPlayers {
+                minPlayers = players
+                bestTile = tile
+                if minPlayers == 0 {
+                    // Early exit if we encounter an empty tile during scan
+                    if bestTile.Zombies > 0 {
+                        bestTile.removeZombies(bestTile.Zombies)
+                    }
+                    return bestTile
+                }
+            }
+        }
+    }
+
+    // 3) If all tiles have players, use the least-crowded one and clear zombies
+    if bestTile != nil {
+        if bestTile.Zombies > 0 {
+            bestTile.removeZombies(bestTile.Zombies)
+        }
+        return bestTile
+    }
+
+    // 4) Ultimate fallback (should not happen with a valid map)
+    return &Tile{Terrain: Edge, XPos: 0, YPos: 0}
 }

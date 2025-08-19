@@ -193,6 +193,12 @@ func (t *Tile) addZombies(count int) {
 	}
 }
 
+func (t *Tile) addZombiesUnbound(count int) {
+	for i := 0; i < count; i++ {
+		t.spreadToUnbound()
+	}
+}
+
 func (t *Tile) removeZombies(count int) bool {
 	if count <= t.Zombies {
 		t.Zombies -= count
